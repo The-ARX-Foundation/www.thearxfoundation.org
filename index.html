@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The ARX Foundation — public</title>
+  <meta name="description" content="The ARX Foundation — public pitches, proposals, and mission surfaces (www).">
+  <link rel="canonical" href="https://www.thearxfoundation.org/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --void: #141218;
+      --panel: #1c1a22;
+      --rust: #8b4518;
+      --gold: #c9a962;
+      --cream: #e8e4dc;
+      --muted: #9a9590;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(1200px 600px at 20% 0%, #2a2220 0%, var(--void) 55%);
+      color: var(--cream);
+      font-family: "EB Garamond", Georgia, serif;
+      font-size: 1.125rem;
+      line-height: 1.55;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+    .mono { font-family: "Space Mono", ui-monospace, monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
+    h1 { font-size: 2rem; font-weight: 700; margin: 0.5rem 0 1rem; }
+    .lede { color: var(--muted); font-size: 1.05rem; margin-bottom: 2rem; }
+    nav { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; margin: 2rem 0; }
+    nav a {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border: 1px solid rgba(201, 169, 98, 0.35);
+      border-radius: 4px;
+      color: var(--gold);
+      text-decoration: none;
+      font-family: "Space Mono", monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    nav a:hover { background: rgba(201, 169, 98, 0.12); color: var(--cream); }
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(139, 69, 24, 0.35);
+      font-family: "Space Mono", monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="mono">Canonical host — www.thearxfoundation.org</p>
+    <h1>The ARX Foundation</h1>
+    <p class="lede">Public static monorepo: pitches, shells, and material meant for the open web. Private or gated surfaces stay in their own repos and subdomains.</p>
+    <nav>
+      <a href="pitches/index.html">Pitches</a>
+      <a href="https://github.com/The-ARX-Foundation/thearxfoundation.org" rel="noopener noreferrer">Source</a>
+    </nav>
+    <footer>
+      Augmenting Reality&rsquo;s Experience &middot; Deploy from <code>main</code> via Actions FTP
+    </footer>
+  </div>
+</body>
+</html>
