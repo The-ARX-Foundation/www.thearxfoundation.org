@@ -1,4 +1,4 @@
-# thearxfoundation.org (public monorepo)
+# www.thearxfoundation.org (public monorepo)
 
 Static site for **https://www.thearxfoundation.org/** — pitches, shells, and other **public** ARX Foundation material. Deploy with **GitHub Actions → FTP** to the **www** document root on your host.
 
