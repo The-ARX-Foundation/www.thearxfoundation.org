@@ -49,6 +49,8 @@ a{color:var(--gold)} a:hover{color:var(--cream)}
 .sugv{color:var(--muted);font-style:italic}
 .dots{letter-spacing:.1em;color:var(--gold)}
 details{margin-top:.5rem;border-top:1px solid var(--line);padding-top:.45rem}
+.blurb{margin:.2rem 0 .5rem;font-size:1rem;line-height:1.45}
+.signal h4{color:var(--gold)}
 summary{cursor:pointer;color:var(--gold);font-family:"Space Mono",monospace;font-size:.64rem;letter-spacing:.08em;text-transform:uppercase}
 .sec{margin-top:.5rem}.sec h4{font-family:"Space Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:400;margin-bottom:.15rem}
 .wl{font-family:"Space Mono",monospace;font-size:.72rem;text-decoration:none;display:inline-block;margin:0 .35rem .2rem 0;word-break:break-word}
@@ -128,7 +130,10 @@ function card(p){
     <div class="mono id">${p.id}${p.category?` · ${esc(p.category)}`:""}</div>
     <h3>${esc(p.title)}</h3>
     <div class="badges">${badge(p,"priority")}${badge(p,"status")}${badge(p,"entity")}${PRIV?badge(p,"visibility","vis-"+p.visibility):""}${p.decision?`<span class="b">${esc(p.decision)}</span>`:""}${PRIV&&p.ip_flag_insightally?`<span class="b warn">IP boundary</span>`:""}${PRIV&&p.placeholder?`<span class="b sug">placeholder</span>`:""}${PRIV&&p.scope&&p.scope!=="ARX"?`<span class="b warn">${esc(p.scope)}</span>`:""}${PRIV&&p.kind==="curated"?`<span class="b">curated</span>`:""}</div>
+    ${p.blurb?`<p class="blurb">${esc(p.blurb)}</p>`:""}
     ${p.summary?`<p style="margin:.2rem 0 .5rem;color:var(--muted)">${esc(p.summary)}</p>`:""}
+    ${p.sug_signal?`<div class="sec signal"><h4>Suggested 90-day signal</h4><span class="sugv">${esc(p.sug_signal)}</span></div>`:""}
+    ${PRIV&&p.local_href?`<div class="sec"><a href="${esc(p.local_href)}">open collected copy ↗</a></div>`:""}
     <dl class="metrics">
       <div><dt>Horizon</dt><dd>${val(p,"horizon")}</dd></div>
       <div><dt>Effort left</dt><dd>${val(p,"effort_remaining")}</dd></div>
@@ -147,7 +152,7 @@ function card(p){
       ${p.feasibility_why?`<div class="sec"><h4>Feasibility</h4>${esc(p.feasibility_why)}</div>`:""}
       ${p.themes.length?`<div class="sec"><h4>Themes</h4><div class="ttags">${p.themes.map(t=>`<span class="chip">${esc(t)}</span>`).join("")}</div></div>`:""}
       ${code?`<div class="sec"><h4>Code</h4>${code}</div>`:""}
-      ${PRIV?`<div class="sec"><h4>Private</h4>${p.private_markers.length?`markers: ${p.private_markers.map(esc).join(", ")}<br>`:""}${p.note?`note: ${esc(p.note)}<br>`:""}${p.chat?`<a href="${esc(p.chat)}" rel="noopener">source chat</a>`:""}${p.local?` · <span class="mono">${esc(p.local)}</span>`:""}${(p.links||[]).map((u,i)=>`<br><a href="${esc(u)}" rel="noopener">artifact ${i+1}</a>`).join("")}${(p.conversations||[]).map(c=>`<br><span class="mono">${esc(c.date||"")}</span> ${esc(c.title||"")}`).join("")}</div>`:""}
+      ${PRIV?`<div class="sec"><h4>Private</h4>${p.private_markers.length?`markers: ${p.private_markers.map(esc).join(", ")}<br>`:""}${p.note?`note: ${esc(p.note)}<br>`:""}${p.chat?`<a href="${esc(p.chat)}" rel="noopener">source chat</a>`:""}${p.local?` · <a class="mono" href="${esc(p.local_href||"")}">${esc(p.local)}</a>`:""}${(p.links||[]).map((u,i)=>`<br><a href="${esc(u)}" rel="noopener">artifact ${i+1}</a>`).join("")}${(p.conversations||[]).map(c=>typeof c==="string"?`<br>${esc(c)}`:`<br><span class="mono">${esc(c.date||"")}</span> ${esc(c.title||"")}`).join("")}</div>`:""}
     </details>
   </article>`;
 }
@@ -160,7 +165,7 @@ function draw(){
     (!f("horizon") || p.horizon===f("horizon")) && (!f("entity") || p.entity===f("entity")) &&
     (!f("vis") || p.visibility===f("vis")) && (!f("scope") || p.scope===f("scope")) &&
     [...state.theme].every(t => p.themes.includes(t)) &&
-    (!state.q || [p.title,p.category,p.next_action,p.blockers,...p.themes,...p.skills,...p.people,...p.hardware].join(" ").toLowerCase().includes(state.q)));
+    (!state.q || [p.title,p.blurb,p.category,p.next_action,p.blockers,...p.themes,...p.skills,...p.people,...p.hardware].join(" ").toLowerCase().includes(state.q)));
   const pi = p => p.priority ? PRI.indexOf(p.priority) : 9, ev = p => (p.effort_invested.versions||0)*3 + (p.effort_invested.chats||0)*2 + (p.effort_invested.span_days||0)/30;
   const S = { priority:(a,b)=>pi(a)-pi(b)||ev(b)-ev(a), effort:(a,b)=>ev(b)-ev(a), feasibility:(a,b)=>(b.feasibility||0)-(a.feasibility||0),
     links:(a,b)=>conn(b)-conn(a), fresh:(a,b)=>String(b.last_touched).localeCompare(a.last_touched), stale:(a,b)=>(b.staleness_days||0)-(a.staleness_days||0) };

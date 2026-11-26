@@ -8,7 +8,8 @@ Usage:
 - Public page: only projects whose board field visibility_set == "public". Money,
   paths, chat links, private markers and notes are removed, and links to non-public
   projects are dropped.
-- Private page: every project, with all fields. Write it OUTSIDE this repo.
+- Private page: every project, with all fields, plus --blurbs (plain-English blurb +
+  suggested 90-day signal) and a relative link to each project's collected copy. Write it OUTSIDE this repo.
 Stdlib only. Missing board values fall back to catalog suggestions, and the page
 marks them as suggested.
 """
@@ -20,7 +21,8 @@ DECISION_PRIORITY = {"forge": "P0", "next": "P2", "archive": "P3", "drop": "P4"}
 DECISION_HORIZON = {"forge": "<3mo", "next": "3-12mo", "archive": "3y+"}
 PUBLIC_DROP = {"money", "private_markers", "note", "chat", "chat_links", "local", "path",
                "ip_flag_insightally", "visibility", "sug_visibility", "all_versions", "todos",
-               "legal_ip", "links", "conversations", "kind"}
+               "legal_ip", "links", "conversations", "kind", "blurb", "sug_signal",
+               "local_href"}
 
 
 def load_board(d):
@@ -38,7 +40,15 @@ def split(v):
     return [s.strip() for s in str(v or "").split(",") if s.strip()]
 
 
-def merge(c, b, links):
+def local_href(rel):
+    """Link from _site-private/index.html to ARX Projects/<rel> (collected copy)."""
+    if not rel:
+        return None
+    from urllib.parse import quote
+    return "../" + "/".join(quote(seg) for seg in rel.split("/"))
+
+
+def merge(c, b, links, blurbs=None):
     """One project row: board value if set, else suggestion (named in `suggested`)."""
     sug = []
 
@@ -81,6 +91,9 @@ def merge(c, b, links):
         "conversations": c.get("conversations") or [],
         "placeholder": bool(PLACEHOLDER.search(c.get("title", ""))) or c.get("category") == "Template sources",
         "code": links.get(c["id"], []),
+        "blurb": ((blurbs or {}).get(c["id"]) or {}).get("b") or None,
+        "sug_signal": ((blurbs or {}).get(c["id"]) or {}).get("s") or None,
+        "local_href": local_href(c.get("collected")),
     }
     r["confirmed_public"] = b.get("visibility_set") == "public"
     if r["scope"] != "ARX" and r["visibility"] == "public" and "visibility" in sug:
@@ -120,6 +133,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--catalog", required=True); ap.add_argument("--board", required=True)
     ap.add_argument("--links", required=True)
+    ap.add_argument("--blurbs", help="blurbs.json: {arx-id: {b: blurb, s: suggested 90-day signal}} (private only)")
     ap.add_argument("--public-out", required=True); ap.add_argument("--private-out", required=True)
     a = ap.parse_args()
     repo = os.path.dirname(HERE)
@@ -129,7 +143,8 @@ def main():
     cat = cat if isinstance(cat, list) else cat.get("projects", [])
     board = load_board(a.board)
     links = json.load(open(a.links, encoding="utf-8")).get("links", {})
-    rows = [merge(c, board.get(c["id"], {}), links) for c in cat]
+    blurbs = json.load(open(a.blurbs, encoding="utf-8")) if a.blurbs else {}
+    rows = [merge(c, board.get(c["id"], {}), links, blurbs) for c in cat]
     titles = {r["id"]: r["title"] for r in rows}
     for r in rows:
         r["titles"] = {i: titles.get(i, i) for i in set(r["related"] + r["depends_on"] + r["blocks"])}
