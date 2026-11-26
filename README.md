@@ -1,8 +1,8 @@
 # www.thearxfoundation.org (public monorepo)
 
-Static site for **https://www.thearxfoundation.org/** — pitches, shells, and other **public** ARX Foundation material. Deploy with **GitHub Actions → FTP** to the **www** document root on your host.
+Static site for **https://www.thearxfoundation.org/** — pitches, shells, and other **public** ARX Foundation material. Deployed by a **Cloudflare Worker** (static assets) that builds on every push to `main`.
 
-**Canonical URL:** use **`www`** in links and `<link rel="canonical">`; point apex `thearxfoundation.org` with a **301** to `www` at the host/DNS layer when ready.
+**Canonical URL:** `https://www.thearxfoundation.org/`. The apex 301-redirects to `www` (Cloudflare redirect rule); `lander.thearxfoundation.org` serves the same Worker.
 
 ## Layout (grow here instead of losing stubs in temp)
 
@@ -26,10 +26,10 @@ Open http://127.0.0.1:8765/ and http://127.0.0.1:8765/pitches/
 
 Remote: [The-ARX-Foundation/thearxfoundation.org](https://github.com/The-ARX-Foundation/thearxfoundation.org.git) — default branch **`main`**.
 
-## Deploy (Actions → FTP)
+## Deploy (Cloudflare Worker)
 
-On every push to **`main`**, [.github/workflows/deploy-ftp.yml](.github/workflows/deploy-ftp.yml) uploads the static tree (excluding `.git`, `.github`, root `README.md`, `.gitignore`).
+The Worker is connected to this repo through **Workers Builds** in the Cloudflare dashboard (Workers & Pages → the Worker → Settings → Build). Every push to **`main`** builds and deploys it; there is no GitHub Actions workflow.
 
-**Repository secrets:** `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD` (Settings → Secrets and variables → Actions).
-
-If uploads land in the wrong directory, uncomment and set **`server-dir`** in the workflow to match SiteGround’s path for **www** (often under `public_html/` for that subdomain).
+- Custom domains on the Worker: `www.thearxfoundation.org`, `thearxfoundation.org`, `lander.thearxfoundation.org`.
+- `.assetsignore` keeps `tools/`, `.github/`, `.git*` and `README.md` from being served.
+- Email for the domain runs on Cloudflare Email Routing (MX/SPF/DKIM in DNS); leave those records alone.
