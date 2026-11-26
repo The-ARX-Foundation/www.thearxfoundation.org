@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects — The ARX Foundation</title>
+<meta name="description" content="Projects of The ARX Foundation: priority, horizon, effort, feasibility, dependencies, and how they connect.">
+<link rel="canonical" href="https://www.thearxfoundation.org/projects/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#141218;--panel:#1c1a22;--panel2:#23202a;--rust:#8b4518;--gold:#c9a962;--cream:#e8e4dc;--muted:#9a9590;--line:rgba(201,169,98,.22);
+--p0:#d4664a;--p1:#d99a4a;--p2:#c9b562;--p3:#7f9bb5;--p4:#77727a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:radial-gradient(1200px 600px at 20% 0%,#2a2220 0%,var(--void) 55%);background-color:var(--void);color:var(--cream);font-family:"EB Garamond",Georgia,serif;font-size:1.0625rem;line-height:1.5}
+a{color:var(--gold)} a:hover{color:var(--cream)}
+.wrap{max-width:1080px;margin:0 auto;padding:2.5rem 16px 4rem}
+.mono{font-family:"Space Mono",ui-monospace,monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase}
+.kicker{color:var(--gold)} h1{font-size:2rem;margin:.4rem 0 .5rem} .lede{color:var(--muted);max-width:60ch}
+.back{margin-bottom:1.5rem} .back a{text-decoration:none}
+.banner{margin:1.25rem 0;padding:.7rem 1rem;border:1px solid var(--rust);border-radius:4px;background:rgba(139,69,24,.14)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.5rem;margin:1.5rem 0}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:.6rem .8rem}
+.stat b{display:block;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted)}
+.controls{position:sticky;top:0;z-index:5;background:rgba(20,18,24,.94);backdrop-filter:blur(6px);padding:.75rem 0;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.controls input,.controls select{background:var(--panel);color:var(--cream);border:1px solid var(--line);border-radius:4px;padding:.45rem .6rem;font:inherit;font-size:.95rem;min-width:0}
+.controls input{flex:1 1 200px}
+.controls label{display:flex;align-items:center;gap:.35rem;color:var(--muted)}
+.themes{display:flex;flex-wrap:wrap;gap:.35rem;margin:1rem 0 .5rem}
+.chip{font-family:"Space Mono",monospace;font-size:.66rem;letter-spacing:.04em;padding:.2rem .5rem;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:none;cursor:pointer}
+.chip.on{background:var(--gold);color:var(--void);border-color:var(--gold)}
+.chip i{font-style:normal;opacity:.7;margin-left:.25rem}
+.count{color:var(--muted);margin:.75rem 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:.75rem}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--p4);border-radius:4px;padding:.9rem 1rem;scroll-margin-top:90px;transition:box-shadow .3s}
+.card.flash{box-shadow:0 0 0 2px var(--gold)}
+.card[data-p=P0]{border-left-color:var(--p0)}.card[data-p=P1]{border-left-color:var(--p1)}.card[data-p=P2]{border-left-color:var(--p2)}.card[data-p=P3]{border-left-color:var(--p3)}
+.card h3{font-size:1.15rem;line-height:1.25;margin:.2rem 0 .5rem}
+.id{color:var(--muted)}
+.badges{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.6rem}
+.b{font-family:"Space Mono",monospace;font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;padding:.12rem .4rem;border-radius:3px;background:var(--panel2);color:var(--cream);border:1px solid transparent}
+.b.sug{border-style:dashed;border-color:var(--muted);color:var(--muted);background:none}
+.b.vis-public{background:#2f4a36}.b.vis-private{background:#4a3a2a}.b.vis-personal{background:#4a2a35}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:.25rem .9rem;font-size:.92rem;margin:.4rem 0}
+.metrics dt{color:var(--muted);font-family:"Space Mono",monospace;font-size:.6rem;letter-spacing:.06em;text-transform:uppercase}
+.metrics dd{margin-bottom:.25rem;font-variant-numeric:tabular-nums}
+.sugv{color:var(--muted);font-style:italic}
+.dots{letter-spacing:.1em;color:var(--gold)}
+details{margin-top:.5rem;border-top:1px solid var(--line);padding-top:.45rem}
+summary{cursor:pointer;color:var(--gold);font-family:"Space Mono",monospace;font-size:.64rem;letter-spacing:.08em;text-transform:uppercase}
+.sec{margin-top:.5rem}.sec h4{font-family:"Space Mono",monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:400;margin-bottom:.15rem}
+.wl{font-family:"Space Mono",monospace;font-size:.72rem;text-decoration:none;display:inline-block;margin:0 .35rem .2rem 0;word-break:break-word}
+.wl::before{content:"[["}.wl::after{content:"]]"}
+.wl::before,.wl::after{color:var(--muted)}
+.ttags{display:flex;flex-wrap:wrap;gap:.25rem}
+.warn{color:var(--p1)}
+.empty{padding:3rem 1rem;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:4px}
+footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid rgba(139,69,24,.35);color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="back mono"><a href="../index.html">&larr; Home</a></p>
+  <p class="mono kicker" id="kicker">Projects</p>
+  <h1>Projects</h1>
+  <p class="lede">What The ARX Foundation is building, where each project stands, and how the projects connect. Links in <span class="mono">[[double brackets]]</span> jump to related projects.</p>
+  <div id="banner"></div>
+  <div class="stats" id="stats"></div>
+  <div class="controls" role="search">
+    <input id="q" type="search" placeholder="Search title, theme, need…" aria-label="Search projects">
+    <select id="f-priority" aria-label="Priority"></select>
+    <select id="f-status" aria-label="Status"></select>
+    <select id="f-horizon" aria-label="Horizon"></select>
+    <select id="f-entity" aria-label="Entity"></select>
+    <select id="f-vis" aria-label="Visibility"></select>
+    <select id="f-scope" aria-label="Scope"></select>
+    <select id="sort" aria-label="Sort">
+      <option value="priority">Sort: priority</option>
+      <option value="effort">Sort: effort invested</option>
+      <option value="feasibility">Sort: feasibility</option>
+      <option value="links">Sort: most connected</option>
+      <option value="fresh">Sort: recently touched</option>
+      <option value="stale">Sort: most stale</option>
+    </select>
+    <label id="l-ph"><input type="checkbox" id="f-ph"> placeholders</label>
+  </div>
+  <div class="themes" id="themes" aria-label="Recurring themes"></div>
+  <p class="count mono" id="count"></p>
+  <div class="grid" id="grid"></div>
+  <footer class="mono" id="foot"></footer>
+</div>
+<script>
+const DATA = /*__DATA__*/null;
+const P = DATA.projects, PRIV = DATA.view === "private";
+const byId = Object.fromEntries(P.map(p => [p.id, p]));
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const PRI = ["P0","P1","P2","P3","P4"], HOR = ["now","<3mo","3-12mo","1-3y","3y+"];
+const state = { q:"", theme:new Set() };
+
+function opts(sel, label, vals){ const el=$(sel); el.innerHTML = `<option value="">${label}: all</option>` + vals.map(v=>`<option>${esc(v)}</option>`).join(""); el.onchange=draw; }
+const uniq = k => [...new Set(P.map(p=>p[k]).filter(Boolean))].sort();
+opts("#f-priority","Priority",PRI); opts("#f-status","Status",uniq("status"));
+opts("#f-horizon","Horizon",HOR); opts("#f-entity","Entity",uniq("entity"));
+if (PRIV) { opts("#f-vis","Visibility",["public","private","personal"]); opts("#f-scope","Scope",uniq("scope")); } else { $("#f-vis").remove(); $("#f-scope").remove(); }
+if (!PRIV) $("#l-ph").remove(); else $("#f-ph").onchange = draw;
+$("#sort").onchange = draw; $("#q").oninput = e => { state.q = e.target.value.toLowerCase(); draw(); };
+
+$("#kicker").textContent = PRIV ? "Private triage view — not for publishing" : "Public";
+if (PRIV) $("#banner").innerHTML = `<div class="banner">Private view: all ${P.length} catalog entries. <b>Dashed badges</b> and <i>italic values</i> are suggestions that aren't confirmed on the triage board yet.</div>`;
+
+$("#themes").innerHTML = DATA.themes.slice(0, PRIV ? 40 : 24).map(([t,n]) => `<button class="chip" data-t="${esc(t)}">${esc(t)}<i>${n}</i></button>`).join("");
+$("#themes").onclick = e => { const b=e.target.closest(".chip"); if(!b) return; const t=b.dataset.t; state.theme.has(t)?state.theme.delete(t):state.theme.add(t); b.classList.toggle("on"); draw(); };
+
+const val = (p,k,fmt=v=>esc(v)) => p[k]==null || p[k]==="" ? "—" : (p.suggested.includes(k) ? `<span class="sugv">≈ ${fmt(p[k])}</span>` : fmt(p[k]));
+const badge = (p,k,cls="") => p[k] ? `<span class="b ${cls} ${p.suggested.includes(k)?"sug":""}" title="${k}${p.suggested.includes(k)?" (suggested)":""}">${esc(p[k])}</span>` : "";
+const dots = n => `<span class="dots" aria-label="${n} of 5">${"●".repeat(n)}${"○".repeat(5-n)}</span>`;
+function links(p, ids){ return ids.filter(i => byId[i]).map(i => `<a class="wl" href="#${i}" data-go="${i}">${esc(byId[i].title)}</a>`).join("") || (ids.length ? `<span class="sugv">${ids.length} not shown</span>` : "—"); }
+const ei = p => { const e=p.effort_invested||{}; return [e.versions&&`${e.versions} ver`, e.chats&&`${e.chats} chats`, e.span_days?`${e.span_days} d`:null].filter(Boolean).join(" · ") || "—"; };
+const conn = p => p.related.length + p.depends_on.length + p.blocks.length;
+
+function card(p){
+  const code = p.code.map(c => c.kind==="github" ? `<a href="https://github.com/${esc(c.ref)}" rel="noopener">${esc(c.ref)}</a>` : `<span class="mono">${esc(c.ref.split("/Coding/").pop())}</span>${c.commits?` · ${c.commits} commits`:""}`).join("<br>");
+  const needs = [["skills",p.skills],["people",p.people],["hardware",p.hardware]].filter(x=>x[1].length).map(([k,v])=>`${k}: ${v.map(esc).join(", ")}`).join("<br>");
+  return `<article class="card" id="${p.id}" data-p="${esc(p.priority||"")}">
+    <div class="mono id">${p.id}${p.category?` · ${esc(p.category)}`:""}</div>
+    <h3>${esc(p.title)}</h3>
+    <div class="badges">${badge(p,"priority")}${badge(p,"status")}${badge(p,"entity")}${PRIV?badge(p,"visibility","vis-"+p.visibility):""}${p.decision?`<span class="b">${esc(p.decision)}</span>`:""}${PRIV&&p.ip_flag_insightally?`<span class="b warn">IP boundary</span>`:""}${PRIV&&p.placeholder?`<span class="b sug">placeholder</span>`:""}${PRIV&&p.scope&&p.scope!=="ARX"?`<span class="b warn">${esc(p.scope)}</span>`:""}${PRIV&&p.kind==="curated"?`<span class="b">curated</span>`:""}</div>
+    ${p.summary?`<p style="margin:.2rem 0 .5rem;color:var(--muted)">${esc(p.summary)}</p>`:""}
+    <dl class="metrics">
+      <div><dt>Horizon</dt><dd>${val(p,"horizon")}</dd></div>
+      <div><dt>Effort left</dt><dd>${val(p,"effort_remaining")}</dd></div>
+      <div><dt>Effort in</dt><dd>${ei(p)}</dd></div>
+      <div><dt>Feasibility</dt><dd>${p.feasibility?dots(+p.feasibility):"—"}</dd></div>
+      <div><dt>Last touched</dt><dd>${esc(p.last_touched||"—")}${p.staleness_days>180?` <span class="warn">(${p.staleness_days} d)</span>`:""}</dd></div>
+      <div><dt>Revenue</dt><dd>${val(p,"revenue")}</dd></div>
+    </dl>
+    ${p.next_action?`<div class="sec"><h4>Next action</h4>${esc(p.next_action)}</div>`:""}
+    ${p.related.length?`<div class="sec"><h4>Crossovers</h4>${links(p,p.related)}</div>`:""}
+    <details><summary>Dependencies, needs &amp; detail</summary>
+      <div class="sec"><h4>Depends on</h4>${links(p,p.depends_on)}</div>
+      <div class="sec"><h4>Blocks</h4>${links(p,p.blocks)}</div>
+      <div class="sec"><h4>Blockers</h4>${esc(p.blockers||"—")}</div>
+      <div class="sec"><h4>Needs</h4>${needs||"—"}${PRIV&&p.money?`<br>money: ${esc(p.money)}`:""}${p.legal_ip?`<br>legal/IP: ${val(p,"legal_ip")}`:""}</div>
+      ${p.feasibility_why?`<div class="sec"><h4>Feasibility</h4>${esc(p.feasibility_why)}</div>`:""}
+      ${p.themes.length?`<div class="sec"><h4>Themes</h4><div class="ttags">${p.themes.map(t=>`<span class="chip">${esc(t)}</span>`).join("")}</div></div>`:""}
+      ${code?`<div class="sec"><h4>Code</h4>${code}</div>`:""}
+      ${PRIV?`<div class="sec"><h4>Private</h4>${p.private_markers.length?`markers: ${p.private_markers.map(esc).join(", ")}<br>`:""}${p.note?`note: ${esc(p.note)}<br>`:""}${p.chat?`<a href="${esc(p.chat)}" rel="noopener">source chat</a>`:""}${p.local?` · <span class="mono">${esc(p.local)}</span>`:""}${(p.links||[]).map((u,i)=>`<br><a href="${esc(u)}" rel="noopener">artifact ${i+1}</a>`).join("")}${(p.conversations||[]).map(c=>`<br><span class="mono">${esc(c.date||"")}</span> ${esc(c.title||"")}`).join("")}</div>`:""}
+    </details>
+  </article>`;
+}
+
+function draw(){
+  const f = k => $("#f-"+k) ? $("#f-"+k).value : "";
+  let rows = P.filter(p =>
+    (PRIV && $("#f-ph").checked || !p.placeholder) &&
+    (!f("priority") || p.priority===f("priority")) && (!f("status") || p.status===f("status")) &&
+    (!f("horizon") || p.horizon===f("horizon")) && (!f("entity") || p.entity===f("entity")) &&
+    (!f("vis") || p.visibility===f("vis")) && (!f("scope") || p.scope===f("scope")) &&
+    [...state.theme].every(t => p.themes.includes(t)) &&
+    (!state.q || [p.title,p.category,p.next_action,p.blockers,...p.themes,...p.skills,...p.people,...p.hardware].join(" ").toLowerCase().includes(state.q)));
+  const pi = p => p.priority ? PRI.indexOf(p.priority) : 9, ev = p => (p.effort_invested.versions||0)*3 + (p.effort_invested.chats||0)*2 + (p.effort_invested.span_days||0)/30;
+  const S = { priority:(a,b)=>pi(a)-pi(b)||ev(b)-ev(a), effort:(a,b)=>ev(b)-ev(a), feasibility:(a,b)=>(b.feasibility||0)-(a.feasibility||0),
+    links:(a,b)=>conn(b)-conn(a), fresh:(a,b)=>String(b.last_touched).localeCompare(a.last_touched), stale:(a,b)=>(b.staleness_days||0)-(a.staleness_days||0) };
+  rows.sort(S[$("#sort").value]);
+  $("#count").textContent = `${rows.length} of ${P.length} shown`;
+  $("#grid").innerHTML = rows.length ? rows.map(card).join("") : `<div class="empty">${P.length ? "No projects match these filters." : "No projects have been published yet. Check back soon."}</div>`;
+  const real = P.filter(p=>!p.placeholder), cnt = k => real.filter(k).length;
+  $("#stats").innerHTML = [["projects",real.length],["P0 · now",cnt(p=>p.priority==="P0")],["active / building",cnt(p=>["active","build"].includes(p.status))],["blocked",cnt(p=>p.status==="blocked"||p.blockers)],["with crossovers",cnt(p=>p.related.length)],PRIV?["public (confirmed)",cnt(p=>p.confirmed_public)]:null].filter(Boolean).map(([l,n])=>`<div class="stat"><b>${n}</b><span class="mono">${l}</span></div>`).join("");
+}
+document.addEventListener("click", e => { const a=e.target.closest("[data-go]"); if(!a) return; const el=document.getElementById(a.dataset.go);
+  if(!el){ ["#q","#f-priority","#f-status","#f-horizon","#f-entity","#f-vis","#f-scope"].forEach(s=>$(s)&&($(s).value="")); state.q=""; state.theme.clear(); document.querySelectorAll(".chip.on").forEach(c=>c.classList.remove("on")); if($("#f-ph")) $("#f-ph").checked=true; draw(); }
+  e.preventDefault(); const t=document.getElementById(a.dataset.go); if(t){ t.scrollIntoView({behavior:"smooth",block:"start"}); t.classList.add("flash"); setTimeout(()=>t.classList.remove("flash"),1600); history.replaceState(null,"","#"+a.dataset.go);} });
+$("#foot").textContent = `Generated ${DATA.generated} · ${PRIV ? "private build" : "public build"} · The ARX Foundation`;
+draw();
+if (location.hash) setTimeout(()=>{ const t=document.querySelector(location.hash); t&&t.scrollIntoView(); },50);
+</script>
+</body>
+</html>
