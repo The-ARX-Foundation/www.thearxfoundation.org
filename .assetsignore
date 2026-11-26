@@ -1,0 +1,6 @@
+# Files the Cloudflare Worker (the-lander) must not serve as static assets.
+.assetsignore
+.git*
+.github/
+tools/
+README.md
