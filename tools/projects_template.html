@@ -59,6 +59,9 @@ summary{cursor:pointer;color:var(--gold);font-family:"Space Mono",monospace;font
 .ttags{display:flex;flex-wrap:wrap;gap:.25rem}
 .warn{color:var(--p1)}
 .empty{padding:3rem 1rem;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:4px}
+.opendoor{margin:1rem 0 1.25rem;padding:.9rem 1.1rem;border-left:3px solid var(--gold);background:rgba(139,69,24,.08);border-radius:0 4px 4px 0}
+.opendoor p{margin:.25rem 0}
+.shelved{margin:.35rem 0 .2rem;font-size:.85rem;color:var(--gold)}
 footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid rgba(139,69,24,.35);color:var(--muted)}
 </style>
 </head>
@@ -68,6 +71,7 @@ footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid rgba(139,69,24,.
   <p class="mono kicker" id="kicker">Projects</p>
   <h1>Projects</h1>
   <p class="lede">What The ARX Foundation is building, where each project stands, and how the projects connect. Links in <span class="mono">[[double brackets]]</span> jump to related projects.</p>
+  <aside class="opendoor" id="opendoor"></aside>
   <div id="banner"></div>
   <div class="stats" id="stats"></div>
   <div class="controls" role="search">
@@ -95,6 +99,10 @@ footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid rgba(139,69,24,.
 </div>
 <script>
 const DATA = /*__DATA__*/null;
+{ const c = DATA.contact || {}, e = String(c.email||"").replace(/[<>"&]/g,""), d = String(c.discussions||"").replace(/[<>"&]/g,"");
+  document.getElementById("opendoor").innerHTML =
+    `<p><strong>Want to talk about any of these?</strong> I'd love to. Whether you want to build on one, poke holes in it, or just think it through out loud, reach out: <a href="mailto:${e}">${e}</a>${d?` or <a href="${d}" rel="noopener noreferrer">GitHub Discussions</a>`:""}.</p>
+     <p><strong>Shelved isn't dead.</strong> Most of these are paused for lack of capital, not interest. With funding or a partner, I'd gladly pick any of them back up.</p>`; }
 const P = DATA.projects, PRIV = DATA.view === "private";
 const byId = Object.fromEntries(P.map(p => [p.id, p]));
 const $ = s => document.querySelector(s);
@@ -130,6 +138,7 @@ function card(p){
     <div class="mono id">${p.id}${p.category?` · ${esc(p.category)}`:""}</div>
     <h3>${esc(p.title)}</h3>
     <div class="badges">${badge(p,"priority")}${badge(p,"status")}${badge(p,"entity")}${PRIV?badge(p,"visibility","vis-"+p.visibility):""}${p.decision?`<span class="b">${esc(p.decision)}</span>`:""}${PRIV&&p.ip_flag_insightally?`<span class="b warn">IP boundary</span>`:""}${PRIV&&p.placeholder?`<span class="b sug">placeholder</span>`:""}${PRIV&&p.scope&&p.scope!=="ARX"?`<span class="b warn">${esc(p.scope)}</span>`:""}${PRIV&&p.kind==="curated"?`<span class="b">curated</span>`:""}</div>
+    ${p.decision==="archive"?`<p class="shelved">Shelved for now. Open to collaborators or funding: <a href="mailto:${esc(DATA.contact.email)}?subject=${encodeURIComponent(p.title)}">get in touch</a>.</p>`:""}
     ${p.blurb?`<p class="blurb">${esc(p.blurb)}</p>`:""}
     ${p.summary?`<p style="margin:.2rem 0 .5rem;color:var(--muted)">${esc(p.summary)}</p>`:""}
     ${p.sug_signal?`<div class="sec signal"><h4>Suggested 90-day signal</h4><span class="sugv">${esc(p.sug_signal)}</span></div>`:""}

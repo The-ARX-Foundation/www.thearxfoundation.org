@@ -121,10 +121,27 @@ def public_view(rows):
     return out
 
 
+SITE = json.load(open(os.path.join(HERE, "site.json"), encoding="utf-8"))
+CONTACT = {"email": SITE["contact_email"], "discussions": SITE["discussions_url"]}
+
+
+def patch_home(repo):
+    """Write the contact links into index.html between <!--contact--> markers."""
+    import html
+    p = os.path.join(repo, "index.html")
+    s = open(p, encoding="utf-8").read()
+    e = html.escape(CONTACT["email"]); d = html.escape(CONTACT["discussions"])
+    block = (f'<!--contact--><a href="mailto:{e}">{e}</a> &middot; '
+             f'<a href="{d}" rel="noopener noreferrer">Discussions</a><!--/contact-->')
+    new = re.sub(r"<!--contact-->.*?<!--/contact-->", block, s, flags=re.S)
+    if new != s:
+        open(p, "w", encoding="utf-8").write(new)
+
+
 def render(template, rows, view):
     themes = collections.Counter(t for r in rows for t in r["themes"])
     data = {"view": view, "generated": datetime.date.today().isoformat(),
-            "projects": rows, "themes": themes.most_common(60)}
+            "projects": rows, "themes": themes.most_common(60), "contact": CONTACT}
     blob = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
     return template.replace("/*__DATA__*/null", blob)
 
@@ -152,6 +169,7 @@ def main():
     pub = public_view(rows)
     for p in pub:
         p["titles"] = {i: titles[i] for i in set(p["related"] + p["depends_on"] + p["blocks"])}
+    patch_home(repo)
     for path, rs, view in ((a.public_out, pub, "public"), (a.private_out, rows, "private")):
         os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
         open(path, "w", encoding="utf-8").write(render(tpl, rs, view))

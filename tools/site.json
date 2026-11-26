@@ -1,0 +1,5 @@
+{
+  "_note": "Single source for public contact details. build_projects.py writes these into projects/index.html and the home page footer (between the contact markers). Change here, then rebuild.",
+  "contact_email": "contact@thearxfoundation.org",
+  "discussions_url": "https://github.com/The-ARX-Foundation/www.thearxfoundation.org/discussions"
+}
