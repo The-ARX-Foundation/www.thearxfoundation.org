@@ -1,4 +1,14 @@
-<title>Glyphkeeper</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Glyphkeeper: interactive study pages, flashcards and spaced repetition for the world's writing systems, from Cherokee and Yi to Linear B, runes and ASL.">
+<meta property="og:title" content="Glyphkeeper — The ARX Foundation">
+<meta property="og:description" content="Interactive study pages, flashcards and spaced repetition for the world's writing systems.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.thearxfoundation.org/glyphkeeper/">
+<title>Glyphkeeper — The ARX Foundation</title>
 <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -391,6 +401,8 @@
 .script-card[data-href]{cursor:pointer;transition:transform .12s}.script-card[data-href]:hover{transform:translateY(-2px)}
 .gk-open{display:inline-block;margin-top:10px;font:600 12px/1 'IBM Plex Mono',monospace;letter-spacing:.06em;color:var(--rust);text-decoration:none}
 </style>
+</head>
+<body>
 <header>
   <div class="header-eyebrow">ARX Foundation · Open-Source Language Infrastructure</div>
   <h1>Glyphkeeper</h1>
@@ -909,3 +921,5 @@ function filterSection(cat, btn) {
 document.querySelectorAll('.script-card').forEach(c=>{const n=c.querySelector('.card-name');const href=n&&M[n.textContent.trim()];if(!href)return;
  c.dataset.href=href;const a=document.createElement('a');a.className='gk-open';a.href=href;a.textContent=href.endsWith('.txt')?'Open word list →':'Study this script →';c.appendChild(a);
  c.addEventListener('click',e=>{if(e.target.closest('a'))return;location.href=href;});});})();</script>
+</body>
+</html>
