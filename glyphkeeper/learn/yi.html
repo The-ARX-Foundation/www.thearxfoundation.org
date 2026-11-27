@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ꆈꌠ Nuosu — Learn Yi Script</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Yi&family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0a14;--bg-mid:#161222;--bg-card:#1e1830;--bg-card-hover:#28223c;--purple:#8a5cc8;--purple-light:#a87ce8;--purple-bright:#c8a0ff;--purple-dim:#5a3a8a;--cream:#e4dce8;--cream-dim:#9a90a0;--cream-faint:#5a5460;--green:#5aaa6a;--red:#c45a5a;--gold:#c8a84c;--shadow:rgba(0,0,0,0.5);--border:rgba(255,255,255,0.06)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--cream);font-family:'Inter',sans-serif;min-height:100vh}
+.header{text-align:center;padding:2.5rem 1rem 1.5rem;border-bottom:1px solid var(--border)}
+.header-script{font-family:'Noto Sans Yi',sans-serif;font-size:2rem;color:var(--purple-light);letter-spacing:0.3em;margin-bottom:0.3rem}
+.header h1{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--cream);letter-spacing:0.06em}
+.header h1 em{font-style:italic;color:var(--purple-light)}
+.header-sub{font-size:0.8rem;color:var(--cream-faint);margin-top:0.3rem;font-weight:300}
+.nav{display:flex;justify-content:center;background:var(--bg-mid);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-btn{background:none;border:none;color:var(--cream-faint);font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:1rem 1.5rem;cursor:pointer;transition:all 0.3s;position:relative}
+.nav-btn:hover{color:var(--cream)}.nav-btn.active{color:var(--purple-light)}
+.nav-btn.active::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:var(--purple);border-radius:1px}
+.section{display:none;padding:2rem 1rem;max-width:1000px;margin:0 auto}.section.active{display:block}
+.hc{max-width:650px;margin:0 auto}
+.hc h2{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--purple-light);margin-bottom:1rem}
+.hc p{font-size:0.95rem;line-height:1.8;color:var(--cream-dim);margin-bottom:1.1rem;font-weight:300}
+.hc strong{color:var(--cream);font-weight:500}
+.hc em{color:var(--purple-light);font-style:italic}
+.tone-box{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.8rem;margin:1.5rem 0}
+.tb{background:var(--bg-card);border-radius:8px;padding:1rem;text-align:center;border-top:3px solid var(--purple)}
+.tb h4{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--purple);margin-bottom:0.3rem}
+.tb .sample{font-family:'Noto Sans Yi',sans-serif;font-size:1.8rem;color:var(--cream);margin-bottom:0.2rem}
+.tb .desc{font-size:0.75rem;color:var(--cream-faint)}
+.chart-intro{text-align:center;margin-bottom:1.5rem;color:var(--cream-dim);font-size:0.85rem}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px}
+.cc{background:var(--bg-card);border-radius:6px;padding:0.5rem;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid transparent}
+.cc:hover{background:var(--bg-card-hover);border-color:rgba(138,92,200,0.3);transform:translateY(-1px)}
+.cc .g{font-family:'Noto Sans Yi',sans-serif;font-size:2rem;color:var(--purple-bright);line-height:1.1;display:block}
+.cc .p{font-size:0.6rem;color:var(--cream-faint);display:block;margin-top:0.1rem}
+.cg{margin-bottom:2rem}
+.cg-title{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--purple);margin-bottom:0.6rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border)}
+.detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+.detail-overlay.show{display:flex}
+.dc{background:var(--bg-mid);border:1px solid rgba(138,92,200,0.3);border-radius:12px;padding:2.5rem;text-align:center;max-width:300px;width:90%}
+.dc .bg{font-family:'Noto Sans Yi',sans-serif;font-size:6rem;color:var(--purple-bright);line-height:1}
+.dc .dp{font-size:1.3rem;color:var(--cream);margin:0.5rem 0}
+.dc .dt{font-size:0.85rem;color:var(--cream-faint)}
+.dc-close{margin-top:1.5rem;background:rgba(138,92,200,0.15);border:1px solid rgba(138,92,200,0.3);color:var(--purple-light);padding:0.5rem 2rem;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s}
+.dc-close:hover{background:rgba(138,92,200,0.3)}
+.pw{max-width:480px;margin:0 auto;text-align:center}
+.ms{display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.mb{background:var(--bg-card);border:1px solid var(--border);color:var(--cream-dim);padding:0.5rem 1rem;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:500;transition:all 0.2s}
+.mb:hover{border-color:rgba(138,92,200,0.4);color:var(--cream)}.mb.active{background:rgba(138,92,200,0.15);border-color:var(--purple);color:var(--purple-light)}
+.fc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:3rem 2rem;margin-bottom:1.5rem;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s}
+.fc:hover{border-color:rgba(138,92,200,0.3)}.fc .pg{font-family:'Noto Sans Yi',sans-serif;font-size:5rem;color:var(--purple-bright);line-height:1}
+.fc .pt{font-size:1.5rem;color:var(--cream);font-weight:300}.fc .hint{font-size:0.8rem;color:var(--cream-faint);margin-top:1rem}
+.fc .ans{display:none;margin-top:1rem}.fc.rev .ans{display:block}
+.fc .ar{font-size:1.8rem;color:var(--purple-light)}.fc .ag{font-family:'Noto Sans Yi',sans-serif;font-size:4rem;color:var(--purple-bright)}
+.pc{display:flex;gap:0.8rem;justify-content:center;margin-bottom:1.5rem}
+.pb{background:var(--bg-card);border:1px solid rgba(138,92,200,0.3);color:var(--cream);padding:0.7rem 1.5rem;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:500;transition:all 0.2s}
+.pb:hover{background:rgba(138,92,200,0.15)}.pb.ok{background:rgba(90,170,106,0.2);border-color:var(--green);color:var(--green)}
+.pb.no{background:rgba(196,90,90,0.2);border-color:var(--red);color:var(--red)}
+.sb{display:flex;justify-content:center;gap:2rem;font-size:0.85rem;color:var(--cream-faint);margin-top:1rem}
+.sb span{font-weight:600}.sb .sc span{color:var(--green)}.sb .sw span{color:var(--red)}.sb .ss span{color:var(--purple-light)}
+.qo{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1.5rem}
+.qopt{background:var(--bg-card);border:2px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.2s;font-family:'Noto Sans Yi',sans-serif;font-size:2.2rem;color:var(--purple-bright)}
+.qopt.ro{font-family:'Inter',sans-serif;font-size:1.1rem;color:var(--cream)}
+.qopt:hover{border-color:var(--purple);background:var(--bg-card-hover)}
+.qopt.cc2{border-color:var(--green)!important;background:rgba(90,170,106,0.15)!important}
+.qopt.cw{border-color:var(--red)!important;background:rgba(196,90,90,0.15)!important}
+.qopt.sc2{border-color:var(--green)!important;background:rgba(90,170,106,0.1)!important}
+.qopt.dis{pointer-events:none;opacity:0.7}
+.footer{text-align:center;padding:2rem 1rem;color:var(--cream-faint);font-size:0.75rem;border-top:1px solid var(--border);margin-top:2rem}
+.footer a{color:var(--purple);text-decoration:none}
+@media(max-width:600px){.chart-grid{grid-template-columns:repeat(auto-fill,minmax(65px,1fr))}.nav-btn{padding:0.8rem 0.9rem;font-size:0.72rem}}
+</style></head><body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="../index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+<div class="header">
+  <div class="header-script">ꆈ ꌠ ꁱ ꂷ</div>
+  <h1><em>Nuosu</em> — Learn the Yi Syllabary</h1>
+  <div class="header-sub">Starter Set · 80 of 1,165 characters · Standardized 1974 · Sichuan, China</div>
+</div>
+<nav class="nav"><button class="nav-btn active" data-tab="history">History</button><button class="nav-btn" data-tab="chart">Syllabary</button><button class="nav-btn" data-tab="practice">Practice</button></nav>
+
+<div id="history" class="section active"><div class="hc">
+  <h2>The Largest Syllabary Ever Standardized</h2>
+  <p>The <strong>Yi scripts</strong> are among the oldest indigenous writing systems in East Asia. The <strong>Nuosu</strong> (Northern Yi) people of southwestern China's Sichuan and Yunnan provinces have used writing for centuries — the earliest known inscription dates to <strong>1485 CE</strong>, though the tradition is likely much older.</p>
+  <p>The original <em>Classical Yi</em> was a logographic system with over <strong>90,000 regional character variants</strong> — each one representing a syllable that was also a morpheme. In <strong>1974</strong>, the Chinese government standardized 820 symbols from the Liangshan region into a modern syllabary, creating the largest standardized syllabary in the world: <strong>1,164 unique syllables</strong> plus one iteration mark.</p>
+  <p>The system encodes <strong>43 consonants × 8 vowels × 3–4 tones</strong>. Not all combinations exist, but the result is still enormous. Traditionally Yi was written right-to-left in vertical columns — the standardized form writes left-to-right.</p>
+  <h2 style="margin-top:2rem">The Tone System</h2>
+  <p>Yi has four tones. Three have dedicated characters; the fourth (rising) uses a diacritic arc above the mid-tone character. In Yi Pinyin romanization, tones are marked by a trailing letter:</p>
+  <div class="tone-box">
+    <div class="tb"><h4>High tone (-t)</h4><div class="sample">ꀀ</div><div class="desc">Sharp, elevated pitch. Pinyin: "it"</div></div>
+    <div class="tb"><h4>Mid tone (∅)</h4><div class="sample">ꀂ</div><div class="desc">Level, neutral pitch. Pinyin: "i" (no marker)</div></div>
+    <div class="tb"><h4>Low tone (-p)</h4><div class="sample">ꀃ</div><div class="desc">Low, falling pitch. Pinyin: "ip"</div></div>
+    <div class="tb"><h4>Rising tone (-x)</h4><div class="sample">ꀁ</div><div class="desc">Rising pitch with arc diacritic. Pinyin: "ix"</div></div>
+  </div>
+  <p>This learner covers a <strong>curated starter set of 80 characters</strong> — the vowels and most common consonant families across all tones. Master these before tackling the full 1,165.</p>
+</div></div>
+
+<div id="chart" class="section">
+  <p class="chart-intro">80 essential Yi syllables — grouped by vowel. Click any to enlarge.</p>
+  <div id="chart-container"></div>
+</div>
+
+<div id="practice" class="section"><div class="pw">
+  <div class="ms"><button class="mb active" data-mode="flash-glyph">Glyph → Pinyin</button><button class="mb" data-mode="flash-sound">Pinyin → Glyph</button><button class="mb" data-mode="quiz">Quiz</button></div>
+  <div id="pa"></div>
+  <div class="sb"><div class="sc">Correct: <span id="xc">0</span></div><div class="sw">Missed: <span id="xw">0</span></div><div class="ss">Streak: <span id="xs">0</span></div></div>
+</div></div>
+
+<div class="detail-overlay" id="dov"><div class="dc">
+  <div class="bg" id="dg"></div><div class="dp" id="dp"></div><div class="dt" id="dt"></div>
+  <button class="dc-close" onclick="cd()">Close</button>
+</div></div>
+<div class="footer">Starter set from the Yi syllabary · Full set: 1,165 characters in <a href="https://unicode.org/charts/PDF/UA000.pdf" target="_blank">Unicode U+A000–A48F</a> · Part of <a href="../index.html">Glyphkeeper</a></div>
+
+<script>
+const YI=[
+  // Vowels (i series)
+  {g:'ꀀ',p:'it',grp:'i- vowel'},{g:'ꀁ',p:'ix',grp:'i- vowel'},{g:'ꀂ',p:'i',grp:'i- vowel'},{g:'ꀃ',p:'ip',grp:'i- vowel'},
+  // e series
+  {g:'ꀄ',p:'iet',grp:'ie- vowel'},{g:'ꀅ',p:'iex',grp:'ie- vowel'},{g:'ꀆ',p:'ie',grp:'ie- vowel'},{g:'ꀇ',p:'iep',grp:'ie- vowel'},
+  // a series  
+  {g:'ꀈ',p:'at',grp:'a- vowel'},{g:'ꀉ',p:'ax',grp:'a- vowel'},{g:'ꀊ',p:'a',grp:'a- vowel'},{g:'ꀋ',p:'ap',grp:'a- vowel'},
+  // o series
+  {g:'ꀌ',p:'uot',grp:'uo- vowel'},{g:'ꀍ',p:'uox',grp:'uo- vowel'},{g:'ꀎ',p:'uo',grp:'uo- vowel'},{g:'ꀏ',p:'uop',grp:'uo- vowel'},
+  // u series
+  {g:'ꀐ',p:'ot',grp:'o- vowel'},{g:'ꀑ',p:'ox',grp:'o- vowel'},{g:'ꀒ',p:'o',grp:'o- vowel'},{g:'ꀓ',p:'op',grp:'o- vowel'},
+  // b- consonant
+  {g:'ꀖ',p:'bit',grp:'b- series'},{g:'ꀗ',p:'bix',grp:'b- series'},{g:'ꀘ',p:'bi',grp:'b- series'},{g:'ꀙ',p:'bip',grp:'b- series'},
+  {g:'ꀚ',p:'biet',grp:'b- series'},{g:'ꀜ',p:'bie',grp:'b- series'},{g:'ꀞ',p:'bat',grp:'b- series'},{g:'ꀠ',p:'ba',grp:'b- series'},
+  // bb- (voiced)
+  {g:'ꀤ',p:'bbit',grp:'bb- series'},{g:'ꀦ',p:'bbi',grp:'bb- series'},{g:'ꀨ',p:'bbiet',grp:'bb- series'},{g:'ꀪ',p:'bbie',grp:'bb- series'},
+  {g:'ꀬ',p:'bbat',grp:'bb- series'},{g:'ꀮ',p:'bba',grp:'bb- series'},
+  // m- series
+  {g:'ꂵ',p:'mit',grp:'m- series'},{g:'ꂷ',p:'mi',grp:'m- series'},{g:'ꂸ',p:'mip',grp:'m- series'},
+  {g:'ꂼ',p:'mie',grp:'m- series'},{g:'ꂾ',p:'mat',grp:'m- series'},{g:'ꃀ',p:'ma',grp:'m- series'},
+  {g:'ꃅ',p:'muot',grp:'m- series'},{g:'ꃇ',p:'muo',grp:'m- series'},
+  // n- series
+  {g:'ꆀ',p:'nit',grp:'n- series'},{g:'ꆂ',p:'ni',grp:'n- series'},{g:'ꆄ',p:'niet',grp:'n- series'},
+  {g:'ꆈ',p:'nuot',grp:'n- series'},{g:'ꆊ',p:'nuo',grp:'n- series'},
+  // l- series
+  {g:'ꆺ',p:'lit',grp:'l- series'},{g:'ꆼ',p:'li',grp:'l- series'},{g:'ꆾ',p:'lip',grp:'l- series'},
+  {g:'ꇂ',p:'lie',grp:'l- series'},{g:'ꇄ',p:'lat',grp:'l- series'},{g:'ꇆ',p:'la',grp:'l- series'},
+  // s- series
+  {g:'ꌌ',p:'sit',grp:'s- series'},{g:'ꌎ',p:'si',grp:'s- series'},{g:'ꌐ',p:'sip',grp:'s- series'},
+  {g:'ꌒ',p:'siet',grp:'s- series'},{g:'ꌖ',p:'sat',grp:'s- series'},{g:'ꌘ',p:'sa',grp:'s- series'},
+  {g:'ꌜ',p:'suot',grp:'s- series'},{g:'ꌞ',p:'suo',grp:'s- series'},
+  // sh- series
+  {g:'ꌠ',p:'shut',grp:'sh- series'},{g:'ꌤ',p:'shi',grp:'sh- series'},{g:'ꌦ',p:'ship',grp:'sh- series'},
+  {g:'ꌪ',p:'she',grp:'sh- series'},{g:'ꌬ',p:'shat',grp:'sh- series'},{g:'ꌮ',p:'sha',grp:'sh- series'},
+  // d- series
+  {g:'ꄀ',p:'dit',grp:'d- series'},{g:'ꄂ',p:'di',grp:'d- series'},{g:'ꄄ',p:'dip',grp:'d- series'},
+  {g:'ꄆ',p:'diet',grp:'d- series'},{g:'ꄊ',p:'dat',grp:'d- series'},{g:'ꄌ',p:'da',grp:'d- series'},
+  // g- series
+  {g:'ꇴ',p:'git',grp:'g- series'},{g:'ꇶ',p:'gi',grp:'g- series'},{g:'ꇸ',p:'gip',grp:'g- series'},
+  {g:'ꈀ',p:'gat',grp:'g- series'},{g:'ꈂ',p:'ga',grp:'g- series'},
+  // h- series
+  {g:'ꉀ',p:'hit',grp:'h- series'},{g:'ꉂ',p:'hi',grp:'h- series'},{g:'ꉄ',p:'hip',grp:'h- series'},
+  {g:'ꉌ',p:'hat',grp:'h- series'},{g:'ꉎ',p:'ha',grp:'h- series'},
+  // w- series
+  {g:'ꊈ',p:'wit',grp:'w- series'},{g:'ꊊ',p:'wi',grp:'w- series'},{g:'ꊌ',p:'wip',grp:'w- series'},
+];
+
+const GROUPS=[...new Set(YI.map(c=>c.grp))];
+
+// Nav
+document.querySelectorAll('.nav-btn').forEach(b=>{b.addEventListener('click',()=>{
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');
+})});
+
+// Chart
+function buildChart(){
+  const c=document.getElementById('chart-container');
+  GROUPS.forEach(grp=>{
+    const chars=YI.filter(y=>y.grp===grp);
+    const d=document.createElement('div');d.className='cg';
+    d.innerHTML=`<div class="cg-title">${grp}</div>`;
+    const g=document.createElement('div');g.className='chart-grid';
+    chars.forEach(ch=>{
+      const cell=document.createElement('div');cell.className='cc';
+      cell.innerHTML=`<span class="g">${ch.g}</span><span class="p">${ch.p}</span>`;
+      cell.onclick=()=>sd(ch);g.appendChild(cell);
+    });
+    d.appendChild(g);c.appendChild(d);
+  });
+}
+function sd(ch){document.getElementById('dg').textContent=ch.g;document.getElementById('dp').textContent=ch.p;document.getElementById('dt').textContent=ch.grp;document.getElementById('dov').classList.add('show')}
+function cd(){document.getElementById('dov').classList.remove('show')}
+document.getElementById('dov').addEventListener('click',e=>{if(e.target===e.currentTarget)cd()});
+
+// Practice
+let pMode='flash-glyph',cur=null,score={c:0,w:0,s:0};
+document.querySelectorAll('.mb').forEach(b=>{b.addEventListener('click',()=>{
+  document.querySelectorAll('.mb').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  pMode=b.dataset.mode;score={c:0,w:0,s:0};us();nxt();
+})});
+function rnd(ex){let c;do{c=YI[Math.floor(Math.random()*YI.length)]}while(c===ex);return c}
+function us(){document.getElementById('xc').textContent=score.c;document.getElementById('xw').textContent=score.w;document.getElementById('xs').textContent=score.s}
+function nxt(){
+  cur=rnd(cur);const a=document.getElementById('pa');
+  if(pMode==='flash-glyph'){a.innerHTML=`<div class="fc" id="fc" onclick="rv()"><div class="pg">${cur.g}</div><div class="hint">tap to reveal</div><div class="ans"><div class="ar">${cur.p}</div><div style="font-size:0.8rem;color:var(--cream-faint);margin-top:0.3rem">${cur.grp}</div></div></div><div class="pc"><button class="pb ok" onclick="mk(1)">Got it ✓</button><button class="pb no" onclick="mk(0)">Missed ✗</button><button class="pb" onclick="nxt()">Skip →</button></div>`}
+  else if(pMode==='flash-sound'){a.innerHTML=`<div class="fc" id="fc" onclick="rv()"><div class="pt">${cur.p}</div><div class="hint">tap to reveal</div><div class="ans"><div class="ag">${cur.g}</div><div style="font-size:0.8rem;color:var(--cream-faint);margin-top:0.3rem">${cur.grp}</div></div></div><div class="pc"><button class="pb ok" onclick="mk(1)">Got it ✓</button><button class="pb no" onclick="mk(0)">Missed ✗</button><button class="pb" onclick="nxt()">Skip →</button></div>`}
+  else{bq()}
+}
+function rv(){document.getElementById('fc').classList.add('rev')}
+function mk(ok){if(ok){score.c++;score.s++}else{score.w++;score.s=0}us();nxt()}
+function bq(){
+  const a=document.getElementById('pa');const isG=Math.random()>0.5;const ci=Math.floor(Math.random()*4);const opts=[];const used=new Set([cur.g]);
+  for(let i=0;i<4;i++){if(i===ci){opts.push(cur)}else{let c;do{c=rnd()}while(used.has(c.g));used.add(c.g);opts.push(c)}}
+  if(isG){a.innerHTML=`<div class="fc" style="cursor:default"><div class="pg">${cur.g}</div><div class="hint">choose the correct pinyin</div></div><div class="qo" id="qo">${opts.map((o,i)=>`<div class="qopt ro" onclick="qa(${i},${ci})">${o.p}</div>`).join('')}</div>`}
+  else{a.innerHTML=`<div class="fc" style="cursor:default"><div class="pt">${cur.p}</div><div class="hint">choose the correct character</div></div><div class="qo" id="qo">${opts.map((o,i)=>`<div class="qopt" onclick="qa(${i},${ci})">${o.g}</div>`).join('')}</div>`}
+}
+function qa(ch,co){const os=document.querySelectorAll('#qo .qopt');os.forEach(o=>o.classList.add('dis'));os[co].classList.add('sc2');if(ch===co){os[ch].classList.add('cc2');score.c++;score.s++}else{os[ch].classList.add('cw');score.w++;score.s=0}us();setTimeout(nxt,1200)}
+buildChart();nxt();
+</script></body></html>

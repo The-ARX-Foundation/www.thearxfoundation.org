@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glyphkeeper — Mission Control</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Outfit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08080c; --bg-panel: #0e0e14; --bg-card: #14141e; --bg-row: #161620; --bg-row-hover: #1c1c2a;
+  --green: #34d399; --green-dim: #166534; --green-bg: rgba(52,211,153,0.08);
+  --amber: #fbbf24; --amber-dim: #78350f; --amber-bg: rgba(251,191,36,0.08);
+  --red: #f87171; --red-dim: #7f1d1d;
+  --blue: #60a5fa; --blue-dim: #1e3a5f; --blue-bg: rgba(96,165,250,0.08);
+  --purple: #a78bfa; --purple-dim: #4c1d95; --purple-bg: rgba(167,139,250,0.06);
+  --cyan: #22d3ee; --cyan-dim: #164e63;
+  --white: #f0eef4; --dim: #8a8898; --faint: #4a4858; --muted: #2a2838;
+  --border: rgba(255,255,255,0.06);
+  --radius: 8px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--white); font-family: 'Outfit', sans-serif; min-height: 100vh; }
+
+/* ── HEADER ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); background: var(--bg-panel);
+}
+.topbar-left { display: flex; align-items: center; gap: 0.8rem; }
+.logo { font-weight: 700; font-size: 1.1rem; letter-spacing: 0.04em; }
+.logo em { color: var(--green); font-style: normal; }
+.badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 500;
+  background: var(--green-bg); color: var(--green); padding: 0.2rem 0.6rem;
+  border-radius: 100px; border: 1px solid rgba(52,211,153,0.2);
+}
+.topbar-right { font-size: 0.75rem; color: var(--faint); font-family: 'JetBrains Mono', monospace; }
+
+/* ── GLOBAL STATS ── */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1px; background: var(--border); border-bottom: 1px solid var(--border);
+}
+.stat-cell {
+  background: var(--bg-panel); padding: 1.2rem 1.5rem; text-align: center;
+}
+.stat-value {
+  font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 600;
+  line-height: 1;
+}
+.stat-value.green { color: var(--green); }
+.stat-value.amber { color: var(--amber); }
+.stat-value.blue { color: var(--blue); }
+.stat-value.purple { color: var(--purple); }
+.stat-label {
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--faint); margin-top: 0.4rem;
+}
+.global-bar {
+  height: 4px; background: var(--muted); margin-top: 0.5rem; border-radius: 2px; overflow: hidden;
+}
+.global-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s; }
+
+/* ── PHASE TABS ── */
+.phase-tabs {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--bg-panel);
+  overflow-x: auto;
+}
+.phase-tab {
+  padding: 0.8rem 1.5rem; font-size: 0.8rem; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint);
+  cursor: pointer; border: none; background: none; transition: all 0.2s;
+  white-space: nowrap; position: relative;
+  font-family: 'Outfit', sans-serif;
+}
+.phase-tab:hover { color: var(--dim); }
+.phase-tab.active { color: var(--green); }
+.phase-tab.active::after {
+  content: ''; position: absolute; bottom: 0; left: 15%; right: 15%;
+  height: 2px; background: var(--green); border-radius: 1px;
+}
+.phase-tab .ct {
+  display: inline-block; font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; background: var(--muted); padding: 0.1rem 0.4rem;
+  border-radius: 4px; margin-left: 0.3rem; color: var(--dim);
+}
+
+/* ── CONTENT PANELS ── */
+.panel { display: none; padding: 0; }
+.panel.active { display: block; }
+
+/* ── TABLE ── */
+.table-head {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr 100px 120px 80px 90px 120px;
+  padding: 0.6rem 1.5rem; font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--faint); border-bottom: 1px solid var(--border);
+  background: var(--bg-panel); position: sticky; top: 0; z-index: 10;
+}
+.row {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr 100px 120px 80px 90px 120px;
+  padding: 0.7rem 1.5rem; border-bottom: 1px solid var(--border);
+  background: var(--bg-row); transition: background 0.15s; align-items: center;
+  font-size: 0.85rem;
+}
+.row:hover { background: var(--bg-row-hover); }
+.row .idx { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--faint); }
+.row .name-col { display: flex; flex-direction: column; gap: 0.1rem; }
+.row .script-name { font-weight: 600; font-size: 0.9rem; }
+.row .script-sub { font-size: 0.7rem; color: var(--faint); }
+.row .glyph-preview { font-size: 1rem; color: var(--dim); margin-right: 0.5rem; }
+
+/* Status badges */
+.status {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 600;
+  padding: 0.2rem 0.6rem; border-radius: 4px; display: inline-block; text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.status.live { background: var(--green-bg); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+.status.wip { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(251,191,36,0.15); }
+.status.planned { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(167,139,250,0.1); }
+.status.research { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(96,165,250,0.1); }
+
+/* Progress bar */
+.prog-wrap { display: flex; align-items: center; gap: 0.5rem; }
+.prog-bar {
+  flex: 1; height: 6px; background: var(--muted); border-radius: 3px; overflow: hidden;
+  min-width: 50px;
+}
+.prog-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+.prog-fill.green { background: var(--green); }
+.prog-fill.amber { background: var(--amber); }
+.prog-fill.blue { background: var(--blue); }
+.prog-pct {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--dim);
+  min-width: 32px; text-align: right;
+}
+
+.char-count { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--dim); }
+.type-tag {
+  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 0.15rem 0.4rem; border-radius: 3px; background: var(--muted); color: var(--faint);
+}
+
+/* ── FUTURE PHASE PANEL ── */
+.future-panel { padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto; }
+.future-panel h2 {
+  font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem;
+}
+.future-panel h2 .emoji { margin-right: 0.5rem; }
+.future-panel p {
+  font-size: 0.9rem; color: var(--dim); line-height: 1.7; margin-bottom: 1.5rem; font-weight: 300;
+}
+.roadmap-item {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1.2rem 1.5rem; margin-bottom: 0.8rem; display: flex; align-items: flex-start; gap: 1rem;
+}
+.rm-phase {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 600;
+  background: var(--muted); color: var(--faint); padding: 0.3rem 0.6rem;
+  border-radius: 4px; white-space: nowrap; margin-top: 0.1rem;
+}
+.rm-phase.current { background: var(--green-bg); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+.rm-content h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.2rem; }
+.rm-content p { font-size: 0.8rem; color: var(--faint); line-height: 1.5; margin: 0; }
+
+/* ── FOOTER ── */
+.footer-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 1.5rem; border-top: 1px solid var(--border);
+  font-size: 0.7rem; color: var(--faint); background: var(--bg-panel);
+}
+.footer-bar a { color: var(--green); text-decoration: none; }
+
+@media (max-width: 900px) {
+  .table-head, .row {
+    grid-template-columns: 2rem 1fr 80px 100px 70px;
+  }
+  .table-head > :nth-child(6), .table-head > :nth-child(7),
+  .row > :nth-child(6), .row > :nth-child(7) { display: none; }
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .table-head, .row { grid-template-columns: 1.5rem 1fr 70px 90px; }
+  .table-head > :nth-child(5), .row > :nth-child(5) { display: none; }
+  .topbar { flex-direction: column; gap: 0.5rem; text-align: center; }
+  .phase-tab { padding: 0.7rem 0.8rem; font-size: 0.7rem; }
+}
+</style>
+</head>
+<body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">Glyph<em>keeper</em> Mission Control</div>
+    <span class="badge">v0.8 — 8 of 24 LIVE</span>
+  </div>
+  <div class="topbar-right">Last updated: 2026-03-15 · Phase 1 ✅</div>
+</div>
+
+<div class="stats-bar" id="stats-bar"></div>
+
+<div class="phase-tabs">
+  <button class="phase-tab active" data-panel="syllabaries">Syllabaries <span class="ct" id="ct-syl"></span></button>
+  <button class="phase-tab" data-panel="logographic">Logographic <span class="ct" id="ct-logo"></span></button>
+  <button class="phase-tab" data-panel="abugida">Abugidas <span class="ct" id="ct-abu"></span></button>
+  <button class="phase-tab" data-panel="ancient">Ancient <span class="ct" id="ct-anc"></span></button>
+  <button class="phase-tab" data-panel="roadmap">Roadmap</button>
+</div>
+
+<div class="panel active" id="panel-syllabaries">
+  <div class="table-head">
+    <div>#</div><div>Script</div><div>Status</div><div>Characters</div><div>Coverage</div><div>Type</div><div>File</div>
+  </div>
+  <div id="rows-syllabaries"></div>
+</div>
+<div class="panel" id="panel-logographic">
+  <div class="table-head">
+    <div>#</div><div>Script</div><div>Status</div><div>Characters</div><div>Coverage</div><div>Type</div><div>File</div>
+  </div>
+  <div id="rows-logographic"></div>
+</div>
+<div class="panel" id="panel-abugida">
+  <div class="table-head">
+    <div>#</div><div>Script</div><div>Status</div><div>Characters</div><div>Coverage</div><div>Type</div><div>File</div>
+  </div>
+  <div id="rows-abugida"></div>
+</div>
+<div class="panel" id="panel-ancient">
+  <div class="table-head">
+    <div>#</div><div>Script</div><div>Status</div><div>Characters</div><div>Coverage</div><div>Type</div><div>File</div>
+  </div>
+  <div id="rows-ancient"></div>
+</div>
+<div class="panel" id="panel-roadmap">
+  <div class="future-panel">
+    <h2>Project Roadmap</h2>
+    <p>Glyphkeeper is being built in phases. Each script gets a full interactive learner with history, character chart, flashcards, and quiz. The final phase builds translational bridges between every script.</p>
+
+    <div class="roadmap-item">
+      <div class="rm-phase current">PHASE 1</div>
+      <div class="rm-content">
+        <h3>Interactive Learners — Syllabaries</h3>
+        <p>Build out all 8 syllabary learners. ✅ COMPLETE — 8/8 built (Bamum, Cherokee, Japanese Kana, Yi, Vai, Canadian Aboriginal, Mende Kikakui, Linear B).</p>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="rm-phase">PHASE 2</div>
+      <div class="rm-content">
+        <h3>Interactive Learners — Logographic & Pictographic</h3>
+        <p>Chinese Hanzi (radicals-first approach), Japanese Kanji, Egyptian Hieroglyphs, Cuneiform, Maya Glyphs, Naxi Dongba. Heavy research phase — these scripts have thousands of characters each. Starter sets of 100–200 most common characters per script.</p>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="rm-phase">PHASE 3</div>
+      <div class="rm-content">
+        <h3>Interactive Learners — Abugidas & Unique Systems</h3>
+        <p>Ge'ez, Tibetan, Devanagari, Hangul, Sundanese, Georgian, N'Ko. These scripts have elegant internal logic (vowel modification systems) that can be taught systematically.</p>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="rm-phase">PHASE 4</div>
+      <div class="rm-content">
+        <h3>Interactive Learners — Ancient & Undeciphered</h3>
+        <p>Phoenician, Linear A (what we know of it), Elder Futhark. Historical context and archaeological framing. Linear A gets a special "mystery mode" since it's undeciphered.</p>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="rm-phase">PHASE 5</div>
+      <div class="rm-content">
+        <h3>Translational Models & Global Lexicon</h3>
+        <p>Brute-force train translational mappings between character sets. Phonetic bridging — map every script's syllable inventory to IPA, then cross-reference. Build the <strong>Global Lexicon</strong>: a unified reference where any concept can be expressed in any script. Feed these mappings into LLM tooling so code and conversation can flow through any character set. The endgame: every writing system as a first-class citizen in computation.</p>
+      </div>
+    </div>
+    <div class="roadmap-item">
+      <div class="rm-phase">PHASE 6</div>
+      <div class="rm-content">
+        <h3>Open Source & Community</h3>
+        <p>Package everything as an ARX Foundation open-source project. Invite native speakers and linguists to contribute corrections, audio recordings, and expanded character sets. Deploy as a progressive web app with offline support. Pitch to language revitalization programs (Cherokee Nation, Bamum Scripts and Archives Project, etc.).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-bar">
+  <div>Glyphkeeper · <a href="index.html">Landing Page</a> · An ARX Foundation project</div>
+  <div>24 scripts · 6 continents · 5,000+ years of writing</div>
+</div>
+
+<script>
+// ═══ MASTER DATA ═══
+const SCRIPTS = [
+  // SYLLABARIES
+  { id:1, name:'Bamum', native:'ꚠ ꚡ ꚢ ꚣ', glyph:'ꚠ', region:'Cameroon', status:'live', type:'Syllabary',
+    totalChars:80, mappedChars:80, builtChars:80, file:'learn/bamum.html', category:'syllabaries',
+    notes:'Full modern syllabary (Phase G / Mfemfe). All 80 base characters mapped with phonetic values and Unicode codepoints.' },
+  { id:2, name:'Cherokee', native:'ᏣᎳᎩ', glyph:'Ꭰ', region:'North America', status:'live', type:'Syllabary',
+    totalChars:85, mappedChars:85, builtChars:85, file:'learn/cherokee.html', category:'syllabaries',
+    notes:'Complete 85-character syllabary. Full vowel×consonant grid with IPA transcriptions.' },
+  { id:3, name:'Japanese Kana', native:'ひらがな · カタカナ', glyph:'あ', region:'Japan', status:'live', type:'Syllabary',
+    totalChars:92, mappedChars:92, builtChars:92, file:'learn/kana.html', category:'syllabaries',
+    notes:'46 Hiragana + 46 Katakana. Toggle between scripts. Paired character display.' },
+  { id:4, name:'Yi (Nuosu)', native:'ꆈꌠꁱꂷ', glyph:'ꆈ', region:'Sichuan, China', status:'live', type:'Syllabary',
+    totalChars:1165, mappedChars:80, builtChars:80, file:'learn/yi.html', category:'syllabaries',
+    notes:'Starter set: 80 of 1,165 characters. Covers vowels + common consonant families across all 4 tones. Full set requires phased expansion.' },
+  { id:5, name:'Vai', native:'ꕙꔤ', glyph:'ꕙ', region:'Liberia', status:'live', type:'Syllabary',
+    totalChars:300, mappedChars:70, builtChars:70, file:'learn/vai.html', category:'syllabaries',
+    notes:'Core set: ~70 of ~300 characters. Covers vowels + 10 consonant series. ~55 high-frequency chars handle 80-90% of daily writing.' },
+  { id:6, name:'Canadian Aboriginal', native:'ᓀᐦᐃᔭᐍᐏᐣ', glyph:'ᐊ', region:'Canada', status:'live', type:'Syllabary',
+    totalChars:160, mappedChars:55, builtChars:55, file:'learn/cree.html', category:'syllabaries',
+    notes:'Cree syllabics: 12 consonant series × 4 vowel rotations + finals. Rotation principle fully demonstrated.' },
+  { id:7, name:'Mende Kikakui', native:'𞠀𞠁𞠂', glyph:'𞠀', region:'Sierra Leone', status:'live', type:'Syllabary',
+    totalChars:195, mappedChars:70, builtChars:70, file:'learn/mende.html', category:'syllabaries',
+    notes:'Core set: 70 of 195 characters. 9 consonant series + vowels, each with 7 vowel variants. Right-to-left script.' },
+  { id:8, name:'Linear B', native:'Mycenaean Greek', glyph:'𐀀', region:'Bronze Age Greece', status:'live', type:'Syllabary',
+    totalChars:87, mappedChars:59, builtChars:59, file:'learn/linearb.html', category:'syllabaries',
+    notes:'Core Ventris-Chadwick grid: 59 confirmed syllabic signs across 13 consonant series × 5 vowels. Deciphered 1952.' },
+
+  // LOGOGRAPHIC
+  { id:9, name:'Chinese Hanzi', native:'汉字', glyph:'漢', region:'China', status:'planned', type:'Logographic',
+    totalChars:3500, mappedChars:0, builtChars:0, file:'', category:'logographic',
+    notes:'Target: 3,500 most common characters. Radicals-first teaching approach. Enormous scope — needs phased rollout.' },
+  { id:10, name:'Japanese Kanji', native:'漢字', glyph:'字', region:'Japan', status:'planned', type:'Logographic',
+    totalChars:2136, mappedChars:0, builtChars:0, file:'', category:'logographic',
+    notes:'Target: 2,136 jōyō kanji. On/kun readings. Can share radical system with Hanzi module.' },
+  { id:11, name:'Egyptian Hieroglyphs', native:'𓊹𓌃𓏏', glyph:'𓀀', region:'Egypt', status:'planned', type:'Logographic',
+    totalChars:1000, mappedChars:0, builtChars:0, file:'', category:'logographic',
+    notes:'Target: ~1,000 common signs. Mix of logographic, alphabetic, and determinative. Gardiner classification system.' },
+  { id:12, name:'Cuneiform', native:'𒀀𒈾𒂗𒆠', glyph:'𒀀', region:'Mesopotamia', status:'planned', type:'Logographic',
+    totalChars:600, mappedChars:0, builtChars:0, file:'', category:'logographic',
+    notes:'Target: ~600 common signs. Sumerian and Akkadian values. Clay tablet aesthetic.' },
+  { id:13, name:'Maya Glyphs', native:'Mesoamerica', glyph:'𝋠', region:'Mesoamerica', status:'research', type:'Logosyllabary',
+    totalChars:800, mappedChars:0, builtChars:0, file:'', category:'logographic',
+    notes:'Partially in Unicode. Complex glyph-block system. Research needed on available digital character sets.' },
+  { id:14, name:'Naxi Dongba', native:'DTO-MBA', glyph:'🏔️', region:'Yunnan, China', status:'research', type:'Pictographic',
+    totalChars:1400, mappedChars:0, builtChars:0, file:'', category:'logographic',
+    notes:'NOT YET IN UNICODE. Only living pictographic script. ~1,400 pictograms. Will need custom font or image-based approach.' },
+
+  // ABUGIDAS
+  { id:15, name:"Ge'ez (Ethiopic)", native:'ፊደል', glyph:'ሀ', region:'Ethiopia/Eritrea', status:'planned', type:'Abugida',
+    totalChars:231, mappedChars:0, builtChars:0, file:'', category:'abugida',
+    notes:'33 consonants × 7 vowel forms = 231 syllables. Highly systematic. Good Unicode support.' },
+  { id:16, name:'Tibetan', native:'བོད་སྐད་', glyph:'འ', region:'Tibet', status:'planned', type:'Abugida',
+    totalChars:30, mappedChars:0, builtChars:0, file:'', category:'abugida',
+    notes:'30 consonants + stacking system. Vertical consonant clusters. Needs careful handling of conjuncts.' },
+  { id:17, name:'Devanagari', native:'देवनागरी', glyph:'अ', region:'India', status:'planned', type:'Abugida',
+    totalChars:47, mappedChars:0, builtChars:0, file:'', category:'abugida',
+    notes:'47 primary characters. Shirorekha headline. Hindi, Sanskrit, Marathi, Nepali.' },
+  { id:18, name:'Korean Hangul', native:'한글', glyph:'ㄱ', region:'Korea', status:'planned', type:'Featural',
+    totalChars:24, mappedChars:0, builtChars:0, file:'', category:'abugida',
+    notes:'24 letters. Featural alphabet — shapes encode articulatory features. Syllable block assembly system.' },
+  { id:19, name:'Sundanese', native:'ᮃᮊ᮪ᮞᮛ ᮞᮥᮔ᮪ᮓ', glyph:'ᮃ', region:'West Java', status:'planned', type:'Abugida',
+    totalChars:32, mappedChars:0, builtChars:0, file:'', category:'abugida',
+    notes:'32 base characters. Brahmi-derived. Currently being revitalized in schools.' },
+  { id:20, name:'Georgian', native:'ქართული', glyph:'ქ', region:'Georgia', status:'planned', type:'Alphabet',
+    totalChars:33, mappedChars:0, builtChars:0, file:'', category:'abugida',
+    notes:'33 consonants. UNESCO Intangible Heritage. Completely unique lineage — no known ancestor.' },
+  { id:21, name:"N'Ko", native:'ߒߞߏ', glyph:'ߒ', region:'Guinea', status:'planned', type:'Alphabet',
+    totalChars:27, mappedChars:0, builtChars:0, file:'', category:'abugida',
+    notes:'27 letters, right-to-left. Created 1949 by Solomana Kanté. Growing digital adoption.' },
+
+  // ANCIENT
+  { id:22, name:'Phoenician', native:'𐤀𐤋𐤐𐤁𐤕', glyph:'𐤀', region:'Lebanon', status:'planned', type:'Abjad',
+    totalChars:22, mappedChars:0, builtChars:0, file:'', category:'ancient',
+    notes:'22 letters. Ancestor of Greek, Latin, Arabic, Hebrew. The original abjad. Small character set — quick build.' },
+  { id:23, name:'Linear A', native:'Minoan', glyph:'𐘀', region:'Crete', status:'research', type:'Undeciphered',
+    totalChars:77, mappedChars:0, builtChars:0, file:'', category:'ancient',
+    notes:'UNDECIPHERED. ~77 signs known. Special "mystery mode" — learn the signs, attempt your own decipherment.' },
+  { id:24, name:'Elder Futhark', native:'ᚠᚢᚦᚨᚱᚲ', glyph:'ᚠ', region:'Northern Europe', status:'planned', type:'Alphabet',
+    totalChars:24, mappedChars:0, builtChars:0, file:'', category:'ancient',
+    notes:'24 runes. Each has name + symbolic meaning beyond sound value. Small set — quick build. Rune meanings layer.' },
+];
+
+// ═══ COMPUTE STATS ═══
+const totalScripts = SCRIPTS.length;
+const liveScripts = SCRIPTS.filter(s => s.status === 'live').length;
+const totalMapped = SCRIPTS.reduce((a, s) => a + s.mappedChars, 0);
+const totalCharsAll = SCRIPTS.reduce((a, s) => a + s.totalChars, 0);
+const globalPct = Math.round((totalMapped / totalCharsAll) * 100);
+const liveFiles = SCRIPTS.filter(s => s.file).length;
+
+// Render stats
+document.getElementById('stats-bar').innerHTML = `
+  <div class="stat-cell">
+    <div class="stat-value green">${liveScripts}/${totalScripts}</div>
+    <div class="stat-label">Scripts Live</div>
+    <div class="global-bar"><div class="global-bar-fill" style="width:${(liveScripts/totalScripts*100)}%;background:var(--green)"></div></div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-value amber">${totalMapped.toLocaleString()}</div>
+    <div class="stat-label">Characters Mapped</div>
+    <div class="global-bar"><div class="global-bar-fill" style="width:${globalPct}%;background:var(--amber)"></div></div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-value blue">${totalCharsAll.toLocaleString()}</div>
+    <div class="stat-label">Total Target</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-value purple">${globalPct}%</div>
+    <div class="stat-label">Global Coverage</div>
+    <div class="global-bar"><div class="global-bar-fill" style="width:${globalPct}%;background:var(--purple)"></div></div>
+  </div>
+`;
+
+// Render category counts
+const cats = { syllabaries: 0, logographic: 0, abugida: 0, ancient: 0 };
+SCRIPTS.forEach(s => { if (cats[s.category] !== undefined) cats[s.category]++; });
+document.getElementById('ct-syl').textContent = cats.syllabaries;
+document.getElementById('ct-logo').textContent = cats.logographic;
+document.getElementById('ct-abu').textContent = cats.abugida;
+document.getElementById('ct-anc').textContent = cats.ancient;
+
+// Render rows
+function renderRows(category, containerId) {
+  const scripts = SCRIPTS.filter(s => s.category === category);
+  const container = document.getElementById(containerId);
+  scripts.forEach((s, i) => {
+    const pct = s.totalChars > 0 ? Math.round((s.mappedChars / s.totalChars) * 100) : 0;
+    const statusClass = s.status === 'live' ? 'live' : s.status === 'research' ? 'research' : 'planned';
+    const statusLabel = s.status === 'live' ? 'LIVE' : s.status === 'research' ? 'RESEARCH' : 'PLANNED';
+    const barColor = pct === 100 ? 'green' : pct > 0 ? 'amber' : 'blue';
+    const fileLink = s.file ? `<a href="${s.file}" style="color:var(--green);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:0.7rem">${s.file.replace('-learner.html','')}</a>` : '<span style="color:var(--faint);font-size:0.7rem">—</span>';
+
+    container.innerHTML += `
+      <div class="row" title="${s.notes}">
+        <div class="idx">${s.id}</div>
+        <div class="name-col">
+          <div><span class="glyph-preview">${s.glyph}</span><span class="script-name">${s.name}</span></div>
+          <div class="script-sub">${s.region} · ${s.native}</div>
+        </div>
+        <div><span class="status ${statusClass}">${statusLabel}</span></div>
+        <div class="char-count">${s.mappedChars.toLocaleString()} / ${s.totalChars.toLocaleString()}</div>
+        <div class="prog-wrap">
+          <div class="prog-bar"><div class="prog-fill ${barColor}" style="width:${pct}%"></div></div>
+          <div class="prog-pct">${pct}%</div>
+        </div>
+        <div><span class="type-tag">${s.type}</span></div>
+        <div>${fileLink}</div>
+      </div>`;
+  });
+}
+
+renderRows('syllabaries', 'rows-syllabaries');
+renderRows('logographic', 'rows-logographic');
+renderRows('abugida', 'rows-abugida');
+renderRows('ancient', 'rows-ancient');
+
+// Tab switching
+document.querySelectorAll('.phase-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.phase-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const target = tab.dataset.panel;
+    document.getElementById('panel-' + target).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

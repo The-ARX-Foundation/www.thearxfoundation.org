@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Ka U Ku — Learn the Bamum Syllabary</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bamum:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #1a110a;
+    --bg-mid: #2a1d13;
+    --bg-card: #3a2a1c;
+    --bg-card-hover: #4a3625;
+    --copper: #c67d3e;
+    --copper-light: #e8a862;
+    --copper-bright: #f4c77f;
+    --amber: #d4943a;
+    --cream: #f0e4d0;
+    --cream-dim: #b8a890;
+    --cream-faint: #8a7a68;
+    --red-earth: #8b3a2a;
+    --green-patina: #5a8a6a;
+    --green-dim: #3a5a4a;
+    --shadow: rgba(0,0,0,0.4);
+    --glyph-size: 2.8rem;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--cream);
+    font-family: 'Source Sans 3', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 2.5rem 1rem 1.5rem;
+    border-bottom: 1px solid rgba(198,125,62,0.2);
+    background: linear-gradient(180deg, rgba(198,125,62,0.08) 0%, transparent 100%);
+  }
+  .header-script {
+    font-family: 'Noto Sans Bamum', sans-serif;
+    font-size: 2rem;
+    color: var(--copper-light);
+    letter-spacing: 0.3em;
+    margin-bottom: 0.3rem;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--cream);
+    letter-spacing: 0.08em;
+  }
+  .header-sub {
+    font-size: 0.85rem;
+    color: var(--cream-faint);
+    margin-top: 0.4rem;
+    font-weight: 300;
+  }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+    background: var(--bg-mid);
+    border-bottom: 1px solid rgba(198,125,62,0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--cream-faint);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 1rem 1.8rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .nav-btn:hover { color: var(--cream); }
+  .nav-btn.active {
+    color: var(--copper-light);
+  }
+  .nav-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    right: 20%;
+    height: 2px;
+    background: var(--copper);
+    border-radius: 1px;
+  }
+
+  /* Sections */
+  .section { display: none; padding: 2rem 1rem; max-width: 1100px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* ── HISTORY TAB ── */
+  .history-content { max-width: 700px; margin: 0 auto; }
+  .history-content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--copper-light);
+    margin-bottom: 1.2rem;
+    font-weight: 400;
+  }
+  .history-content p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--cream-dim);
+    margin-bottom: 1.2rem;
+    font-weight: 300;
+  }
+  .history-content strong { color: var(--cream); font-weight: 600; }
+  .history-content em { color: var(--copper-light); font-style: italic; font-family: 'Playfair Display', serif; }
+
+  .evolution-timeline {
+    display: grid;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  .evo-phase {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 1rem;
+    background: var(--bg-card);
+    border-radius: 8px;
+    border-left: 3px solid var(--copper);
+  }
+  .evo-phase .year {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--copper-light);
+  }
+  .evo-phase .desc {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--cream-dim);
+  }
+  .evo-phase .desc .name { color: var(--cream); font-weight: 600; }
+  .evo-phase .count {
+    display: inline-block;
+    background: rgba(198,125,62,0.15);
+    color: var(--copper-light);
+    padding: 0.1em 0.5em;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  /* ── CHART TAB ── */
+  .chart-intro {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--cream-dim);
+    font-size: 0.9rem;
+  }
+  .chart-group {
+    margin-bottom: 2.5rem;
+  }
+  .chart-group-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--copper);
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(198,125,62,0.2);
+  }
+  .chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 8px;
+  }
+  .chart-cell {
+    background: var(--bg-card);
+    border-radius: 6px;
+    padding: 0.6rem 0.4rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .chart-cell:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(198,125,62,0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow);
+  }
+  .chart-cell .glyph {
+    font-family: 'Noto Sans Bamum', sans-serif;
+    font-size: var(--glyph-size);
+    color: var(--copper-bright);
+    line-height: 1.2;
+  }
+  .chart-cell .phonetic {
+    font-size: 0.75rem;
+    color: var(--cream-dim);
+    margin-top: 0.2rem;
+    font-family: 'Source Sans 3', sans-serif;
+  }
+  .chart-cell .codepoint {
+    font-size: 0.6rem;
+    color: var(--cream-faint);
+    opacity: 0.6;
+    margin-top: 0.15rem;
+  }
+
+  /* Detail popup */
+  .detail-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .detail-overlay.show { display: flex; }
+  .detail-card {
+    background: var(--bg-mid);
+    border: 1px solid rgba(198,125,62,0.3);
+    border-radius: 12px;
+    padding: 2.5rem;
+    text-align: center;
+    max-width: 340px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .detail-card .big-glyph {
+    font-family: 'Noto Sans Bamum', sans-serif;
+    font-size: 6rem;
+    color: var(--copper-bright);
+    line-height: 1;
+  }
+  .detail-card .detail-phonetic {
+    font-size: 1.4rem;
+    color: var(--cream);
+    margin: 0.8rem 0 0.3rem;
+    font-family: 'Source Sans 3', sans-serif;
+  }
+  .detail-card .detail-unicode {
+    font-size: 0.85rem;
+    color: var(--cream-faint);
+    margin-bottom: 1rem;
+  }
+  .detail-card .detail-name {
+    font-size: 0.8rem;
+    color: var(--cream-dim);
+    font-style: italic;
+    font-family: 'Playfair Display', serif;
+  }
+  .detail-close {
+    margin-top: 1.5rem;
+    background: rgba(198,125,62,0.15);
+    border: 1px solid rgba(198,125,62,0.3);
+    color: var(--copper-light);
+    padding: 0.5rem 2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: 'Source Sans 3', sans-serif;
+    transition: all 0.2s;
+  }
+  .detail-close:hover {
+    background: rgba(198,125,62,0.3);
+  }
+
+  /* ── PRACTICE TAB ── */
+  .practice-wrap {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .practice-mode-sel {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  .mode-btn {
+    background: var(--bg-card);
+    border: 1px solid rgba(198,125,62,0.2);
+    color: var(--cream-dim);
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .mode-btn:hover { border-color: rgba(198,125,62,0.4); color: var(--cream); }
+  .mode-btn.active {
+    background: rgba(198,125,62,0.2);
+    border-color: var(--copper);
+    color: var(--copper-light);
+  }
+
+  .flashcard {
+    background: var(--bg-card);
+    border: 1px solid rgba(198,125,62,0.2);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    margin-bottom: 1.5rem;
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .flashcard::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(198,125,62,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .flashcard:hover {
+    border-color: rgba(198,125,62,0.4);
+    box-shadow: 0 8px 30px var(--shadow);
+  }
+  .flashcard .prompt-glyph {
+    font-family: 'Noto Sans Bamum', sans-serif;
+    font-size: 5rem;
+    color: var(--copper-bright);
+    line-height: 1;
+    transition: transform 0.3s;
+  }
+  .flashcard .prompt-text {
+    font-size: 1.5rem;
+    color: var(--cream);
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 300;
+  }
+  .flashcard .hint {
+    font-size: 0.8rem;
+    color: var(--cream-faint);
+    margin-top: 1rem;
+  }
+  .flashcard .answer {
+    display: none;
+    margin-top: 1rem;
+  }
+  .flashcard.revealed .answer { display: block; }
+  .flashcard .answer-phonetic {
+    font-size: 1.8rem;
+    color: var(--cream);
+  }
+  .flashcard .answer-glyph {
+    font-family: 'Noto Sans Bamum', sans-serif;
+    font-size: 4rem;
+    color: var(--copper-bright);
+  }
+
+  .practice-controls {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+  .prac-btn {
+    background: var(--bg-card);
+    border: 1px solid rgba(198,125,62,0.3);
+    color: var(--cream);
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .prac-btn:hover {
+    background: rgba(198,125,62,0.2);
+    border-color: var(--copper);
+  }
+  .prac-btn.correct {
+    background: rgba(90,138,106,0.3);
+    border-color: var(--green-patina);
+    color: var(--green-patina);
+  }
+  .prac-btn.wrong {
+    background: rgba(139,58,42,0.3);
+    border-color: var(--red-earth);
+    color: #d4665a;
+  }
+
+  .score-bar {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    font-size: 0.85rem;
+    color: var(--cream-faint);
+    margin-top: 1rem;
+  }
+  .score-bar span { font-weight: 600; }
+  .score-bar .s-correct span { color: var(--green-patina); }
+  .score-bar .s-wrong span { color: var(--red-earth); }
+  .score-bar .s-streak span { color: var(--copper-light); }
+
+  /* Quiz mode */
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+  .quiz-opt {
+    background: var(--bg-card);
+    border: 2px solid rgba(198,125,62,0.15);
+    border-radius: 10px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans Bamum', sans-serif;
+    font-size: 2.2rem;
+    color: var(--copper-bright);
+  }
+  .quiz-opt.phonetic-opt {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 1.2rem;
+    color: var(--cream);
+  }
+  .quiz-opt:hover {
+    border-color: var(--copper);
+    background: var(--bg-card-hover);
+  }
+  .quiz-opt.chosen-correct {
+    border-color: var(--green-patina) !important;
+    background: rgba(90,138,106,0.2) !important;
+  }
+  .quiz-opt.chosen-wrong {
+    border-color: var(--red-earth) !important;
+    background: rgba(139,58,42,0.2) !important;
+  }
+  .quiz-opt.show-correct {
+    border-color: var(--green-patina) !important;
+    background: rgba(90,138,106,0.15) !important;
+  }
+  .quiz-opt.disabled { pointer-events: none; opacity: 0.7; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--cream-faint);
+    font-size: 0.75rem;
+    border-top: 1px solid rgba(198,125,62,0.1);
+    margin-top: 2rem;
+  }
+  .footer a { color: var(--copper); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .chart-grid { grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); }
+    :root { --glyph-size: 2.2rem; }
+    .nav-btn { padding: 0.8rem 1rem; font-size: 0.75rem; }
+    .flashcard .prompt-glyph { font-size: 4rem; }
+    .evo-phase { grid-template-columns: 60px 1fr; }
+  }
+</style>
+</head>
+<body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="../index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+
+<div class="header">
+  <div class="header-script">ꚠ ꚡ ꚢ ꚣ</div>
+  <h1>A Ka U Ku — Learn the Bamum Syllabary</h1>
+  <div class="header-sub">80 characters · King Ibrahim Njoya · Foumban, Cameroon · c. 1918</div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" data-tab="history">History</button>
+  <button class="nav-btn" data-tab="chart">Syllabary</button>
+  <button class="nav-btn" data-tab="practice">Practice</button>
+</nav>
+
+<!-- HISTORY -->
+<div id="history" class="section active">
+  <div class="history-content">
+    <h2>Born from a Dream</h2>
+    <p>In <strong>1896</strong>, the illiterate King <strong>Ibrahim Njoya</strong> of the Bamum Kingdom in western Cameroon had a revelatory dream. A teacher instructed him to draw an image on a wooden tablet, wash it off, and drink the water — and through this ritual, receive knowledge. Upon waking, Njoya re-enacted the dream and began work on a writing system for his people.</p>
+    <p>What followed was one of the most remarkable feats of writing system evolution ever documented: over <strong>fourteen years</strong>, Njoya and his advisors iterated the script through <strong>seven major revisions</strong>, compressing <em>465 pictograms</em> down to <em>80 syllabic characters</em>.</p>
+
+    <h2 style="margin-top:2rem;">The Seven Phases</h2>
+    <div class="evolution-timeline">
+      <div class="evo-phase">
+        <div class="year">1896</div>
+        <div class="desc"><span class="name">Lewa</span> ("Book") — The first draft. <span class="count">465 pictograms</span> Multi-directional writing. Pure pictographic proto-writing.</div>
+      </div>
+      <div class="evo-phase">
+        <div class="year">1899</div>
+        <div class="desc"><span class="name">Mbima</span> ("Mixed") — Simplified: 72 cut, 45 added. <span class="count">437 chars</span> Writing direction fixed to left-to-right.</div>
+      </div>
+      <div class="evo-phase">
+        <div class="year">1902</div>
+        <div class="desc"><span class="name">Nyi Nyi Nfa'</span> — Further reduction. <span class="count">371 chars</span> Used to write the <em>History of the Bamun People</em>.</div>
+      </div>
+      <div class="evo-phase">
+        <div class="year">1907</div>
+        <div class="desc"><span class="name">Rii Nyi Nsha Mfw'</span> — Continued simplification. <span class="count">285 chars</span></div>
+      </div>
+      <div class="evo-phase">
+        <div class="year">~1908</div>
+        <div class="desc"><span class="name">Rii Nyi Mfw' Men</span> — Used for Bible translation. <span class="count">195 chars</span> Last pictographic stage.</div>
+      </div>
+      <div class="evo-phase">
+        <div class="year">1910</div>
+        <div class="desc"><span class="name">A Ka U Ku</span> — The breakthrough: a full syllabary. <span class="count">82 chars + 10 digits</span> Could represent 160 distinct syllables. Used for births, marriages, deaths, and court rulings.</div>
+      </div>
+      <div class="evo-phase">
+        <div class="year">1918</div>
+        <div class="desc"><span class="name">Mfemfe</span> ("New") — The final refinement. <span class="count">80 characters</span> Copper type cast for printing. Njoya wrote histories, a pharmacopoeia, maps, legal codes, and a calendar in this script.</div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:2rem;">Suppression &amp; Revival</h2>
+    <p>When the French took control of western Cameroon after WWI, they saw Njoya's literate kingdom as a threat. They <strong>smashed his printing press</strong>, burned his libraries, destroyed his books, and exiled him to Yaoundé, where he died in 1933. The script fell into disuse.</p>
+    <p>But the script survived. Njoya's son and grandson preserved manuscripts and held the writing as a cultural symbol. In <strong>2007</strong>, the <strong>Bamum Scripts and Archives Project</strong> began reviving the script — teaching it to young people, digitizing threatened documents, and building computer fonts.</p>
+    <p>Today, the 80 glyphs of <em>A Ka U Ku Mfemfe</em> are encoded in Unicode, waiting to be learned. That's what you're here to do.</p>
+  </div>
+</div>
+
+<!-- CHART -->
+<div id="chart" class="section">
+  <p class="chart-intro">Click any character to see details. The modern Bamum syllabary — 80 base characters.</p>
+  <div id="chart-container"></div>
+</div>
+
+<!-- PRACTICE -->
+<div id="practice" class="section">
+  <div class="practice-wrap">
+    <div class="practice-mode-sel">
+      <button class="mode-btn active" data-mode="flash-glyph">Glyph → Sound</button>
+      <button class="mode-btn" data-mode="flash-sound">Sound → Glyph</button>
+      <button class="mode-btn" data-mode="quiz">Quiz</button>
+    </div>
+
+    <div id="practice-area"></div>
+
+    <div class="score-bar">
+      <div class="s-correct">Correct: <span id="s-correct">0</span></div>
+      <div class="s-wrong">Missed: <span id="s-wrong">0</span></div>
+      <div class="s-streak">Streak: <span id="s-streak">0</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Overlay -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-card">
+    <div class="big-glyph" id="detail-glyph"></div>
+    <div class="detail-phonetic" id="detail-phonetic"></div>
+    <div class="detail-unicode" id="detail-unicode"></div>
+    <div class="detail-name" id="detail-name"></div>
+    <button class="detail-close" onclick="closeDetail()">Close</button>
+  </div>
+</div>
+
+<div class="footer">
+  Built for learning the Bamum syllabary of King Ibrahim Njoya · Data sourced from Unicode 6.0+ &amp; the <a href="https://en.wikipedia.org/wiki/Bamum_script" target="_blank">Bamum script</a> documentation
+</div>
+
+<script>
+// ── DATA: Modern Bamum Syllabary (Phase G / Mfemfe) ──
+const SYLLABARY = [
+  // Vowels
+  { glyph: 'ꚠ', phonetic: 'a',    code: 'A6A0', group: 'Vowels' },
+  { glyph: 'ꚢ', phonetic: 'u',    code: 'A6A2', group: 'Vowels' },
+  { glyph: 'ꚤ', phonetic: 'e',    code: 'A6A4', group: 'Vowels' },
+  { glyph: 'ꚧ', phonetic: 'ɔ',    code: 'A6A7', group: 'Vowels' },
+  { glyph: 'ꚩ', phonetic: 'i',    code: 'A6A9', group: 'Vowels' },
+  { glyph: 'ꚦ', phonetic: 'tə',   code: 'A6A6', group: 'Vowels' },
+
+  // K- family
+  { glyph: 'ꚡ', phonetic: 'ka',   code: 'A6A1', group: 'K- family' },
+  { glyph: 'ꚣ', phonetic: 'ku',   code: 'A6A3', group: 'K- family' },
+  { glyph: 'ꚺ', phonetic: 'kye',  code: 'A6BA', group: 'K- family' },
+  { glyph: 'ꚻ', phonetic: 'kɛt',  code: 'A6BB', group: 'K- family' },
+  { glyph: 'ꛥ', phonetic: 'ki',   code: 'A6E5', group: 'K- family' },
+  { glyph: 'ꛟ', phonetic: 'kɔ',   code: 'A6DF', group: 'K- family' },
+  { glyph: 'ꛄ', phonetic: 'kɯx',  code: 'A6C4', group: 'K- family' },
+  { glyph: 'ꛒ', phonetic: 'kɛn',  code: 'A6D2', group: 'K- family' },
+  { glyph: 'ꛩ', phonetic: 'kpa',  code: 'A6E9', group: 'K- family' },
+
+  // P- / B- family
+  { glyph: 'ꚫ', phonetic: 'pa',   code: 'A6AB', group: 'P/B family' },
+  { glyph: 'ꛋ', phonetic: 'pe',   code: 'A6CB', group: 'P/B family' },
+  { glyph: 'ꛝ', phonetic: 'pi',   code: 'A6DD', group: 'P/B family' },
+  { glyph: 'ꛈ', phonetic: 'pü',   code: 'A6C8', group: 'P/B family' },
+  { glyph: 'ꛅ', phonetic: 'pɯx',  code: 'A6C5', group: 'P/B family' },
+  { glyph: 'ꛗ', phonetic: 'puə',  code: 'A6D7', group: 'P/B family' },
+
+  // T- / D- family
+  { glyph: 'ꚰ', phonetic: 'taa',  code: 'A6B0', group: 'T/D family' },
+  { glyph: 'ꛤ', phonetic: 'ti',   code: 'A6E4', group: 'T/D family' },
+  { glyph: 'ꛨ', phonetic: 'tɛt',  code: 'A6E8', group: 'T/D family' },
+
+  // N- family
+  { glyph: 'ꚽ', phonetic: 'nu',   code: 'A6BD', group: 'N- family' },
+  { glyph: 'ꚼ', phonetic: 'nuə',  code: 'A6BC', group: 'N- family' },
+  { glyph: 'ꛏ', phonetic: 'ni',   code: 'A6CF', group: 'N- family' },
+  { glyph: 'ꛛ', phonetic: 'na',   code: 'A6DB', group: 'N- family' },
+  { glyph: 'ꚨ', phonetic: 'nyi',  code: 'A6A8', group: 'N- family' },
+
+  // M- family
+  { glyph: 'ꚳ', phonetic: 'm',    code: 'A6B3', group: 'M- family' },
+  { glyph: 'ꚵ', phonetic: 'mu',   code: 'A6B5', group: 'M- family' },
+  { glyph: 'ꛎ', phonetic: 'mi',   code: 'A6CE', group: 'M- family' },
+  { glyph: 'ꛣ', phonetic: 'ma',   code: 'A6E3', group: 'M- family' },
+  { glyph: 'ꛢ', phonetic: 'mɛn',  code: 'A6E2', group: 'M- family' },
+  { glyph: 'ꛦ', phonetic: 'mɔ',   code: 'A6E6', group: 'M- family' },
+  { glyph: 'ꚯ', phonetic: 'mee',  code: 'A6AF', group: 'M- family' },
+
+  // MB- / ND- / NG- / NT- (Prenasalized)
+  { glyph: 'ꚱ', phonetic: 'ndaa', code: 'A6B1', group: 'Prenasalized' },
+  { glyph: 'ꛠ', phonetic: 'mbɛn', code: 'A6E0', group: 'Prenasalized' },
+  { glyph: 'ꛧ', phonetic: 'mbaa', code: 'A6E7', group: 'Prenasalized' },
+  { glyph: 'ꛔ', phonetic: 'ŋga',  code: 'A6D4', group: 'Prenasalized' },
+  { glyph: 'ꛇ', phonetic: 'nte',  code: 'A6C7', group: 'Prenasalized' },
+  { glyph: 'ꛪ', phonetic: 'tɛn',  code: 'A6EA', group: 'Prenasalized' },
+  { glyph: 'ꛫ', phonetic: 'ntuu', code: 'A6EB', group: 'Prenasalized' },
+  { glyph: 'ꛓ', phonetic: 'ŋkwən',code: 'A6D3', group: 'Prenasalized' },
+
+  // NG- family
+  { glyph: 'ꛕ', phonetic: 'ŋa',   code: 'A6D5', group: 'Ŋ- family' },
+
+  // NJ- / NZ- family
+  { glyph: 'ꚲ', phonetic: 'nʒəm', code: 'A6B2', group: 'NJ/NZ family' },
+  { glyph: 'ꚾ', phonetic: 'nʒuə', code: 'A6BE', group: 'NJ/NZ family' },
+  { glyph: 'ꛆ', phonetic: 'nʒe',  code: 'A6C6', group: 'NJ/NZ family' },
+  { glyph: 'ꛃ', phonetic: 'nʃa',  code: 'A6C3', group: 'NJ/NZ family' },
+
+  // S- family
+  { glyph: 'ꚴ', phonetic: 'suu',  code: 'A6B4', group: 'S- family' },
+  { glyph: 'ꚷ', phonetic: 'si',   code: 'A6B7', group: 'S- family' },
+  { glyph: 'ꚹ', phonetic: 'sɯx',  code: 'A6B9', group: 'S- family' },
+  { glyph: 'ꛬ', phonetic: 'sa',   code: 'A6EC', group: 'S- family' },
+
+  // SH- family
+  { glyph: 'ꚶ', phonetic: 'ʃii',  code: 'A6B6', group: 'Ʃ- family' },
+  { glyph: 'ꚸ', phonetic: 'ʃɯx',  code: 'A6B8', group: 'Ʃ- family' },
+  { glyph: 'ꛀ', phonetic: 'ʃu',   code: 'A6C0', group: 'Ʃ- family' },
+  { glyph: 'ꛖ', phonetic: 'ʃɔ',   code: 'A6D6', group: 'Ʃ- family' },
+
+  // R- family
+  { glyph: 'ꚥ', phonetic: 're',   code: 'A6A5', group: 'R- family' },
+  { glyph: 'ꚬ', phonetic: 'rii',  code: 'A6AC', group: 'R- family' },
+  { glyph: 'ꚭ', phonetic: 'rie',  code: 'A6AD', group: 'R- family' },
+  { glyph: 'ꛍ', phonetic: 'ru',   code: 'A6CD', group: 'R- family' },
+  { glyph: 'ꛐ', phonetic: 'rɯx',  code: 'A6D0', group: 'R- family' },
+  { glyph: 'ꛑ', phonetic: 'rə',   code: 'A6D1', group: 'R- family' },
+  { glyph: 'ꛡ', phonetic: 'rɛn',  code: 'A6E1', group: 'R- family' },
+
+  // L- family
+  { glyph: 'ꚪ', phonetic: 'la',   code: 'A6AA', group: 'L- family' },
+  { glyph: 'ꚮ', phonetic: 'lee',  code: 'A6AE', group: 'L- family' },
+  { glyph: 'ꛍ', phonetic: 'lu',   code: 'A6CD', group: 'L- family' },
+  { glyph: 'ꛜ', phonetic: 'li',   code: 'A6DC', group: 'L- family' },
+  { glyph: 'ꛞ', phonetic: 'lɔʔ',  code: 'A6DE', group: 'L- family' },
+
+  // F- / V- family
+  { glyph: 'ꛌ', phonetic: 'fe',   code: 'A6CC', group: 'F/V family' },
+  { glyph: 'ꛘ', phonetic: 'fu',   code: 'A6D8', group: 'F/V family' },
+  { glyph: 'ꛙ', phonetic: 'fɔm',  code: 'A6D9', group: 'F/V family' },
+  { glyph: 'ꛭ', phonetic: 'faa',  code: 'A6ED', group: 'F/V family' },
+
+  // W- family
+  { glyph: 'ꛚ', phonetic: 'wa',   code: 'A6DA', group: 'W- family' },
+  { glyph: 'ꛉ', phonetic: 'wü',   code: 'A6C9', group: 'W- family' },
+
+  // Y- family
+  { glyph: 'ꛁ', phonetic: 'yu',   code: 'A6C1', group: 'Y- family' },
+  { glyph: 'ꛂ', phonetic: 'ya',   code: 'A6C2', group: 'Y- family' },
+  { glyph: 'ꚿ', phonetic: 'yɔʔ',  code: 'A6BF', group: 'Y- family' },
+
+  // G- / GH- family
+  { glyph: 'ꛮ', phonetic: 'vü',   code: 'A6EE', group: 'V/Ɣ family' },
+  { glyph: 'ꛯ', phonetic: 'ɣɔm',  code: 'A6EF', group: 'V/Ɣ family' },
+];
+
+// Deduplicate by glyph (lu duplicate)
+const seen = new Set();
+const CHARS = SYLLABARY.filter(c => { if (seen.has(c.glyph)) return false; seen.add(c.glyph); return true; });
+
+// Group order
+const GROUP_ORDER = [
+  'Vowels', 'K- family', 'P/B family', 'T/D family',
+  'N- family', 'M- family', 'Prenasalized', 'Ŋ- family',
+  'NJ/NZ family', 'S- family', 'Ʃ- family',
+  'R- family', 'L- family', 'F/V family', 'W- family', 'Y- family', 'V/Ɣ family'
+];
+
+// ── NAVIGATION ──
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ── CHART ──
+function buildChart() {
+  const container = document.getElementById('chart-container');
+  const groups = {};
+  CHARS.forEach(c => {
+    if (!groups[c.group]) groups[c.group] = [];
+    groups[c.group].push(c);
+  });
+
+  GROUP_ORDER.forEach(groupName => {
+    const chars = groups[groupName];
+    if (!chars) return;
+    const div = document.createElement('div');
+    div.className = 'chart-group';
+    div.innerHTML = `<div class="chart-group-title">${groupName}</div>`;
+    const grid = document.createElement('div');
+    grid.className = 'chart-grid';
+    chars.forEach(c => {
+      const cell = document.createElement('div');
+      cell.className = 'chart-cell';
+      cell.innerHTML = `<div class="glyph">${c.glyph}</div><div class="phonetic">/${c.phonetic}/</div><div class="codepoint">U+${c.code}</div>`;
+      cell.addEventListener('click', () => showDetail(c));
+      grid.appendChild(cell);
+    });
+    div.appendChild(grid);
+    container.appendChild(div);
+  });
+}
+
+function showDetail(c) {
+  document.getElementById('detail-glyph').textContent = c.glyph;
+  document.getElementById('detail-phonetic').textContent = '/' + c.phonetic + '/';
+  document.getElementById('detail-unicode').textContent = 'U+' + c.code;
+  document.getElementById('detail-name').textContent = c.group;
+  document.getElementById('detail-overlay').classList.add('show');
+}
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('show');
+}
+document.getElementById('detail-overlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeDetail();
+});
+
+// ── PRACTICE ──
+let practiceMode = 'flash-glyph';
+let currentChar = null;
+let score = { correct: 0, wrong: 0, streak: 0 };
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    practiceMode = btn.dataset.mode;
+    score = { correct: 0, wrong: 0, streak: 0 };
+    updateScore();
+    nextCard();
+  });
+});
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function randomChar(exclude) {
+  let c;
+  do { c = CHARS[Math.floor(Math.random() * CHARS.length)]; } while (c === exclude);
+  return c;
+}
+
+function updateScore() {
+  document.getElementById('s-correct').textContent = score.correct;
+  document.getElementById('s-wrong').textContent = score.wrong;
+  document.getElementById('s-streak').textContent = score.streak;
+}
+
+function nextCard() {
+  currentChar = randomChar(currentChar);
+  const area = document.getElementById('practice-area');
+
+  if (practiceMode === 'flash-glyph') {
+    area.innerHTML = `
+      <div class="flashcard" id="flashcard" onclick="revealCard()">
+        <div class="prompt-glyph">${currentChar.glyph}</div>
+        <div class="hint">tap to reveal pronunciation</div>
+        <div class="answer">
+          <div class="answer-phonetic">/${currentChar.phonetic}/</div>
+          <div style="font-size:0.8rem;color:var(--cream-faint);margin-top:0.3rem;">${currentChar.group}</div>
+        </div>
+      </div>
+      <div class="practice-controls">
+        <button class="prac-btn correct" onclick="markCorrect()">Got it ✓</button>
+        <button class="prac-btn wrong" onclick="markWrong()">Missed ✗</button>
+        <button class="prac-btn" onclick="nextCard()">Skip →</button>
+      </div>`;
+  } else if (practiceMode === 'flash-sound') {
+    area.innerHTML = `
+      <div class="flashcard" id="flashcard" onclick="revealCard()">
+        <div class="prompt-text">/${currentChar.phonetic}/</div>
+        <div class="hint">tap to reveal the character</div>
+        <div class="answer">
+          <div class="answer-glyph">${currentChar.glyph}</div>
+          <div style="font-size:0.8rem;color:var(--cream-faint);margin-top:0.3rem;">U+${currentChar.code} · ${currentChar.group}</div>
+        </div>
+      </div>
+      <div class="practice-controls">
+        <button class="prac-btn correct" onclick="markCorrect()">Got it ✓</button>
+        <button class="prac-btn wrong" onclick="markWrong()">Missed ✗</button>
+        <button class="prac-btn" onclick="nextCard()">Skip →</button>
+      </div>`;
+  } else if (practiceMode === 'quiz') {
+    buildQuiz();
+  }
+}
+
+function revealCard() {
+  document.getElementById('flashcard').classList.add('revealed');
+}
+
+function markCorrect() { score.correct++; score.streak++; updateScore(); nextCard(); }
+function markWrong() { score.wrong++; score.streak = 0; updateScore(); nextCard(); }
+
+function buildQuiz() {
+  const area = document.getElementById('practice-area');
+  const isGlyphPrompt = Math.random() > 0.5;
+  const correctIdx = Math.floor(Math.random() * 4);
+  const options = [];
+  const usedGlyphs = new Set([currentChar.glyph]);
+
+  for (let i = 0; i < 4; i++) {
+    if (i === correctIdx) {
+      options.push(currentChar);
+    } else {
+      let c;
+      do { c = randomChar(); } while (usedGlyphs.has(c.glyph));
+      usedGlyphs.add(c.glyph);
+      options.push(c);
+    }
+  }
+
+  if (isGlyphPrompt) {
+    area.innerHTML = `
+      <div class="flashcard" style="cursor:default;">
+        <div class="prompt-glyph">${currentChar.glyph}</div>
+        <div class="hint">choose the correct pronunciation</div>
+      </div>
+      <div class="quiz-options" id="quiz-opts">
+        ${options.map((o, i) => `<div class="quiz-opt phonetic-opt" data-idx="${i}" onclick="quizAnswer(${i}, ${correctIdx})">${'/' + o.phonetic + '/'}</div>`).join('')}
+      </div>`;
+  } else {
+    area.innerHTML = `
+      <div class="flashcard" style="cursor:default;">
+        <div class="prompt-text">/${currentChar.phonetic}/</div>
+        <div class="hint">choose the correct character</div>
+      </div>
+      <div class="quiz-options" id="quiz-opts">
+        ${options.map((o, i) => `<div class="quiz-opt" data-idx="${i}" onclick="quizAnswer(${i}, ${correctIdx})">${o.glyph}</div>`).join('')}
+      </div>`;
+  }
+}
+
+function quizAnswer(chosen, correct) {
+  const opts = document.querySelectorAll('#quiz-opts .quiz-opt');
+  opts.forEach(o => o.classList.add('disabled'));
+  opts[correct].classList.add('show-correct');
+  if (chosen === correct) {
+    opts[chosen].classList.add('chosen-correct');
+    score.correct++;
+    score.streak++;
+  } else {
+    opts[chosen].classList.add('chosen-wrong');
+    score.wrong++;
+    score.streak = 0;
+  }
+  updateScore();
+  setTimeout(nextCard, 1200);
+}
+
+// ── INIT ──
+buildChart();
+nextCard();
+</script>
+</body>
+</html>

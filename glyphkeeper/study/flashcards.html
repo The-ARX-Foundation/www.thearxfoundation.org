@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glyphkeeper Flashcards — Circular Writing Systems</title>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --cream: #F5EFE4;
+      --rust: #7A3A1A;
+      --indigo: #2D2A5E;
+      --gold: #D4A574;
+      --charcoal: #2A1F14;
+      --nomai-blue: #4A90E2;
+      --gallifrey-purple: #7B2D8A;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--cream) 0%, #FFF9F0 100%);
+      color: var(--charcoal);
+      font-family: 'Crimson Pro', serif;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .header {
+      max-width: 1000px;
+      margin: 0 auto 30px;
+      text-align: center;
+      border-bottom: 2px solid var(--rust);
+      padding-bottom: 20px;
+    }
+
+    .arx-mark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--rust);
+      text-transform: uppercase;
+      border: 1px solid var(--rust);
+      padding: 3px 8px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-family: 'IM Fell English', serif;
+      font-size: 32px;
+      font-style: italic;
+      color: var(--indigo);
+      margin: 12px 0;
+    }
+
+    .subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--rust);
+      letter-spacing: 1px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      padding: 8px 16px;
+      background: white;
+      border: 1px solid var(--rust);
+      color: var(--rust);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: var(--rust);
+      color: white;
+    }
+
+    button.active {
+      background: var(--rust);
+      color: white;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filter-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--rust);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stats-bar {
+      background: white;
+      padding: 16px;
+      border-radius: 3px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(122, 58, 26, 0.08);
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--rust);
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--charcoal);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .card-container {
+      perspective: 1000px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 3px;
+      padding: 40px;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 16px rgba(122, 58, 26, 0.12);
+      border-top: 4px solid;
+    }
+
+    .card.nomai {
+      border-top-color: var(--nomai-blue);
+    }
+
+    .card.gallifrey {
+      border-top-color: var(--gallifrey-purple);
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(122, 58, 26, 0.18);
+    }
+
+    .card.flipped {
+      background: linear-gradient(135deg, rgba(74, 144, 226, 0.05) 0%, rgba(123, 45, 138, 0.05) 100%);
+    }
+
+    .card-front {
+      text-align: center;
+    }
+
+    .card-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--rust);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      opacity: 0.7;
+    }
+
+    .card-question {
+      font-family: 'IM Fell English', serif;
+      font-size: 24px;
+      font-style: italic;
+      color: var(--charcoal);
+      margin: 20px 0;
+      line-height: 1.6;
+    }
+
+    .card-system {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      margin-top: 16px;
+    }
+
+    .card-system.nomai {
+      color: var(--nomai-blue);
+    }
+
+    .card-system.gallifrey {
+      color: var(--gallifrey-purple);
+    }
+
+    .card-answer {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--charcoal);
+      margin: 20px 0;
+    }
+
+    .flip-hint {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--rust);
+      margin-top: 20px;
+      opacity: 0.6;
+    }
+
+    .card-back {
+      text-align: center;
+    }
+
+    .controls-bottom {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .score-btn {
+      padding: 12px 8px;
+      font-size: 12px;
+      background: white;
+      border: 2px solid;
+    }
+
+    .score-btn.again {
+      border-color: #ff3b30;
+      color: #ff3b30;
+    }
+
+    .score-btn.again:hover {
+      background: #ff3b30;
+      color: white;
+    }
+
+    .score-btn.hard {
+      border-color: #ff9500;
+      color: #ff9500;
+    }
+
+    .score-btn.hard:hover {
+      background: #ff9500;
+      color: white;
+    }
+
+    .score-btn.good {
+      border-color: #30d158;
+      color: #30d158;
+    }
+
+    .score-btn.good:hover {
+      background: #30d158;
+      color: white;
+    }
+
+    .score-btn.easy {
+      border-color: #00c7be;
+      color: #00c7be;
+    }
+
+    .score-btn.easy:hover {
+      background: #00c7be;
+      color: white;
+    }
+
+    .progress-bar {
+      background: #ede4d3;
+      height: 4px;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-fill {
+      background: var(--rust);
+      height: 100%;
+      transition: width 0.3s;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    .reset-btn {
+      background: #ff3b30;
+      color: white;
+      border-color: #ff3b30;
+      font-size: 10px;
+    }
+
+    .reset-btn:hover {
+      background: #c41c15;
+      border-color: #c41c15;
+    }
+
+    @media (max-width: 600px) {
+      .controls-bottom {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .card {
+        padding: 24px;
+        min-height: 240px;
+      }
+
+      .card-question {
+        font-size: 18px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="../index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+  <div class="header">
+    <div class="arx-mark">ARX Foundation</div>
+    <h1>Glyphkeeper Flashcards</h1>
+    <div class="subtitle">Spaced Repetition Study System · Nomai & Gallifreyan</div>
+  </div>
+
+  <div class="container">
+    <div class="controls">
+      <div class="filter-group">
+        <span class="filter-label">System:</span>
+        <button onclick="filterBySystem('all')" class="active" id="btn-all">All</button>
+        <button onclick="filterBySystem('nomai')" id="btn-nomai" style="color: #4A90E2; border-color: #4A90E2;">Nomai</button>
+        <button onclick="filterBySystem('gallifrey')" id="btn-gallifrey" style="color: #7B2D8A; border-color: #7B2D8A;">Gallifreyan</button>
+      </div>
+      <button onclick="resetProgress()" class="reset-btn">Reset Progress</button>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-number" id="stat-total">0</div>
+        <div class="stat-label">Total Cards</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number" id="stat-due">0</div>
+        <div class="stat-label">Due Today</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number" id="stat-new">0</div>
+        <div class="stat-label">New</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number" id="stat-mastered">0</div>
+        <div class="stat-label">Mastered</div>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+
+    <div id="card-area"></div>
+  </div>
+
+  <script>
+    const CARDS = [
+      // NOMAI CARDS
+      {
+        id: 'nomai-1',
+        system: 'nomai',
+        front: 'What are the 6 base glyphs in Nomai writing?',
+        back: 'Line, Bend, Square, Pentagon, Hexagon, Octagon. These combine in pairs to form letters.'
+      },
+      {
+        id: 'nomai-2',
+        system: 'nomai',
+        front: 'How does Nomai encoding work? (Procedure)',
+        back: 'Message → Unicode to Integer → 2D Glyph Grid → Parametric Spiral Curve → Transform Glyphs to Spiral Space → Draw Connection Lines → Final Spiral'
+      },
+      {
+        id: 'nomai-3',
+        system: 'nomai',
+        front: 'What makes Nomai spirals deterministic?',
+        back: 'Same message always produces identical spiral. The encoding is mathematical and procedural—no variation or ambiguity. The algorithm is public.'
+      },
+      {
+        id: 'nomai-4',
+        system: 'nomai',
+        front: 'How do Nomai represent vowels?',
+        back: 'Vowels attach to consonants on word dots. Reading order depends on consonant type: consonants start top row; vowels start left column. Double vowels create connected glyphs.'
+      },
+      {
+        id: 'nomai-5',
+        system: 'nomai',
+        front: 'What does Nomai handwriting variation reveal?',
+        back: 'Curve precision = author\'s mental clarity/agitation. Messy spirals reveal emotional content. Different authors\' handwriting is visually distinguishable.'
+      },
+      {
+        id: 'nomai-6',
+        system: 'nomai',
+        front: 'Why are spirals significant to Nomai culture?',
+        back: 'Spirals represent growth, recursion, and the infinite. They are fractal—self-similar at every scale. Fits a civilization pursuing knowledge of the cosmos.'
+      },
+      {
+        id: 'nomai-7',
+        system: 'nomai',
+        front: 'How does Nomai show collaborative authorship?',
+        back: 'Different spirals branch from a common root. Each branch represents a different individual\'s contribution. Authorship is impossible to hide—it\'s visually explicit.'
+      },
+      {
+        id: 'nomai-8',
+        system: 'nomai',
+        front: 'What is the handwriting mode?',
+        back: 'Configurable "messiness" parameter (0=computer clean, 0.5=clean handwriting, 1.0=messy, 2.0=child\'s writing). Adds controlled randomness to simulate author variation.'
+      },
+      {
+        id: 'nomai-9',
+        system: 'nomai',
+        front: 'Where can you encode Nomai spirals?',
+        back: 'nomai-writing.com (web encoder), ow-written-nomai-lang (GitHub Java), NomaiText.jl (Julia). All support arbitrary Unicode.'
+      },
+      {
+        id: 'nomai-10',
+        system: 'nomai',
+        front: 'What philosophical truth does Nomai encode?',
+        back: 'Deterministic truth. A message, once encoded, is permanently fixed. The same content always produces the same spiral. Meaning is invariant and verifiable.'
+      },
+
+      // GALLIFREYAN CARDS
+      {
+        id: 'gall-1',
+        system: 'gallifrey',
+        front: 'What are the 4 base consonant shapes in Gallifreyan?',
+        back: 'Ω (curved double), O (circle), ⌢ (curved single), ⊖ (circle + line). Each shape represents a set of consonants, differentiated by dots/lines.'
+      },
+      {
+        id: 'gall-2',
+        system: 'gallifrey',
+        front: 'How do consonant marks work?',
+        back: 'Dots (●, ●●, ●●●) or lines (—, ——, ———) are added to the base shape to specify which letter within that shape\'s set. E.g., B vs. CH vs. D vs. ND'
+      },
+      {
+        id: 'gall-3',
+        system: 'gallifrey',
+        front: 'How are vowels handled in Gallifreyan?',
+        back: 'Each vowel (A, E, I, O, U) has a unique symbol. Vowels can "attach" to consonants (occludes shape) or float independently in word circle. Optional: line across vowel moves it before prior letter.'
+      },
+      {
+        id: 'gall-4',
+        system: 'gallifrey',
+        front: 'What is the reading direction in Gallifreyan?',
+        back: 'Counter-clockwise from bottom of the word circle. Multiple words nest in a sentence circle. Sentences can chain in any arrangement: circular, linear, or branching.'
+      },
+      {
+        id: 'gall-5',
+        system: 'gallifrey',
+        front: 'What is the fundamental Gallifreyan design principle?',
+        back: 'Context-flexible. "It\'s okay to bend or break the rules if doing so makes sense in context." Correctness = readability. Rules are guides, not laws.'
+      },
+      {
+        id: 'gall-6',
+        system: 'gallifrey',
+        front: 'How do numbers work in Gallifreyan?',
+        back: 'Concentric rings: each ring = one digit. Each line adds 1, each circle adds 5 (1 circle + 2 lines = 7). Decimal point = thicker line. Line through center = negative.'
+      },
+      {
+        id: 'gall-7',
+        system: 'gallifrey',
+        front: 'What advanced technique stacks consonants?',
+        back: 'Consecutive consonants of the same shape can stack with increasing thickness. S, T, R (all ⌢) stack as thin/medium/thick to show reading order.'
+      },
+      {
+        id: 'gall-8',
+        system: 'gallifrey',
+        front: 'How can long words be nested?',
+        back: 'Smaller word/sentence circle in center of existing one. Nested texts read outer to inner, allowing very long messages in compact form.'
+      },
+      {
+        id: 'gall-9',
+        system: 'gallifrey',
+        front: 'What is the START HERE symbol?',
+        back: 'Optional marker showing readers where to begin. Direction indicated by filled dot position. Useful for writing on surfaces that can rotate.'
+      },
+      {
+        id: 'gall-10',
+        system: 'gallifrey',
+        front: 'What defines Gallifreyan mastery?',
+        back: 'Developing personal artistic style while maintaining legibility. Different artists produce wildly different aesthetics for identical content. Rules are tools for achieving clarity.'
+      },
+
+      // COMPARATIVE CARDS
+      {
+        id: 'comp-1',
+        system: 'both',
+        front: 'Nomai vs Gallifreyan: Which is deterministic?',
+        back: 'Nomai is deterministic—same message always = same spiral. Gallifreyan is context-flexible—same message can be written many ways. One says truth is invariant; other says truth is interpretation.'
+      },
+      {
+        id: 'comp-2',
+        system: 'both',
+        front: 'Which system emphasizes algorithm and which emphasizes art?',
+        back: 'Nomai = algorithmic, procedural, verifiable. Gallifreyan = artistic, flexible, expressive. Nomai suits scientists; Gallifreyan suits artists.'
+      },
+      {
+        id: 'comp-3',
+        system: 'both',
+        front: 'How do collaborative contributions appear in each system?',
+        back: 'Nomai: separate spiral branches from common root (authorship explicit). Gallifreyan: interlocked word circles (authorship implicit in style).'
+      },
+      {
+        id: 'comp-4',
+        system: 'both',
+        front: 'Nomai uses spirals; Gallifreyan uses circles. Why?',
+        back: 'Nomai spirals = growth, recursion, infinity, fractals. Gallifreyan circles = complete, timeless, cyclical. Forms reflect civilization philosophy.'
+      },
+      {
+        id: 'comp-5',
+        system: 'both',
+        front: 'Which system is better for preserving exact meaning?',
+        back: 'Nomai. Deterministic encoding means meaning cannot be misinterpreted. Gallifreyan prioritizes legibility over uniqueness—multiple encodings possible.'
+      }
+    ];
+
+    let progress = {};
+    let currentCardIndex = 0;
+    let filteredCards = [];
+    let currentFilter = 'all';
+
+    // SM-2 Spaced Repetition Algorithm
+    function calculateNextReview(quality) {
+      const today = new Date().toISOString().split('T')[0];
+      const card = filteredCards[currentCardIndex];
+      const p = progress[card.id] || { interval: 1, easeFactor: 2.5, nextReview: today, reps: 0 };
+
+      let newInterval;
+      if (quality < 3) {
+        newInterval = 1;
+        p.easeFactor = Math.max(1.3, p.easeFactor - 0.2);
+      } else if (quality === 3) {
+        newInterval = 3;
+        p.easeFactor = p.easeFactor;
+      } else {
+        newInterval = Math.round(p.interval * p.easeFactor);
+        p.easeFactor = p.easeFactor + 0.1;
+      }
+
+      p.interval = newInterval;
+      p.reps = (p.reps || 0) + 1;
+      
+      const nextDate = new Date();
+      nextDate.setDate(nextDate.getDate() + newInterval);
+      p.nextReview = nextDate.toISOString().split('T')[0];
+
+      progress[card.id] = p;
+      localStorage.setItem('glyphkeeper-progress', JSON.stringify(progress));
+    }
+
+    function scoreCard(quality) {
+      calculateNextReview(quality);
+      currentCardIndex++;
+      render();
+    }
+
+    function filterBySystem(sys) {
+      currentFilter = sys;
+      filteredCards = sys === 'all' ? CARDS : CARDS.filter(c => c.system === sys || c.system === 'both');
+      currentCardIndex = 0;
+      updateButtons();
+      render();
+    }
+
+    function updateButtons() {
+      document.getElementById('btn-all').classList.toggle('active', currentFilter === 'all');
+      document.getElementById('btn-nomai').classList.toggle('active', currentFilter === 'nomai');
+      document.getElementById('btn-gallifrey').classList.toggle('active', currentFilter === 'gallifrey');
+    }
+
+    function updateStats() {
+      const today = new Date().toISOString().split('T')[0];
+      let due = 0, newCards = 0, mastered = 0;
+      
+      filteredCards.forEach(card => {
+        const p = progress[card.id];
+        if (!p) {
+          newCards++;
+        } else if (p.nextReview <= today) {
+          due++;
+        }
+        if (p && p.reps >= 20) mastered++;
+      });
+
+      document.getElementById('stat-total').textContent = filteredCards.length;
+      document.getElementById('stat-due').textContent = due;
+      document.getElementById('stat-new').textContent = newCards;
+      document.getElementById('stat-mastered').textContent = mastered;
+
+      const reviewedCount = filteredCards.filter(c => progress[c.id]).length;
+      const pct = (reviewedCount / filteredCards.length) * 100;
+      document.getElementById('progress-fill').style.width = pct + '%';
+    }
+
+    function resetProgress() {
+      if (confirm('Reset all progress? This cannot be undone.')) {
+        progress = {};
+        localStorage.removeItem('glyphkeeper-progress');
+        currentCardIndex = 0;
+        render();
+      }
+    }
+
+    function render() {
+      updateStats();
+
+      if (filteredCards.length === 0) {
+        document.getElementById('card-area').innerHTML = '<div class="empty-state"><div class="empty-state-icon">◎</div><p>No cards available.</p></div>';
+        return;
+      }
+
+      if (currentCardIndex >= filteredCards.length) {
+        document.getElementById('card-area').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">✓</div>
+            <p style="font-size: 18px; margin-bottom: 12px;">Session Complete</p>
+            <p style="font-size: 14px; margin-bottom: 24px;">You\'ve reviewed all cards. Check back tomorrow for more.</p>
+            <button onclick="location.reload()">Reset & Study Again</button>
+          </div>
+        `;
+        return;
+      }
+
+      const card = filteredCards[currentCardIndex];
+      const p = progress[card.id] || {};
+      const isFlipped = p.flipped || false;
+
+      const systemClass = card.system === 'nomai' ? 'nomai' : 'gallifrey';
+
+      document.getElementById('card-area').innerHTML = `
+        <div class="card-container">
+          <div class="card ${systemClass} ${isFlipped ? 'flipped' : ''}" onclick="toggleFlip()">
+            <div class="card-front" style="display: ${!isFlipped ? 'block' : 'none'}; width: 100%;">
+              <div class="card-label">${card.system.toUpperCase()}</div>
+              <div class="card-question">${card.front}</div>
+              <div class="card-system ${systemClass}">${card.system === 'nomai' ? '◈ Procedural Spiral' : '◉ Geometric Circle'}</div>
+              <div class="flip-hint">Click to reveal answer</div>
+            </div>
+            <div class="card-back" style="display: ${isFlipped ? 'block' : 'none'}; width: 100%;">
+              <div class="card-answer">${card.back}</div>
+              <div class="flip-hint">Click to hide</div>
+            </div>
+          </div>
+          <div style="text-align: center; margin-top: 12px; font-family: JetBrains Mono; font-size: 11px; color: #999;">
+            Card ${currentCardIndex + 1} of ${filteredCards.length}
+          </div>
+        </div>
+        <div class="controls-bottom">
+          <button class="score-btn again" onclick="scoreCard(1)"><strong>Again</strong><br/>0d</button>
+          <button class="score-btn hard" onclick="scoreCard(2)"><strong>Hard</strong><br/>1d</button>
+          <button class="score-btn good" onclick="scoreCard(3)"><strong>Good</strong><br/>3d</button>
+          <button class="score-btn easy" onclick="scoreCard(4)"><strong>Easy</strong><br/>10d+</button>
+        </div>
+      `;
+    }
+
+    function toggleFlip() {
+      const card = filteredCards[currentCardIndex];
+      if (!progress[card.id]) progress[card.id] = {};
+      progress[card.id].flipped = !progress[card.id].flipped;
+      render();
+    }
+
+    // Initialize
+    function init() {
+      const stored = localStorage.getItem('glyphkeeper-progress');
+      if (stored) progress = JSON.parse(stored);
+      
+      filterBySystem('all');
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,911 @@
+<title>Glyphkeeper</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5EFE4;
+    --parchment: #EDE5D4;
+    --parchment-dark: #DDD3BE;
+    --rust: #7A3A1A;
+    --rust-light: #A05030;
+    --ink: #1E1610;
+    --ink-mid: #3C2E20;
+    --ink-faint: #7A6A55;
+    --gold: #B8860B;
+    --sage: #4A6741;
+    --indigo: #3B4A8A;
+    --teal: #2A7A72;
+    --red: #8A2020;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 48px 40px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: 'ᚠᚢᚦᚨᚱᚲ 의 글 ꕙꔞꕎ 𓅿𓇌𓃀 一日月人 ꀀꀁꀈ';
+    position: absolute;
+    bottom: -8px;
+    right: 32px;
+    font-size: 2.2rem;
+    opacity: 0.07;
+    letter-spacing: 6px;
+    font-family: serif;
+    white-space: nowrap;
+  }
+
+  .header-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--rust-light);
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'IM Fell English', serif;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    line-height: 1.1;
+    font-style: italic;
+    margin-bottom: 16px;
+    color: var(--cream);
+  }
+
+  .header-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    color: #9A8A75;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(245,239,228,0.1);
+  }
+
+  .hstat { display: flex; flex-direction: column; gap: 3px; }
+  .hstat-val {
+    font-family: 'IM Fell English', serif;
+    font-size: 2rem;
+    color: var(--rust-light);
+    line-height: 1;
+  }
+  .hstat-label {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #6A5A45;
+  }
+
+  /* ─── FILTER BAR ─── */
+  .filter-bar {
+    background: var(--parchment);
+    border-bottom: 2px solid var(--parchment-dark);
+    padding: 0 40px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .filter-btn {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 14px 20px;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover { color: var(--rust); }
+  .filter-btn.active {
+    color: var(--rust);
+    border-bottom-color: var(--rust);
+    font-weight: 600;
+  }
+
+  /* ─── MAIN CONTENT ─── */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 20px;
+    margin-top: 44px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--parchment-dark);
+  }
+
+  .section-title {
+    font-family: 'IM Fell English', serif;
+    font-size: 1.3rem;
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .section-count {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .section-desc {
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    max-width: 700px;
+  }
+
+  /* ─── SCRIPT CARDS ─── */
+  .script-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  .script-card {
+    background: #fff;
+    border: 1px solid var(--parchment-dark);
+    border-radius: 2px;
+    padding: 20px 22px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .script-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+  }
+
+  .script-card.status-complete::before { background: var(--sage); }
+  .script-card.status-partial::before { background: var(--gold); }
+  .script-card.status-reference::before { background: var(--indigo); }
+  .script-card.status-specialist::before { background: var(--teal); }
+
+  .script-card:hover {
+    border-color: var(--rust);
+    box-shadow: 0 4px 20px rgba(122,58,26,0.1);
+    transform: translateY(-1px);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .card-name {
+    font-family: 'IM Fell English', serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+
+  .card-script-num {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .status-badge {
+    font-size: 0.6rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 1px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .badge-complete { background: #e8f5e3; color: var(--sage); }
+  .badge-partial { background: #fdf4e0; color: var(--gold); }
+  .badge-reference { background: #eaecf8; color: var(--indigo); }
+  .badge-specialist { background: #e0f4f2; color: var(--teal); }
+
+  /* Glyph sample strip */
+  .glyph-strip {
+    background: var(--cream);
+    border-radius: 1px;
+    padding: 10px 12px;
+    margin: 12px 0;
+    font-size: 1.5rem;
+    letter-spacing: 8px;
+    color: var(--rust);
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .card-desc {
+    font-size: 0.73rem;
+    color: var(--ink-faint);
+    line-height: 1.5;
+    margin-top: 8px;
+  }
+
+  .card-charcount {
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+  }
+
+  .card-charcount strong {
+    color: var(--rust);
+    font-size: 0.9rem;
+  }
+
+  .card-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .tag {
+    font-size: 0.58rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border: 1px solid var(--parchment-dark);
+    border-radius: 1px;
+    color: var(--ink-faint);
+  }
+
+  /* ─── FULL-WIDTH CARDS ─── */
+  .script-card.wide {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .wide-left {}
+  .wide-right {}
+
+  /* ─── NOTES SECTION ─── */
+  .notes-block {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 28px 32px;
+    margin-top: 48px;
+    border-radius: 2px;
+  }
+
+  .notes-title {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--rust-light);
+    margin-bottom: 16px;
+  }
+
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .note-item {}
+  .note-label {
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    color: #6A5A45;
+    margin-bottom: 5px;
+  }
+  .note-val {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: #D5C9B8;
+  }
+
+  /* ─── HIDDEN STATE ─── */
+  .section-group { transition: opacity 0.2s; }
+  .section-group.hidden { display: none; }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--parchment-dark), transparent);
+    margin: 40px 0;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 32px 20px 28px; }
+    main { padding: 24px 16px 60px; }
+    .filter-bar { padding: 0 16px; }
+    .script-grid { grid-template-columns: 1fr; }
+    .script-card.wide { grid-template-columns: 1fr; }
+    .header-stats { gap: 20px; flex-wrap: wrap; }
+  }
+</style>
+<style>
+.gk-study{display:flex;flex-wrap:wrap;gap:14px 36px;max-width:1100px;margin:18px auto 6px;padding:14px max(16px,env(safe-area-inset-left,0px));border-top:1px solid var(--parchment-dark);border-bottom:1px solid var(--parchment-dark)}
+.gk-col{display:flex;flex-direction:column;gap:4px;min-width:0}
+.gk-k{font:600 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px}
+.gk-study a{color:var(--rust);text-decoration:none;font-size:15px}.gk-study a:hover{text-decoration:underline}
+.script-card[data-href]{cursor:pointer;transition:transform .12s}.script-card[data-href]:hover{transform:translateY(-2px)}
+.gk-open{display:inline-block;margin-top:10px;font:600 12px/1 'IBM Plex Mono',monospace;letter-spacing:.06em;color:var(--rust);text-decoration:none}
+</style>
+<header>
+  <div class="header-eyebrow">ARX Foundation · Open-Source Language Infrastructure</div>
+  <h1>Glyphkeeper</h1>
+  <div class="header-sub">Master index of all writing systems studied, built, or archived. Covers syllabaries, logographic scripts, runic, circular/fictional, and specialist vocabulary sets. SM-2 spaced repetition across all active scripts.</div>
+  <div class="header-stats">
+    <div class="hstat">
+      <span class="hstat-val">1,314</span>
+      <span class="hstat-label">Characters tracked</span>
+    </div>
+    <div class="hstat">
+      <span class="hstat-val">24</span>
+      <span class="hstat-label">Scripts total</span>
+    </div>
+    <div class="hstat">
+      <span class="hstat-val">12</span>
+      <span class="hstat-label">Phase 1 syllabaries</span>
+    </div>
+    <div class="hstat">
+      <span class="hstat-val">2</span>
+      <span class="hstat-label">Circular systems</span>
+    </div>
+  </div>
+</header>
+<nav class="gk-study" aria-label="Study tools">
+  <div class="gk-col"><span class="gk-k">Study</span>
+    <a href="study/review.html">Review session</a><a href="study/dashboard.html">Spaced-repetition dashboard</a><a href="study/flashcards.html">Circular-script flashcards</a></div>
+  <div class="gk-col"><span class="gk-k">More systems</span>
+    <a href="trithemius.html">Trithemian ciphers</a><a href="asl.html">ASL fingerspelling</a><a href="vocab/arx-vocabulary-zh.txt">ARX Mandarin vocab</a></div>
+  <div class="gk-col"><span class="gk-k">About</span>
+    <a href="catalog.html">All 24 scripts (catalog)</a><a href="tracker.html">Mission control</a><a href="vocab/sr-guide.txt">How the spaced repetition works</a></div>
+</nav>
+
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterSection('all', this)">All Scripts</button>
+  <button class="filter-btn" onclick="filterSection('syllabary', this)">Syllabaries</button>
+  <button class="filter-btn" onclick="filterSection('logographic', this)">Logographic</button>
+  <button class="filter-btn" onclick="filterSection('runic', this)">Runic</button>
+  <button class="filter-btn" onclick="filterSection('circular', this)">Circular / Fictional</button>
+  <button class="filter-btn" onclick="filterSection('specialist', this)">Specialist Vocab</button>
+</div>
+
+<main>
+
+  <!-- ═══ SYLLABARIES ═══ -->
+  <div class="section-group" data-cat="syllabary">
+    <div class="section-header">
+      <span class="section-title">Syllabaries</span>
+      <span class="section-count">6 scripts · ~772 characters</span>
+    </div>
+    <p class="section-desc">One character = one syllable. Phonetic systems with high regularity — each glyph maps to a consonant-vowel pair or standalone vowel. Phase 1 priority group.</p>
+    <div class="script-grid">
+
+      <div class="script-card status-complete">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Yi Syllabary</div>
+            <div class="card-script-num">Script #02 · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-complete">Complete</span>
+        </div>
+        <div class="glyph-strip">ꀀ ꀁ ꀈ ꀚ ꀨ ꀴ ꁧ ꂇ</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>250</strong> characters (expanded)</div>
+        </div>
+        <div class="card-desc">Standardized syllabary for the Yi peoples of Yunnan and Sichuan. Each glyph represents one syllable — 819 syllables in the full standard, 250 in Glyphkeeper's expanded set. Tonal language: mid / high / low tones modify meaning.</div>
+        <div class="card-tags">
+          <span class="tag">Sino-Tibetan</span>
+          <span class="tag">Unicode block</span>
+          <span class="tag">SR tracked</span>
+          <span class="tag">Tonal</span>
+        </div>
+      </div>
+
+      <div class="script-card status-complete">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Vai Syllabary</div>
+            <div class="card-script-num">Script #03 · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-complete">Complete</span>
+        </div>
+        <div class="glyph-strip">ꕙ ꔞ ꕎ ꕁ ꕒ ꔟ ꔛ ꔬ ꔯ ꖚ</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>220</strong> characters (expanded)</div>
+        </div>
+        <div class="card-desc">Independently invented script from Liberia (~1830s), one of few documented cases of writing system invention by a single person (Momolu Duwalu Bukele). Each glyph depicts the sound's syllable shape. Highly geometric; well-suited to mnemonic visual learning.</div>
+        <div class="card-tags">
+          <span class="tag">West African</span>
+          <span class="tag">Mande family</span>
+          <span class="tag">SR tracked</span>
+          <span class="tag">Invented script</span>
+        </div>
+      </div>
+
+      <div class="script-card status-complete">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Cherokee</div>
+            <div class="card-script-num">Script #07 · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-complete">Complete</span>
+        </div>
+        <div class="glyph-strip">Ꭰ Ꭱ Ꭲ Ꭳ Ꭴ Ꭵ Ꭶ Ꭷ Ꭸ Ꭹ</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>85</strong> characters</div>
+        </div>
+        <div class="card-desc">Created by Sequoyah (1820s) — one of history's most celebrated solo-invented scripts. 85 syllable characters for the Cherokee language. Within a decade of creation, the majority of Cherokees were literate. Six vowels, 17 consonant initial positions.</div>
+        <div class="card-tags">
+          <span class="tag">Indigenous American</span>
+          <span class="tag">Iroquoian family</span>
+          <span class="tag">SR tracked</span>
+          <span class="tag">Invented 1820s</span>
+        </div>
+      </div>
+
+      <div class="script-card status-complete">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Japanese Kana (Hiragana + Katakana)</div>
+            <div class="card-script-num">Script #08 · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-complete">Complete</span>
+        </div>
+        <div class="glyph-strip">あ い う え お か き く け こ</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>92</strong> characters (46+46)</div>
+        </div>
+        <div class="card-desc">Two parallel syllabaries for Japanese phonology. Hiragana (curved, native Japanese words) and Katakana (angular, foreign loanwords/emphasis). 46 core characters each, plus dakuten (voiced) and handakuten (semi-voiced) variants. Fully regular, no exceptions.</div>
+        <div class="card-tags">
+          <span class="tag">Japanese</span>
+          <span class="tag">Paired systems</span>
+          <span class="tag">SR tracked</span>
+          <span class="tag">Regular</span>
+        </div>
+      </div>
+
+      <div class="script-card status-complete">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Cree Syllabics</div>
+            <div class="card-script-num">Script #10 · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-complete">Complete</span>
+        </div>
+        <div class="glyph-strip">ᐁ ᐃ ᐅ ᐊ ᐯ ᐱ ᐳ ᐸ ᑌ ᑎ</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>55</strong> characters</div>
+        </div>
+        <div class="card-desc">Abugida syllabics for Cree and related Algonquian languages. Invented by James Evans (1840). Characters rotate through four orientations to indicate the vowel (e/i/o/a), while base shape indicates consonant. Elegant geometric logic — rotation as phonemic marker.</div>
+        <div class="card-tags">
+          <span class="tag">Indigenous Canadian</span>
+          <span class="tag">Algonquian</span>
+          <span class="tag">SR tracked</span>
+          <span class="tag">Rotational logic</span>
+        </div>
+      </div>
+
+      <div class="script-card status-complete">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Mende Kikakui</div>
+            <div class="card-script-num">Script #11 · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-complete">Complete</span>
+        </div>
+        <div class="glyph-strip">𖩀 𖩁 𖩂 𖩃 𖩄 𖩅 𖩆 𖩇</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>70</strong> characters</div>
+        </div>
+        <div class="card-desc">Syllabary for Mende (Sierra Leone), created by Mohamed Turay and Kisimi Kamara in 1921. Written right-to-left. ~195 core syllables in full standard; Glyphkeeper tracks 70. One of the few African scripts still in active use for religious and community documents.</div>
+        <div class="card-tags">
+          <span class="tag">West African</span>
+          <span class="tag">Niger-Congo</span>
+          <span class="tag">SR tracked</span>
+          <span class="tag">RTL</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ LOGOGRAPHIC ═══ -->
+  <div class="section-group" data-cat="logographic">
+    <div class="divider"></div>
+    <div class="section-header">
+      <span class="section-title">Logographic & Mixed</span>
+      <span class="section-count">4 scripts · ~364 characters</span>
+    </div>
+    <p class="section-desc">One character = one morpheme, word, or meaning unit. Includes full logographic systems (Egyptian, Bamum) and mixed morpho-syllabic systems (Japanese Kanji, Mandarin).</p>
+    <div class="script-grid">
+
+      <div class="script-card status-complete">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Mandarin (Spectrum)</div>
+            <div class="card-script-num">Script #01 · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-complete">Complete</span>
+        </div>
+        <div class="glyph-strip">的 一 是 在 不 了 有 人 这 中</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>100</strong> characters (token-optimized)</div>
+        </div>
+        <div class="card-desc">Top-100 most frequent Mandarin characters, selected for maximum coverage efficiency — the "token-optimized" approach (~50% of written text covered). Each card includes meaning, pinyin, stroke count. Companion SCRIM vocabulary sets add optoelectronic specialist terms.</div>
+        <div class="card-tags">
+          <span class="tag">Sino-Tibetan</span>
+          <span class="tag">Simplified characters</span>
+          <span class="tag">SR tracked</span>
+          <span class="tag">Tonal</span>
+          <span class="tag">SCRIM specialist vocab</span>
+        </div>
+      </div>
+
+      <div class="script-card status-complete">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Japanese Kanji (N5)</div>
+            <div class="card-script-num">Script #09 · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-complete">Complete</span>
+        </div>
+        <div class="glyph-strip">一 二 三 日 月 年 人 女 男 子</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>100</strong> characters (JLPT N5)</div>
+        </div>
+        <div class="card-desc">JLPT N5-level kanji — the entry point for formal Japanese literacy. Tracks both on'yomi (Chinese-derived reading) and kun'yomi (native Japanese reading) for each character. Shares some characters with Mandarin set but with distinct readings and meanings.</div>
+        <div class="card-tags">
+          <span class="tag">Japonic</span>
+          <span class="tag">JLPT N5</span>
+          <span class="tag">SR tracked</span>
+          <span class="tag">Dual readings</span>
+        </div>
+      </div>
+
+      <div class="script-card status-complete">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Egyptian Hieroglyphs</div>
+            <div class="card-script-num">Script #04 · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-complete">Complete</span>
+        </div>
+        <div class="glyph-strip">𓅿 𓇌 𓁐 𓆑 𓃀 𓆔 𓎡 𓐁 𓎼 𓅬</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>84</strong> characters (uniliterals + common)</div>
+        </div>
+        <div class="card-desc">Covers the 26 Egyptian uniliterals (the "alphabet" of hieroglyphs), plus the most common biliteral and triliteral signs. Each glyph has an image-name, transliteration, phonetic value. Oldest writing system in Glyphkeeper — in use c. 3200 BCE–400 CE.</div>
+        <div class="card-tags">
+          <span class="tag">Afro-Asiatic</span>
+          <span class="tag">Abjad origin</span>
+          <span class="tag">SR tracked</span>
+          <span class="tag">3200 BCE</span>
+        </div>
+      </div>
+
+      <div class="script-card status-complete">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Bamum Script</div>
+            <div class="card-script-num">Script #06 · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-complete">Complete</span>
+        </div>
+        <div class="glyph-strip">𖠀 𖠁 𖠂 𖠃 𖠄 𖠅 𖠆 𖠇 𖠈</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>80</strong> characters</div>
+        </div>
+        <div class="card-desc">Script invented by Sultan Ibrahim Njoya of Cameroon (~1896), evolving through seven stages from pictographic to syllabic over 20 years. Glyphkeeper tracks the final stage — a 80-character syllabary. Extraordinary documented case of single-inventor script evolution. Unicode block: A6A0–A6FF.</div>
+        <div class="card-tags">
+          <span class="tag">Central African</span>
+          <span class="tag">Niger-Congo</span>
+          <span class="tag">SR tracked</span>
+          <span class="tag">Invented 1896</span>
+          <span class="tag">7 evolutionary stages</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ RUNIC ═══ -->
+  <div class="section-group" data-cat="runic">
+    <div class="divider"></div>
+    <div class="section-header">
+      <span class="section-title">Runic & Archaic Alphabets</span>
+      <span class="section-count">2 scripts · ~95 characters</span>
+    </div>
+    <p class="section-desc">Pre-Latin European writing traditions. Characters carry phonetic, divinatory, and cosmological significance simultaneously. Glyphkeeper treats these as cognitive/perceptual tools as well as scripts.</p>
+    <div class="script-grid">
+
+      <div class="script-card status-complete">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Elder Futhark</div>
+            <div class="card-script-num">Script #24 · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-complete">Complete</span>
+        </div>
+        <div class="glyph-strip">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ ᛇ ᛈ ᛉ ᛊ</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>24</strong> runes · 3 aettir</div>
+        </div>
+        <div class="card-desc">The oldest runic alphabet, used c. 150–800 CE across Germanic Europe. Organized into three groups (aettir) of eight: Freyja's aett (ᚠ–ᚹ), Heimdall's aett (ᚺ–ᛃ), Tyr's aett (ᛏ–ᛟ). Each rune carries phonetic value, proto-name, and cosmological meaning. Physical moss agate set in use alongside Glyphkeeper digital module. Treated as cognitive tools for pattern recognition, not divination.</div>
+        <div class="card-tags">
+          <span class="tag">Proto-Germanic</span>
+          <span class="tag">3 aettir</span>
+          <span class="tag">SR tracked</span>
+          <span class="tag">Physical set</span>
+          <span class="tag">ARX practices</span>
+          <span class="tag">Moss agate</span>
+        </div>
+      </div>
+
+      <div class="script-card status-complete">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Linear B</div>
+            <div class="card-script-num">Script #12 · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-complete">Complete</span>
+        </div>
+        <div class="glyph-strip">𐀀 𐀁 𐀂 𐀃 𐀄 𐀅 𐀆 𐀇 𐀈 𐀉</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>59</strong> syllabic signs</div>
+        </div>
+        <div class="card-desc">Mycenaean Greek syllabary (~1450–1200 BCE), the oldest deciphered writing for any Greek-family language. Deciphered by Michael Ventris in 1952. Each sign represents a consonant-vowel pair. Used exclusively for palace administrative records — no literature survives. 59 core syllabic signs plus logograms (not tracked).</div>
+        <div class="card-tags">
+          <span class="tag">Hellenic</span>
+          <span class="tag">1450 BCE</span>
+          <span class="tag">SR tracked</span>
+          <span class="tag">Administrative only</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ CIRCULAR / FICTIONAL ═══ -->
+  <div class="section-group" data-cat="circular">
+    <div class="divider"></div>
+    <div class="section-header">
+      <span class="section-title">Circular & Fictional Writing Systems</span>
+      <span class="section-count">2 systems · reference + structural study</span>
+    </div>
+    <p class="section-desc">Writing systems from constructed worlds — studied for their structural logic, aesthetics, and encoding philosophy. Each reveals something about the relationship between form and meaning. ARX treats these as design objects.</p>
+    <div class="script-grid">
+
+      <div class="script-card status-reference" style="grid-column: 1 / -1; max-width: 100%;">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Nomai Writing (Outer Wilds)</div>
+            <div class="card-script-num">Circular Systems — Procedural</div>
+          </div>
+          <span class="status-badge badge-reference">Reference</span>
+        </div>
+        <div class="glyph-strip" style="font-size: 0.9rem; letter-spacing: 4px; color: var(--indigo);">◯ ◉ ◈ ⬡ ⬢ — Archimedean spiral encoding</div>
+        <div class="card-desc" style="margin-top: 10px;">Deterministic, parametric writing system. Each message always produces an identical Archimedean spiral. Characters map to positions along the spiral curve via integer encoding: consonant = top row, vowel = left column of a grid. Connection lines encode syntactic relationships between word-spirals. Handwriting mode adds controlled noise. <strong>Core structural insight:</strong> proceduralism as cultural expression — a deterministic civilization would write deterministically.</div>
+        <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; font-size: 0.72rem; color: var(--ink-faint);">
+          <div><strong style="color: var(--ink);">System type</strong><br>Procedural / parametric spiral</div>
+          <div><strong style="color: var(--ink);">Base glyphs</strong><br>6 shapes: line, bend, square, pentagon, hexagon, octagon</div>
+          <div><strong style="color: var(--ink);">Encoding</strong><br>Integer → consonant/vowel grid position</div>
+          <div><strong style="color: var(--ink);">Direction</strong><br>Centripetal along spiral curve</div>
+          <div><strong style="color: var(--ink);">Tool</strong><br>nomai-writing.com (generator)</div>
+          <div><strong style="color: var(--ink);">ARX relevance</strong><br>Fractal self-similarity, recursive modular design</div>
+        </div>
+        <div class="card-tags" style="margin-top: 12px;">
+          <span class="tag">Fictional</span>
+          <span class="tag">Constructed world</span>
+          <span class="tag">Procedural logic</span>
+          <span class="tag">Fractal</span>
+          <span class="tag">No SR (structural study)</span>
+        </div>
+      </div>
+
+      <div class="script-card status-reference" style="grid-column: 1 / -1; max-width: 100%;">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Circular Gallifreyan (Sherman's)</div>
+            <div class="card-script-num">Circular Systems — Expressive</div>
+          </div>
+          <span class="status-badge badge-reference">Reference</span>
+        </div>
+        <div class="glyph-strip" style="font-size: 0.9rem; letter-spacing: 4px; color: var(--indigo);">◉⊙○ — Word circles nested in sentence circles</div>
+        <div class="card-desc" style="margin-top: 10px;">Artistic writing system designed by Loren Sherman for Doctor Who fandom. Each word becomes a circle. Sentence circles contain word circles. Consonants defined by 4 base shapes (Ω, O, ⌢, ⊖) with dots and lines as modifiers; 5 vowels attach to consonants or float independently. Counter-clockwise reading direction. Rules are guides, not law — two writers produce visually distinct Gallifreyan from identical text. <strong>Core structural insight:</strong> aesthetic expression over prescription mirrors Time Lord philosophy of transcending rule-systems.</div>
+        <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; font-size: 0.72rem; color: var(--ink-faint);">
+          <div><strong style="color: var(--ink);">System type</strong><br>Expressive / artistic alphabet</div>
+          <div><strong style="color: var(--ink);">Structure</strong><br>Word circles → sentence circles</div>
+          <div><strong style="color: var(--ink);">Consonants</strong><br>4 base shapes × dot/line modifiers</div>
+          <div><strong style="color: var(--ink);">Direction</strong><br>Counter-clockwise from bottom</div>
+          <div><strong style="color: var(--ink);">Numbers</strong><br>Concentric ring system (tens/ones)</div>
+          <div><strong style="color: var(--ink);">ARX relevance</strong><br>Variable typography, personal branding, tattoo studio design</div>
+        </div>
+        <div class="card-tags" style="margin-top: 12px;">
+          <span class="tag">Fictional</span>
+          <span class="tag">Doctor Who</span>
+          <span class="tag">Expressive logic</span>
+          <span class="tag">Artistically variable</span>
+          <span class="tag">No SR (structural study)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ SPECIALIST VOCAB ═══ -->
+  <div class="section-group" data-cat="specialist">
+    <div class="divider"></div>
+    <div class="section-header">
+      <span class="section-title">Specialist Vocabulary Sets</span>
+      <span class="section-count">SCRIM series · ZH (Mandarin technical)</span>
+    </div>
+    <p class="section-desc">Domain-specific character sets built on top of the Mandarin base. Designed for reading SCRIM patent documentation and ARX hardware specs in Chinese. Supplementary to the core 100-character Mandarin set.</p>
+    <div class="script-grid">
+
+      <div class="script-card status-specialist">
+        <div class="card-top">
+          <div>
+            <div class="card-name">SCRIM ZH: Optoelectronics (Phase 3–4)</div>
+            <div class="card-script-num">Specialist · Mandarin extension</div>
+          </div>
+          <span class="status-badge badge-specialist">Specialist</span>
+        </div>
+        <div class="glyph-strip" style="font-size: 1.2rem;">波長 衍射 光栅 散射 反射 干涉</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>~45</strong> high-frequency terms</div>
+        </div>
+        <div class="card-desc">Technical Mandarin vocabulary for the optical and electrical engineering content in SCRIM patent phases 3–4. Organized by semantic group: core optical concepts (波長/wavelength, 衍射/diffraction, 光栅/grating), advanced optical terms, grating parameters, sensor/detector vocabulary. Frequency-ranked: top terms appear 10–12× in source material.</div>
+        <div class="card-tags">
+          <span class="tag">SCRIM patent series</span>
+          <span class="tag">Optoelectronics</span>
+          <span class="tag">Mandarin extension</span>
+          <span class="tag">Frequency-ranked</span>
+        </div>
+      </div>
+
+      <div class="script-card status-specialist">
+        <div class="card-top">
+          <div>
+            <div class="card-name">SCRIM ZH: Haptic Systems</div>
+            <div class="card-script-num">Specialist · Mandarin extension</div>
+          </div>
+          <span class="status-badge badge-specialist">Specialist</span>
+        </div>
+        <div class="glyph-strip" style="font-size: 1.2rem;">觸覺 壓電 振動 感應 材料 傳感</div>
+        <div class="card-meta">
+          <div class="card-charcount"><strong>~40</strong> high-frequency terms</div>
+        </div>
+        <div class="card-desc">Technical Mandarin vocabulary for SCRIM haptic interface documentation. Covers piezoelectric materials, vibration sensing, CNF (cellulose nanofiber) mesh terminology, EPM (electropermanent magnet) control vocabulary, and haptic feedback design language. Companion to the Phase 3–4 optoelectronics set.</div>
+        <div class="card-tags">
+          <span class="tag">SCRIM patent series</span>
+          <span class="tag">Haptics</span>
+          <span class="tag">Mandarin extension</span>
+          <span class="tag">ARX Medical relevance</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ NOTES BLOCK ═══ -->
+  <div class="divider"></div>
+  <div class="notes-block">
+    <div class="notes-title">System Notes & Architecture</div>
+    <div class="notes-grid">
+      <div class="note-item">
+        <div class="note-label">SR Engine</div>
+        <div class="note-val">SM-2 algorithm (Anki standard). Interval, ease factor, repetition count, next-review timestamp. localStorage — single device, export/import for backup.</div>
+      </div>
+      <div class="note-item">
+        <div class="note-label">Phase 1 Status</div>
+        <div class="note-val">12 syllabaries complete as of build. Scripts 1–12 in learner and dashboard. Elder Futhark added as Script 24. Circular systems archived as structural reference (no SR).</div>
+      </div>
+      <div class="note-item">
+        <div class="note-label">Total Character Count</div>
+        <div class="note-val">1,314 characters across all SR-tracked scripts. Dashboard renders in ~100ms. Learner loads each card &lt;10ms. Storage limit ~5–10MB (supports 50k+ cards).</div>
+      </div>
+      <div class="note-item">
+        <div class="note-label">Physical Counterpart</div>
+        <div class="note-val">Moss agate Elder Futhark set — hand-cast, used alongside the digital module. Treated as cognitive/perceptual tools. ARX practices track rune work as part of the Glyphkeeper ecosystem.</div>
+      </div>
+      <div class="note-item">
+        <div class="note-label">Files</div>
+        <div class="note-val">glyphkeeper-learner.html · glyphkeeper-sr-dashboard.html · glyphkeeper-elder-futhark.html · glyphkeeper-circular-systems.html + SCRIM ZH vocab sets</div>
+      </div>
+      <div class="note-item">
+        <div class="note-label">Roadmap</div>
+        <div class="note-val">Keyboard shortcuts (Space → reveal, 1–5 → rate). IndexedDB fallback for &gt;5MB. Cloud sync via Syncthing/Tailscale. Mobile-optimized review UI. Dark mode. PDF progress export.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function filterSection(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.querySelectorAll('.section-group').forEach(group => {
+    if (cat === 'all') {
+      group.classList.remove('hidden');
+    } else {
+      const match = group.dataset.cat === cat;
+      group.classList.toggle('hidden', !match);
+    }
+  });
+
+  // Show dividers only when section visible
+  document.querySelectorAll('.divider').forEach((d, i) => {
+    d.style.display = cat === 'all' ? '' : 'none';
+  });
+}
+</script>
+<script>(function(){const M={"Yi Syllabary": "learn/yi.html", "Vai Syllabary": "learn/vai.html", "Cherokee": "learn/cherokee.html", "Japanese Kana (Hiragana + Katakana)": "learn/kana.html", "Cree Syllabics": "learn/cree.html", "Mende Kikakui": "learn/mende.html", "Bamum Script": "learn/bamum.html", "Linear B": "learn/linearb.html", "Mandarin (Spectrum)": "study/review.html", "Japanese Kanji (N5)": "study/review.html", "Egyptian Hieroglyphs": "study/review.html", "Elder Futhark": "elder-futhark.html", "Nomai Writing (Outer Wilds)": "nomai.html", "Circular Gallifreyan (Sherman's)": "circular.html", "SCRIM ZH: Optoelectronics (Phase 3–4)": "vocab/scrim-optoelectric-zh.txt", "SCRIM ZH: Haptic Systems": "vocab/scrim-haptic-zh.txt"};
+document.querySelectorAll('.script-card').forEach(c=>{const n=c.querySelector('.card-name');const href=n&&M[n.textContent.trim()];if(!href)return;
+ c.dataset.href=href;const a=document.createElement('a');a.className='gk-open';a.href=href;a.textContent=href.endsWith('.txt')?'Open word list →':'Study this script →';c.appendChild(a);
+ c.addEventListener('click',e=>{if(e.target.closest('a'))return;location.href=href;});});})();</script>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ꕙꔤ Vai — Learn the Vai Syllabary</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#12100a;--bg-mid:#1a1810;--bg-card:#24201a;--bg-card-hover:#302a22;--amber:#c8943c;--amber-light:#e8b45c;--amber-bright:#f0cc80;--amber-dim:#8a6a2a;--cream:#ece4d0;--cream-dim:#a09480;--cream-faint:#5a5448;--green:#5aaa6a;--red:#c85a4a;--shadow:rgba(0,0,0,0.5);--border:rgba(255,255,255,0.06)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--cream);font-family:'Source Sans 3',sans-serif;min-height:100vh}
+.header{text-align:center;padding:2.5rem 1rem 1.5rem;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(200,148,60,0.06) 0%,transparent 100%)}
+.header-script{font-size:1.8rem;color:var(--amber-light);letter-spacing:0.3em;margin-bottom:0.3rem}
+.header h1{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--cream);letter-spacing:0.06em}
+.header h1 em{font-style:italic;color:var(--amber-light)}
+.header-sub{font-size:0.8rem;color:var(--cream-faint);margin-top:0.3rem;font-weight:300}
+.nav{display:flex;justify-content:center;background:var(--bg-mid);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-btn{background:none;border:none;color:var(--cream-faint);font-family:'Source Sans 3',sans-serif;font-size:0.85rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:1rem 1.5rem;cursor:pointer;transition:all 0.3s;position:relative}
+.nav-btn:hover{color:var(--cream)}.nav-btn.active{color:var(--amber-light)}
+.nav-btn.active::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:var(--amber);border-radius:1px}
+.section{display:none;padding:2rem 1rem;max-width:1000px;margin:0 auto}.section.active{display:block}
+.hc{max-width:650px;margin:0 auto}
+.hc h2{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--amber-light);margin-bottom:1rem}
+.hc p{font-size:0.95rem;line-height:1.8;color:var(--cream-dim);margin-bottom:1.1rem;font-weight:300}
+.hc strong{color:var(--cream);font-weight:500}
+.chart-intro{text-align:center;margin-bottom:1.5rem;color:var(--cream-dim);font-size:0.85rem}
+.cg{margin-bottom:2rem}
+.cg-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--amber);margin-bottom:0.6rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border)}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px}
+.cc{background:var(--bg-card);border-radius:6px;padding:0.5rem;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid transparent}
+.cc:hover{background:var(--bg-card-hover);border-color:rgba(200,148,60,0.3);transform:translateY(-1px)}
+.cc .g{font-size:2rem;color:var(--amber-bright);line-height:1.1;display:block}
+.cc .p{font-size:0.6rem;color:var(--cream-faint);display:block;margin-top:0.1rem}
+.detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+.detail-overlay.show{display:flex}
+.dc{background:var(--bg-mid);border:1px solid rgba(200,148,60,0.3);border-radius:12px;padding:2.5rem;text-align:center;max-width:300px;width:90%}
+.dc .bg{font-size:6rem;color:var(--amber-bright);line-height:1}
+.dc .dp{font-size:1.3rem;color:var(--cream);margin:0.5rem 0}
+.dc .dt{font-size:0.85rem;color:var(--cream-faint)}
+.dc-close{margin-top:1.5rem;background:rgba(200,148,60,0.15);border:1px solid rgba(200,148,60,0.3);color:var(--amber-light);padding:0.5rem 2rem;border-radius:6px;cursor:pointer;transition:all 0.2s}
+.pw{max-width:480px;margin:0 auto;text-align:center}
+.ms{display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.mb{background:var(--bg-card);border:1px solid var(--border);color:var(--cream-dim);padding:0.5rem 1rem;border-radius:6px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:0.8rem;font-weight:500;transition:all 0.2s}
+.mb:hover{border-color:rgba(200,148,60,0.4);color:var(--cream)}.mb.active{background:rgba(200,148,60,0.15);border-color:var(--amber);color:var(--amber-light)}
+.fc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:3rem 2rem;margin-bottom:1.5rem;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s}
+.fc:hover{border-color:rgba(200,148,60,0.3)}.fc .pg{font-size:5rem;color:var(--amber-bright);line-height:1}
+.fc .pt{font-size:1.5rem;color:var(--cream);font-weight:300}.fc .hint{font-size:0.8rem;color:var(--cream-faint);margin-top:1rem}
+.fc .ans{display:none;margin-top:1rem}.fc.rev .ans{display:block}
+.fc .ar{font-size:1.8rem;color:var(--amber-light)}.fc .ag{font-size:4rem;color:var(--amber-bright)}
+.pc{display:flex;gap:0.8rem;justify-content:center;margin-bottom:1.5rem}
+.pb{background:var(--bg-card);border:1px solid rgba(200,148,60,0.3);color:var(--cream);padding:0.7rem 1.5rem;border-radius:8px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:0.9rem;font-weight:500;transition:all 0.2s}
+.pb:hover{background:rgba(200,148,60,0.15)}.pb.ok{background:rgba(90,170,106,0.2);border-color:var(--green);color:var(--green)}
+.pb.no{background:rgba(200,90,74,0.2);border-color:var(--red);color:var(--red)}
+.sb{display:flex;justify-content:center;gap:2rem;font-size:0.85rem;color:var(--cream-faint);margin-top:1rem}
+.sb span{font-weight:600}.sb .sc span{color:var(--green)}.sb .sw span{color:var(--red)}.sb .ss span{color:var(--amber-light)}
+.qo{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1.5rem}
+.qopt{background:var(--bg-card);border:2px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.2s;font-size:2.2rem;color:var(--amber-bright)}
+.qopt.ro{font-family:'Source Sans 3',sans-serif;font-size:1.1rem;color:var(--cream)}
+.qopt:hover{border-color:var(--amber);background:var(--bg-card-hover)}
+.qopt.cc2{border-color:var(--green)!important;background:rgba(90,170,106,0.15)!important}
+.qopt.cw{border-color:var(--red)!important;background:rgba(200,90,74,0.15)!important}
+.qopt.sc2{border-color:var(--green)!important;background:rgba(90,170,106,0.1)!important}
+.qopt.dis{pointer-events:none;opacity:0.7}
+.footer{text-align:center;padding:2rem 1rem;color:var(--cream-faint);font-size:0.75rem;border-top:1px solid var(--border);margin-top:2rem}
+.footer a{color:var(--amber);text-decoration:none}
+@media(max-width:600px){.chart-grid{grid-template-columns:repeat(auto-fill,minmax(65px,1fr))}.nav-btn{padding:0.8rem 0.9rem;font-size:0.72rem}}
+</style></head><body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="../index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+<div class="header">
+  <div class="header-script">ꕙ ꔤ ꗏ</div>
+  <h1><em>ꕙꔤ</em> — Learn the Vai Syllabary</h1>
+  <div class="header-sub">~300 characters · Momolu Duwalu Bukele · Liberia · c. 1833</div>
+</div>
+<nav class="nav"><button class="nav-btn active" data-tab="history">History</button><button class="nav-btn" data-tab="chart">Syllabary</button><button class="nav-btn" data-tab="practice">Practice</button></nav>
+
+<div id="history" class="section active"><div class="hc">
+  <h2>Born in Liberia, Possibly Inspired by Cherokee</h2>
+  <p><strong>Momolu Duwalu Bukele</strong> of Jondu, in what is now Grand Cape Mount County, Liberia, is credited with creating the Vai syllabary around <strong>1832–33</strong>. It is one of the most successful indigenous scripts in West Africa.</p>
+  <p>Intriguingly, a Cherokee man named <strong>Austin Curtis</strong> had settled in Vai country around 1827 — and the inscription that first drew the world's attention to the Vai script was on <em>his house</em>. Whether the Cherokee syllabary directly inspired the Vai system remains debated, but the timing and connection are remarkable.</p>
+  <p>By <strong>1899</strong>, most Vai people were reportedly literate in the script. It was standardized in the 1960s at the <strong>University of Liberia</strong>, with dots and strokes added to cover all CV syllables. Today roughly <strong>55 high-frequency characters</strong> account for 80–90% of typical Vai writing.</p>
+  <p>The script represents consonant-vowel (CV) syllables. Long vowels, diphthongs, and nasal endings are written with two characters. Tones exist in spoken Vai but are not marked in the script — context resolves ambiguity, much like Cherokee.</p>
+  <p>This learner covers the <strong>core set of ~70 essential characters</strong> — the vowels and most common consonant series that form the backbone of Vai literacy.</p>
+</div></div>
+
+<div id="chart" class="section">
+  <p class="chart-intro">Core Vai syllables organized by vowel group. Click any to enlarge.</p>
+  <div id="chart-container"></div>
+</div>
+
+<div id="practice" class="section"><div class="pw">
+  <div class="ms"><button class="mb active" data-mode="flash-glyph">Glyph → Sound</button><button class="mb" data-mode="flash-sound">Sound → Glyph</button><button class="mb" data-mode="quiz">Quiz</button></div>
+  <div id="pa"></div>
+  <div class="sb"><div class="sc">Correct: <span id="xc">0</span></div><div class="sw">Missed: <span id="xw">0</span></div><div class="ss">Streak: <span id="xs">0</span></div></div>
+</div></div>
+
+<div class="detail-overlay" id="dov"><div class="dc"><div class="bg" id="dg"></div><div class="dp" id="dp"></div><div class="dt" id="dt"></div><button class="dc-close" onclick="cd()">Close</button></div></div>
+<div class="footer">Vai syllabary · Unicode U+A500–A63F · Part of <a href="../index.html">Glyphkeeper</a></div>
+
+<script>
+const VAI=[
+  // Vowels
+  {g:'ꔀ',p:'ee',grp:'Vowels'},{g:'ꔁ',p:'en',grp:'Vowels'},{g:'ꔂ',p:'hee',grp:'Vowels'},
+  {g:'ꔄ',p:'i',grp:'Vowels'},{g:'ꔅ',p:'a',grp:'Vowels'},{g:'ꔆ',p:'an',grp:'Vowels'},
+  {g:'ꔇ',p:'o',grp:'Vowels'},{g:'ꔈ',p:'on',grp:'Vowels'},{g:'ꔉ',p:'u',grp:'Vowels'},
+  {g:'ꔊ',p:'un',grp:'Vowels'},{g:'ꔋ',p:'ɔ',grp:'Vowels'},{g:'ꔌ',p:'ɛ',grp:'Vowels'},
+  // H- series
+  {g:'ꔍ',p:'he',grp:'H- series'},{g:'ꔎ',p:'hi',grp:'H- series'},{g:'ꔐ',p:'ha',grp:'H- series'},
+  {g:'ꔒ',p:'ho',grp:'H- series'},{g:'ꔓ',p:'hu',grp:'H- series'},{g:'ꔔ',p:'hɔ',grp:'H- series'},
+  // W- series  
+  {g:'ꔖ',p:'we',grp:'W- series'},{g:'ꔘ',p:'wi',grp:'W- series'},{g:'ꔚ',p:'wa',grp:'W- series'},
+  {g:'ꔛ',p:'wo',grp:'W- series'},{g:'ꔜ',p:'wu',grp:'W- series'},
+  // P- series
+  {g:'ꔞ',p:'pe',grp:'P- series'},{g:'ꔠ',p:'pi',grp:'P- series'},{g:'ꔡ',p:'pa',grp:'P- series'},
+  {g:'ꔢ',p:'po',grp:'P- series'},{g:'ꔣ',p:'pu',grp:'P- series'},{g:'ꔤ',p:'pɔ',grp:'P- series'},
+  // B- series
+  {g:'ꔧ',p:'be',grp:'B- series'},{g:'ꔨ',p:'bi',grp:'B- series'},{g:'ꔩ',p:'ba',grp:'B- series'},
+  {g:'ꔪ',p:'bo',grp:'B- series'},{g:'ꔫ',p:'bu',grp:'B- series'},
+  // D- series
+  {g:'ꔱ',p:'de',grp:'D- series'},{g:'ꔲ',p:'di',grp:'D- series'},{g:'ꔳ',p:'da',grp:'D- series'},
+  {g:'ꔴ',p:'do',grp:'D- series'},{g:'ꔵ',p:'du',grp:'D- series'},
+  // T- series
+  {g:'ꔶ',p:'te',grp:'T- series'},{g:'ꔸ',p:'ti',grp:'T- series'},{g:'ꔹ',p:'ta',grp:'T- series'},
+  {g:'ꔺ',p:'to',grp:'T- series'},{g:'ꔻ',p:'tu',grp:'T- series'},
+  // L- series
+  {g:'ꕄ',p:'le',grp:'L- series'},{g:'ꕅ',p:'li',grp:'L- series'},{g:'ꕆ',p:'la',grp:'L- series'},
+  {g:'ꕇ',p:'lo',grp:'L- series'},{g:'ꕈ',p:'lu',grp:'L- series'},
+  // M- series
+  {g:'ꕊ',p:'me',grp:'M- series'},{g:'ꕋ',p:'mi',grp:'M- series'},{g:'ꕌ',p:'ma',grp:'M- series'},
+  {g:'ꕍ',p:'mo',grp:'M- series'},{g:'ꕎ',p:'mu',grp:'M- series'},
+  // N- series
+  {g:'ꕑ',p:'ne',grp:'N- series'},{g:'ꕒ',p:'ni',grp:'N- series'},{g:'ꕓ',p:'na',grp:'N- series'},
+  {g:'ꕔ',p:'no',grp:'N- series'},{g:'ꕕ',p:'nu',grp:'N- series'},
+  // S- series
+  {g:'ꕚ',p:'se',grp:'S- series'},{g:'ꕛ',p:'si',grp:'S- series'},{g:'ꕜ',p:'sa',grp:'S- series'},
+  {g:'ꕝ',p:'so',grp:'S- series'},{g:'ꕞ',p:'su',grp:'S- series'},
+  // K- series
+  {g:'ꕪ',p:'ke',grp:'K- series'},{g:'ꕫ',p:'ki',grp:'K- series'},{g:'ꕬ',p:'ka',grp:'K- series'},
+  {g:'ꕭ',p:'ko',grp:'K- series'},{g:'ꕮ',p:'ku',grp:'K- series'},
+  // F- series
+  {g:'ꕶ',p:'fe',grp:'F- series'},{g:'ꕷ',p:'fi',grp:'F- series'},{g:'ꕸ',p:'fa',grp:'F- series'},
+  {g:'ꕹ',p:'fo',grp:'F- series'},{g:'ꕺ',p:'fu',grp:'F- series'},
+];
+
+const GROUPS=[...new Set(VAI.map(c=>c.grp))];
+// Nav
+document.querySelectorAll('.nav-btn').forEach(b=>{b.addEventListener('click',()=>{
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');
+})});
+function buildChart(){
+  const c=document.getElementById('chart-container');
+  GROUPS.forEach(grp=>{
+    const chars=VAI.filter(v=>v.grp===grp);const d=document.createElement('div');d.className='cg';
+    d.innerHTML=`<div class="cg-title">${grp}</div>`;const g=document.createElement('div');g.className='chart-grid';
+    chars.forEach(ch=>{const cell=document.createElement('div');cell.className='cc';cell.innerHTML=`<span class="g">${ch.g}</span><span class="p">${ch.p}</span>`;cell.onclick=()=>sd(ch);g.appendChild(cell)});
+    d.appendChild(g);c.appendChild(d);
+  });
+}
+function sd(ch){document.getElementById('dg').textContent=ch.g;document.getElementById('dp').textContent=ch.p;document.getElementById('dt').textContent=ch.grp;document.getElementById('dov').classList.add('show')}
+function cd(){document.getElementById('dov').classList.remove('show')}
+document.getElementById('dov').addEventListener('click',e=>{if(e.target===e.currentTarget)cd()});
+let pMode='flash-glyph',cur=null,score={c:0,w:0,s:0};
+document.querySelectorAll('.mb').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.mb').forEach(x=>x.classList.remove('active'));b.classList.add('active');pMode=b.dataset.mode;score={c:0,w:0,s:0};us();nxt()})});
+function rnd(ex){let c;do{c=VAI[Math.floor(Math.random()*VAI.length)]}while(c===ex);return c}
+function us(){document.getElementById('xc').textContent=score.c;document.getElementById('xw').textContent=score.w;document.getElementById('xs').textContent=score.s}
+function nxt(){cur=rnd(cur);const a=document.getElementById('pa');if(pMode==='flash-glyph'){a.innerHTML=`<div class="fc" id="fc" onclick="rv()"><div class="pg">${cur.g}</div><div class="hint">tap to reveal</div><div class="ans"><div class="ar">${cur.p}</div><div style="font-size:0.8rem;color:var(--cream-faint);margin-top:0.3rem">${cur.grp}</div></div></div><div class="pc"><button class="pb ok" onclick="mk(1)">Got it ✓</button><button class="pb no" onclick="mk(0)">Missed ✗</button><button class="pb" onclick="nxt()">Skip →</button></div>`}else if(pMode==='flash-sound'){a.innerHTML=`<div class="fc" id="fc" onclick="rv()"><div class="pt">${cur.p}</div><div class="hint">tap to reveal</div><div class="ans"><div class="ag">${cur.g}</div></div></div><div class="pc"><button class="pb ok" onclick="mk(1)">Got it ✓</button><button class="pb no" onclick="mk(0)">Missed ✗</button><button class="pb" onclick="nxt()">Skip →</button></div>`}else{bq()}}
+function rv(){document.getElementById('fc').classList.add('rev')}
+function mk(ok){if(ok){score.c++;score.s++}else{score.w++;score.s=0}us();nxt()}
+function bq(){const a=document.getElementById('pa');const isG=Math.random()>0.5;const ci=Math.floor(Math.random()*4);const opts=[];const used=new Set([cur.g]);for(let i=0;i<4;i++){if(i===ci){opts.push(cur)}else{let c;do{c=rnd()}while(used.has(c.g));used.add(c.g);opts.push(c)}}if(isG){a.innerHTML=`<div class="fc" style="cursor:default"><div class="pg">${cur.g}</div><div class="hint">choose the correct sound</div></div><div class="qo" id="qo">${opts.map((o,i)=>`<div class="qopt ro" onclick="qa(${i},${ci})">${o.p}</div>`).join('')}</div>`}else{a.innerHTML=`<div class="fc" style="cursor:default"><div class="pt">${cur.p}</div><div class="hint">choose the correct glyph</div></div><div class="qo" id="qo">${opts.map((o,i)=>`<div class="qopt" onclick="qa(${i},${ci})">${o.g}</div>`).join('')}</div>`}}
+function qa(ch,co){const os=document.querySelectorAll('#qo .qopt');os.forEach(o=>o.classList.add('dis'));os[co].classList.add('sc2');if(ch===co){os[ch].classList.add('cc2');score.c++;score.s++}else{os[ch].classList.add('cw');score.w++;score.s=0}us();setTimeout(nxt,1200)}
+buildChart();nxt();
+</script></body></html>

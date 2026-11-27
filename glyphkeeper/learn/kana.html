@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>墨 Sumi — Learn Japanese Kana</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0c10;--bg-mid:#141418;--bg-card:#1a1a22;--bg-card-hover:#22222e;
+  --indigo:#4a5a8a;--indigo-light:#6a7aaa;--indigo-bright:#8a9acc;
+  --ink:#e8e4dc;--ink-dim:#9a9690;--ink-faint:#5a5854;
+  --red:#c45050;--red-dim:#8a3838;
+  --green:#5a9a6a;
+  --shadow:rgba(0,0,0,0.5);--border:rgba(255,255,255,0.06);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'Outfit',sans-serif;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
+
+.header{text-align:center;padding:2.5rem 1rem 1.5rem;border-bottom:1px solid var(--border)}
+.header-kanji{font-family:'Noto Sans JP',sans-serif;font-size:2.5rem;font-weight:300;color:var(--ink);letter-spacing:0.3em;margin-bottom:0.2rem}
+.header h1{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;color:var(--ink-dim);letter-spacing:0.1em}
+.header-sub{font-size:0.8rem;color:var(--ink-faint);margin-top:0.3rem}
+
+.nav{display:flex;justify-content:center;background:var(--bg-mid);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-btn{background:none;border:none;color:var(--ink-faint);font-family:'Outfit',sans-serif;font-size:0.85rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;padding:1rem 1.5rem;cursor:pointer;transition:all 0.3s;position:relative}
+.nav-btn:hover{color:var(--ink)}
+.nav-btn.active{color:var(--indigo-bright)}
+.nav-btn.active::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:var(--indigo);border-radius:1px}
+
+.section{display:none;padding:2rem 1rem;max-width:1000px;margin:0 auto}
+.section.active{display:block}
+
+/* ── KANA TOGGLE ── */
+.kana-toggle{display:flex;justify-content:center;gap:0.5rem;margin-bottom:2rem}
+.kt-btn{background:var(--bg-card);border:1px solid var(--border);color:var(--ink-dim);padding:0.6rem 1.8rem;border-radius:6px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:0.9rem;font-weight:500;transition:all 0.2s}
+.kt-btn:hover{border-color:rgba(74,90,138,0.4);color:var(--ink)}
+.kt-btn.active{background:rgba(74,90,138,0.15);border-color:var(--indigo);color:var(--indigo-bright)}
+
+/* ── CHART ── */
+.chart-scroll{overflow-x:auto}
+.kana-table{width:100%;border-collapse:separate;border-spacing:4px}
+.kana-table th{font-size:0.7rem;font-weight:500;color:var(--indigo);text-transform:uppercase;letter-spacing:0.1em;padding:0.5rem;text-align:center}
+.kana-table th.rh{text-align:right;padding-right:0.6rem;color:var(--ink-faint);min-width:30px}
+.kana-table td{background:var(--bg-card);border-radius:6px;text-align:center;padding:0.6rem 0.3rem;cursor:pointer;transition:all 0.2s;border:1px solid transparent}
+.kana-table td:hover{background:var(--bg-card-hover);border-color:rgba(74,90,138,0.25);transform:translateY(-1px)}
+.kana-table td .g{font-family:'Noto Sans JP',sans-serif;font-size:2rem;font-weight:400;color:var(--ink);line-height:1.1;display:block}
+.kana-table td .p{font-size:0.65rem;color:var(--ink-faint);display:block;margin-top:0.1rem}
+.kana-table td.empty{background:transparent;cursor:default;border:none}
+
+/* Detail */
+.detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+.detail-overlay.show{display:flex}
+.detail-card{background:var(--bg-mid);border:1px solid rgba(74,90,138,0.3);border-radius:12px;padding:2.5rem;text-align:center;max-width:300px;width:90%}
+.detail-card .big-g{font-family:'Noto Sans JP',sans-serif;font-size:7rem;font-weight:300;color:var(--ink);line-height:1}
+.detail-card .d-rom{font-size:1.4rem;color:var(--indigo-bright);margin:0.5rem 0 0.2rem}
+.detail-card .d-pair{font-family:'Noto Sans JP',sans-serif;font-size:1.2rem;color:var(--ink-dim);margin-top:0.5rem}
+.detail-card .d-pair-label{font-size:0.7rem;color:var(--ink-faint);margin-bottom:0.2rem}
+.d-close{margin-top:1.5rem;background:rgba(74,90,138,0.15);border:1px solid rgba(74,90,138,0.3);color:var(--indigo-light);padding:0.5rem 2rem;border-radius:6px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s}
+.d-close:hover{background:rgba(74,90,138,0.3)}
+
+/* ── PRACTICE ── */
+.practice-wrap{max-width:480px;margin:0 auto;text-align:center}
+.mode-sel{display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.mode-btn{background:var(--bg-card);border:1px solid var(--border);color:var(--ink-dim);padding:0.5rem 1rem;border-radius:6px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:0.8rem;font-weight:500;transition:all 0.2s}
+.mode-btn:hover{border-color:rgba(74,90,138,0.4);color:var(--ink)}
+.mode-btn.active{background:rgba(74,90,138,0.15);border-color:var(--indigo);color:var(--indigo-bright)}
+.fc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:3rem 2rem;margin-bottom:1.5rem;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s}
+.fc:hover{border-color:rgba(74,90,138,0.3);box-shadow:0 8px 30px var(--shadow)}
+.fc .pg{font-family:'Noto Sans JP',sans-serif;font-size:5.5rem;font-weight:300;color:var(--ink);line-height:1}
+.fc .pt{font-size:1.5rem;color:var(--ink);font-weight:300}
+.fc .hint{font-size:0.8rem;color:var(--ink-faint);margin-top:1rem}
+.fc .ans{display:none;margin-top:1rem}
+.fc.rev .ans{display:block}
+.fc .ans-rom{font-size:1.8rem;color:var(--indigo-bright)}
+.fc .ans-g{font-family:'Noto Sans JP',sans-serif;font-size:4rem;font-weight:300;color:var(--ink)}
+.pc{display:flex;gap:0.8rem;justify-content:center;margin-bottom:1.5rem}
+.pb{background:var(--bg-card);border:1px solid rgba(74,90,138,0.3);color:var(--ink);padding:0.7rem 1.5rem;border-radius:8px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:0.9rem;font-weight:500;transition:all 0.2s}
+.pb:hover{background:rgba(74,90,138,0.15)}
+.pb.ok{background:rgba(90,154,106,0.2);border-color:var(--green);color:var(--green)}
+.pb.no{background:rgba(196,80,80,0.2);border-color:var(--red);color:var(--red)}
+.sb{display:flex;justify-content:center;gap:2rem;font-size:0.85rem;color:var(--ink-faint);margin-top:1rem}
+.sb span{font-weight:600}
+.sb .sc span{color:var(--green)}
+.sb .sw span{color:var(--red)}
+.sb .ss span{color:var(--indigo-bright)}
+.qo{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1.5rem}
+.qopt{background:var(--bg-card);border:2px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.2s;font-family:'Noto Sans JP',sans-serif;font-size:2.2rem;color:var(--ink)}
+.qopt.ro{font-family:'Outfit',sans-serif;font-size:1.2rem;color:var(--ink-dim)}
+.qopt:hover{border-color:var(--indigo);background:var(--bg-card-hover)}
+.qopt.cc{border-color:var(--green)!important;background:rgba(90,154,106,0.15)!important}
+.qopt.cw{border-color:var(--red)!important;background:rgba(196,80,80,0.15)!important}
+.qopt.sc{border-color:var(--green)!important;background:rgba(90,154,106,0.1)!important}
+.qopt.dis{pointer-events:none;opacity:0.7}
+
+/* History */
+.hc{max-width:650px;margin:0 auto}
+.hc h2{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--ink);margin-bottom:1rem;font-weight:400}
+.hc p{font-size:0.95rem;line-height:1.8;color:var(--ink-dim);margin-bottom:1.1rem;font-weight:300}
+.hc strong{color:var(--ink);font-weight:500}
+.hc em{color:var(--indigo-bright);font-style:italic;font-family:'Cormorant Garamond',serif}
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+.comp-card{background:var(--bg-card);border-radius:8px;padding:1.2rem;text-align:center;border-left:3px solid var(--indigo)}
+.comp-card h3{font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--indigo);margin-bottom:0.5rem}
+.comp-card .sample{font-family:'Noto Sans JP',sans-serif;font-size:2rem;font-weight:300;color:var(--ink);letter-spacing:0.1em;margin-bottom:0.3rem}
+.comp-card .desc{font-size:0.8rem;color:var(--ink-faint);line-height:1.5}
+
+.footer{text-align:center;padding:2rem 1rem;color:var(--ink-faint);font-size:0.75rem;border-top:1px solid var(--border);margin-top:2rem}
+
+@media(max-width:600px){.comparison{grid-template-columns:1fr}.kana-table td .g{font-size:1.6rem}.nav-btn{padding:0.8rem 0.9rem;font-size:0.72rem}}
+</style>
+</head>
+<body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="../index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+
+<div class="header">
+  <div class="header-kanji">ひらがな · カタカナ</div>
+  <h1>墨 <em>Sumi</em> — Learn Japanese Kana</h1>
+  <div class="header-sub">46 Hiragana + 46 Katakana · The syllabic foundation of Japanese</div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" data-tab="history">About</button>
+  <button class="nav-btn" data-tab="chart">Chart</button>
+  <button class="nav-btn" data-tab="practice">Practice</button>
+</nav>
+
+<div id="history" class="section active">
+  <div class="hc">
+    <h2>Two Scripts, One Sound System</h2>
+    <p>Japanese uses <strong>two complete syllabaries</strong> — Hiragana and Katakana — each containing <strong>46 base characters</strong> that map to the same set of sounds. They're used for different purposes but are phonetically identical.</p>
+    <div class="comparison">
+      <div class="comp-card">
+        <h3>Hiragana ひらがな</h3>
+        <div class="sample">あ い う え お</div>
+        <div class="desc">Rounded, flowing strokes. Used for native Japanese words, grammar particles, and verb endings. Developed from cursive Chinese characters by women of the Heian court, c. 8th–9th century.</div>
+      </div>
+      <div class="comp-card">
+        <h3>Katakana カタカナ</h3>
+        <div class="sample">ア イ ウ エ オ</div>
+        <div class="desc">Angular, sharp strokes. Used for foreign loanwords, onomatopoeia, emphasis, and scientific terms. Developed by Buddhist monks from fragments of Chinese characters.</div>
+      </div>
+    </div>
+    <p>Both scripts descend from <strong>man'yōgana</strong> — Chinese characters used purely for their phonetic value in the 8th century <em>Man'yōshū</em> poetry anthology. Over centuries, scribes simplified these borrowed characters into the compact kana we use today.</p>
+    <p>The 46 base characters cover 5 vowels (a, i, u, e, o) and 40 consonant-vowel pairs, plus the standalone "n" (ん/ン). With <strong>dakuten</strong> (゛) and <strong>handakuten</strong> (゜) marks, the system extends to cover all Japanese syllables — about 107 in total.</p>
+    <h2 style="margin-top:2rem">Why Learn Kana?</h2>
+    <p>Kana are the gateway to Japanese literacy. Unlike kanji (which number in the thousands), kana can be learned in <strong>a few weeks</strong> — and once you know them, you can read any Japanese text that's been annotated with furigana. Every Japanese learner starts here.</p>
+  </div>
+</div>
+
+<div id="chart" class="section">
+  <div class="kana-toggle">
+    <button class="kt-btn active" data-kana="hira">ひらがな Hiragana</button>
+    <button class="kt-btn" data-kana="kata">カタカナ Katakana</button>
+  </div>
+  <div class="chart-scroll">
+    <table class="kana-table" id="kana-table"></table>
+  </div>
+</div>
+
+<div id="practice" class="section">
+  <div class="practice-wrap">
+    <div class="kana-toggle" style="margin-bottom:1rem">
+      <button class="kt-btn active" data-kana="hira">Hiragana</button>
+      <button class="kt-btn" data-kana="kata">Katakana</button>
+      <button class="kt-btn" data-kana="both">Both</button>
+    </div>
+    <div class="mode-sel">
+      <button class="mode-btn active" data-mode="flash-glyph">Kana → Romaji</button>
+      <button class="mode-btn" data-mode="flash-sound">Romaji → Kana</button>
+      <button class="mode-btn" data-mode="quiz">Quiz</button>
+    </div>
+    <div id="pa"></div>
+    <div class="sb">
+      <div class="sc">Correct: <span id="xc">0</span></div>
+      <div class="sw">Missed: <span id="xw">0</span></div>
+      <div class="ss">Streak: <span id="xs">0</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="detail-overlay" id="dov">
+  <div class="detail-card">
+    <div class="big-g" id="dg"></div>
+    <div class="d-rom" id="dr"></div>
+    <div class="d-pair-label" id="dpl"></div>
+    <div class="d-pair" id="dp"></div>
+    <button class="d-close" onclick="cd()">Close</button>
+  </div>
+</div>
+
+<div class="footer">Built for learning Japanese Kana · Part of the <a href="../index.html">Glyphkeeper</a> learning suite</div>
+
+<script>
+const VOWELS=['a','i','u','e','o'];
+const KANA_DATA=[
+  {rom:'a', h:'あ',k:'ア'},{rom:'i', h:'い',k:'イ'},{rom:'u', h:'う',k:'ウ'},{rom:'e', h:'え',k:'エ'},{rom:'o', h:'お',k:'オ'},
+  {rom:'ka',h:'か',k:'カ'},{rom:'ki',h:'き',k:'キ'},{rom:'ku',h:'く',k:'ク'},{rom:'ke',h:'け',k:'ケ'},{rom:'ko',h:'こ',k:'コ'},
+  {rom:'sa',h:'さ',k:'サ'},{rom:'shi',h:'し',k:'シ'},{rom:'su',h:'す',k:'ス'},{rom:'se',h:'せ',k:'セ'},{rom:'so',h:'そ',k:'ソ'},
+  {rom:'ta',h:'た',k:'タ'},{rom:'chi',h:'ち',k:'チ'},{rom:'tsu',h:'つ',k:'ツ'},{rom:'te',h:'て',k:'テ'},{rom:'to',h:'と',k:'ト'},
+  {rom:'na',h:'な',k:'ナ'},{rom:'ni',h:'に',k:'ニ'},{rom:'nu',h:'ぬ',k:'ヌ'},{rom:'ne',h:'ね',k:'ネ'},{rom:'no',h:'の',k:'ノ'},
+  {rom:'ha',h:'は',k:'ハ'},{rom:'hi',h:'ひ',k:'ヒ'},{rom:'fu',h:'ふ',k:'フ'},{rom:'he',h:'へ',k:'ヘ'},{rom:'ho',h:'ほ',k:'ホ'},
+  {rom:'ma',h:'ま',k:'マ'},{rom:'mi',h:'み',k:'ミ'},{rom:'mu',h:'む',k:'ム'},{rom:'me',h:'め',k:'メ'},{rom:'mo',h:'も',k:'モ'},
+  {rom:'ya',h:'や',k:'ヤ'},{rom:'',h:'',k:''},{rom:'yu',h:'ゆ',k:'ユ'},{rom:'',h:'',k:''},{rom:'yo',h:'よ',k:'ヨ'},
+  {rom:'ra',h:'ら',k:'ラ'},{rom:'ri',h:'り',k:'リ'},{rom:'ru',h:'る',k:'ル'},{rom:'re',h:'れ',k:'レ'},{rom:'ro',h:'ろ',k:'ロ'},
+  {rom:'wa',h:'わ',k:'ワ'},{rom:'',h:'',k:''},{rom:'',h:'',k:''},{rom:'',h:'',k:''},{rom:'wo',h:'を',k:'ヲ'},
+  {rom:'n', h:'ん',k:'ン'},{rom:'',h:'',k:''},{rom:'',h:'',k:''},{rom:'',h:'',k:''},{rom:'',h:'',k:''},
+];
+const ROW_LABELS=['','k','s','t','n','h','m','y','r','w','n*'];
+const ALL_KANA=KANA_DATA.filter(k=>k.rom!=='');
+
+let activeKana='hira';
+let chartKana='hira';
+let pMode='flash-glyph';
+let cur=null;
+let score={c:0,w:0,s:0};
+
+// Nav
+document.querySelectorAll('.nav-btn').forEach(b=>{b.addEventListener('click',()=>{
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');
+})});
+
+// Kana toggle (chart)
+document.querySelectorAll('#chart .kt-btn').forEach(b=>{b.addEventListener('click',()=>{
+  document.querySelectorAll('#chart .kt-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');chartKana=b.dataset.kana;buildChart();
+})});
+
+// Kana toggle (practice)
+document.querySelectorAll('#practice .kt-btn').forEach(b=>{b.addEventListener('click',()=>{
+  document.querySelectorAll('#practice .kt-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');activeKana=b.dataset.kana;score={c:0,w:0,s:0};updS();nxt();
+})});
+
+// Mode
+document.querySelectorAll('.mode-btn').forEach(b=>{b.addEventListener('click',()=>{
+  document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');pMode=b.dataset.mode;score={c:0,w:0,s:0};updS();nxt();
+})});
+
+function buildChart(){
+  const t=document.getElementById('kana-table');
+  let html='<thead><tr><th class="rh"></th>';
+  VOWELS.forEach(v=>html+=`<th>${v}</th>`);
+  html+='</tr></thead><tbody>';
+  for(let r=0;r<11;r++){
+    html+=`<tr><th class="rh">${ROW_LABELS[r]}</th>`;
+    for(let c=0;c<5;c++){
+      const idx=r*5+c;
+      const k=KANA_DATA[idx];
+      if(!k||k.rom===''){html+='<td class="empty"></td>';continue;}
+      const g=chartKana==='hira'?k.h:k.k;
+      html+=`<td onclick="sd(${idx})"><span class="g">${g}</span><span class="p">${k.rom}</span></td>`;
+    }
+    html+='</tr>';
+  }
+  html+='</tbody>';
+  t.innerHTML=html;
+}
+
+function sd(idx){
+  const k=KANA_DATA[idx];if(!k||!k.rom)return;
+  document.getElementById('dg').textContent=chartKana==='hira'?k.h:k.k;
+  document.getElementById('dr').textContent=k.rom;
+  document.getElementById('dpl').textContent=chartKana==='hira'?'Katakana pair:':'Hiragana pair:';
+  document.getElementById('dp').textContent=chartKana==='hira'?k.k:k.h;
+  document.getElementById('dov').classList.add('show');
+}
+function cd(){document.getElementById('dov').classList.remove('show')}
+document.getElementById('dov').addEventListener('click',e=>{if(e.target===e.currentTarget)cd()});
+
+function getG(k){
+  if(activeKana==='hira')return k.h;
+  if(activeKana==='kata')return k.k;
+  return Math.random()>0.5?k.h:k.k;
+}
+function rnd(ex){let c;do{c=ALL_KANA[Math.floor(Math.random()*ALL_KANA.length)]}while(c===ex);return c}
+function updS(){document.getElementById('xc').textContent=score.c;document.getElementById('xw').textContent=score.w;document.getElementById('xs').textContent=score.s}
+
+function nxt(){
+  cur=rnd(cur);const a=document.getElementById('pa');const g=getG(cur);
+  if(pMode==='flash-glyph'){
+    a.innerHTML=`<div class="fc" id="fc" onclick="rv()"><div class="pg">${g}</div><div class="hint">tap to reveal</div><div class="ans"><div class="ans-rom">${cur.rom}</div></div></div><div class="pc"><button class="pb ok" onclick="mk(1)">Got it ✓</button><button class="pb no" onclick="mk(0)">Missed ✗</button><button class="pb" onclick="nxt()">Skip →</button></div>`;
+  }else if(pMode==='flash-sound'){
+    a.innerHTML=`<div class="fc" id="fc" onclick="rv()"><div class="pt">${cur.rom}</div><div class="hint">tap to reveal</div><div class="ans"><div class="ans-g">${cur.h} / ${cur.k}</div></div></div><div class="pc"><button class="pb ok" onclick="mk(1)">Got it ✓</button><button class="pb no" onclick="mk(0)">Missed ✗</button><button class="pb" onclick="nxt()">Skip →</button></div>`;
+  }else{bq()}
+}
+function rv(){document.getElementById('fc').classList.add('rev')}
+function mk(ok){if(ok){score.c++;score.s++}else{score.w++;score.s=0}updS();nxt()}
+
+function bq(){
+  const a=document.getElementById('pa');const isG=Math.random()>0.5;
+  const ci=Math.floor(Math.random()*4);const opts=[];const used=new Set([cur.rom]);
+  for(let i=0;i<4;i++){if(i===ci){opts.push(cur)}else{let c;do{c=rnd()}while(used.has(c.rom));used.add(c.rom);opts.push(c)}}
+  const g=getG(cur);
+  if(isG){
+    a.innerHTML=`<div class="fc" style="cursor:default"><div class="pg">${g}</div><div class="hint">choose the correct romaji</div></div><div class="qo" id="qo">${opts.map((o,i)=>`<div class="qopt ro" onclick="qa(${i},${ci})">${o.rom}</div>`).join('')}</div>`;
+  }else{
+    a.innerHTML=`<div class="fc" style="cursor:default"><div class="pt">${cur.rom}</div><div class="hint">choose the correct kana</div></div><div class="qo" id="qo">${opts.map((o,i)=>`<div class="qopt" onclick="qa(${i},${ci})">${getG(o)}</div>`).join('')}</div>`;
+  }
+}
+function qa(ch,co){
+  const os=document.querySelectorAll('#qo .qopt');
+  os.forEach(o=>o.classList.add('dis'));os[co].classList.add('sc');
+  if(ch===co){os[ch].classList.add('cc');score.c++;score.s++}else{os[ch].classList.add('cw');score.w++;score.s=0}
+  updS();setTimeout(nxt,1200);
+}
+
+buildChart();nxt();
+</script>
+</body>
+</html>

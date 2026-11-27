@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glyphkeeper: Nomai Writing System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --cream: #F5EFE4;
+      --rust: #7A3A1A;
+      --indigo: #2D2A5E;
+      --gold: #D4A574;
+      --charcoal: #2A1F14;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--cream) 0%, #FFF9F0 100%);
+      color: var(--charcoal);
+      font-family: 'Crimson Pro', serif;
+      padding: 20px;
+      line-height: 1.8;
+    }
+
+    header {
+      max-width: 900px;
+      margin: 0 auto 40px;
+      border-bottom: 3px solid var(--rust);
+      padding-bottom: 20px;
+    }
+
+    .arx-mark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--rust);
+      text-transform: uppercase;
+      border: 1px solid var(--rust);
+      padding: 3px 8px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-family: 'IM Fell English', serif;
+      font-size: 36px;
+      font-style: italic;
+      color: var(--indigo);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--rust);
+      letter-spacing: 1px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-family: 'IM Fell English', serif;
+      font-size: 22px;
+      color: var(--rust);
+      margin-bottom: 16px;
+      border-left: 3px solid var(--gold);
+      padding-left: 12px;
+      font-style: italic;
+    }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .spec-card {
+      background: white;
+      padding: 16px;
+      border-radius: 3px;
+      border-left: 3px solid var(--indigo);
+    }
+
+    .spec-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--rust);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .spec-value {
+      font-size: 16px;
+      color: var(--charcoal);
+      font-weight: 500;
+    }
+
+    p {
+      margin-bottom: 14px;
+      font-size: 15px;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .feature-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--cream);
+      font-size: 14px;
+    }
+
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
+
+    .feature-list strong {
+      color: var(--rust);
+    }
+
+    .glyph-showcase {
+      background: var(--indigo);
+      color: var(--cream);
+      padding: 24px;
+      border-radius: 3px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .glyph-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .glyphs {
+      font-size: 48px;
+      margin: 16px 0;
+      letter-spacing: 8px;
+    }
+
+    .glyph-desc {
+      font-size: 13px;
+      opacity: 0.9;
+      font-style: italic;
+    }
+
+    .quote-box {
+      background: var(--gold);
+      color: var(--charcoal);
+      padding: 20px;
+      border-radius: 3px;
+      font-style: italic;
+      margin: 20px 0;
+      border-left: 4px solid var(--rust);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: white;
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(122, 58, 26, 0.08);
+    }
+
+    .table th {
+      background: var(--indigo);
+      color: var(--cream);
+      padding: 12px;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--cream);
+      font-size: 13px;
+    }
+
+    .table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .table tr:nth-child(even) {
+      background: #f9f6f1;
+    }
+
+    .learning-track {
+      background: white;
+      padding: 16px;
+      border-radius: 3px;
+      border-left: 3px solid var(--gold);
+      margin: 16px 0;
+    }
+
+    .learning-phase {
+      margin-bottom: 12px;
+    }
+
+    .phase-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--rust);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .phase-desc {
+      font-size: 13px;
+      color: var(--charcoal);
+    }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--cream);
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--rust);
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+  <header>
+    <div class="arx-mark">ARX Foundation</div>
+    <h1>Nomai Writing System</h1>
+    <div class="subtitle">Outer Wilds (Fictional) · Procedural Spiral Glyphs · Collaborative Encoding</div>
+  </header>
+
+  <div class="container">
+    <!-- SPECIFICATIONS -->
+    <div class="section">
+      <h2 class="section-title">System Specifications</h2>
+      
+      <div class="spec-grid">
+        <div class="spec-card">
+          <div class="spec-label">Origin</div>
+          <div class="spec-value">Outer Wilds (Game)</div>
+        </div>
+        <div class="spec-card">
+          <div class="spec-label">Script Type</div>
+          <div class="spec-value">Procedural Glyphic</div>
+        </div>
+        <div class="spec-card">
+          <div class="spec-label">Base Glyphs</div>
+          <div class="spec-value">6 (line, bend, square, pentagon, hexagon, octagon)</div>
+        </div>
+        <div class="spec-card">
+          <div class="spec-label">Coverage</div>
+          <div class="spec-value">Arbitrary Unicode (all languages)</div>
+        </div>
+        <div class="spec-card">
+          <div class="spec-label">Encoding Basis</div>
+          <div class="spec-value">Integer → Spiral Glyph Grid</div>
+        </div>
+        <div class="spec-card">
+          <div class="spec-label">Complexity</div>
+          <div class="spec-value">Recursive Fractals</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISUAL OVERVIEW -->
+    <div class="section">
+      <h2 class="section-title">Visual System</h2>
+      
+      <div class="glyph-showcase">
+        <div class="glyph-title">Base Glyphs</div>
+        <div class="glyphs">⊢ ⌞ ☐ ⬠ ⬡ ⬢</div>
+        <div class="glyph-desc">Line · Bend · Square · Pentagon · Hexagon · Octagon</div>
+        <div style="margin-top: 20px; font-size: 12px; opacity: 0.85;">
+          Glyphs combine in pairs to form letters. Arranged on spiral curves. Connections visualize the syntax tree.
+        </div>
+      </div>
+
+      <p>
+        The Nomai writing system is fundamentally <strong>procedural</strong>: a message is encoded as a very large integer, which determines (a) which base glyphs to draw, (b) where to position them on a spiral curve, and (c) how to connect them with lines. The spiral itself is fractal—the same recursive motif appears at multiple scales, creating a hypnotic, self-similar visual rhythm.
+      </p>
+
+      <p>
+        Each "word dot" is a junction where multiple lines can emerge: one for consonant, one for vowel, one for number. Reading order depends on whether the letter is a consonant (start top row) or vowel (start left column).
+      </p>
+    </div>
+
+    <!-- CULTURAL & LINGUISTIC CONTEXT -->
+    <div class="section">
+      <h2 class="section-title">Linguistic & Cultural Context</h2>
+
+      <div class="quote-box">
+        "The Nomai spiral writing is more than just a cosmetic feature—it's part of Outer Wilds' storytelling architecture. The medium reinforces the message: the Nomai believe in transparent, collaborative progress with no dominant voice."
+      </div>
+
+      <h3 style="font-size: 18px; color: var(--rust); margin-top: 20px; margin-bottom: 12px;">Philosophical Underpinnings</h3>
+
+      <ul class="feature-list">
+        <li><strong>Collaborative by design:</strong> Each new branch often comes from a different individual. The spiral structure literally says "add your thoughts here; build on mine; diverge if needed." It's like a Git commit history or forum thread rendered in geometry.</li>
+        
+        <li><strong>Non-hierarchical:</strong> No dominant voice. No author elevated above contributors. All thoughts are visible, traced along the same spiral.</li>
+        
+        <li><strong>Questioning as method:</strong> Many Nomai inscriptions begin with a query or hypothesis, then develop as peer-reviewed dialogue. This reflects their identity as scientists.</li>
+        
+        <li><strong>Precision as character:</strong> Handwriting varies by individual—the precision of curves reveals the writer. A shaky spiral vs. a clean one tells you something about the author's state of mind.</li>
+        
+        <li><strong>Names from plants:</strong> Ramie, Yarrow, Slate, Clary, Idaea. Suggests a culture rooted in observation of natural form and growth.</li>
+      </ul>
+    </div>
+
+    <!-- ENCODING MECHANISM -->
+    <div class="section">
+      <h2 class="section-title">Encoding Mechanism (Technical)</h2>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Process</th>
+            <th>Output</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1. Numerize</td>
+            <td>Convert message string to very large integer via Unicode codepoints</td>
+            <td>Integer ≥ 2^256</td>
+          </tr>
+          <tr>
+            <td>2. Grid Layout</td>
+            <td>Integer determines 2D grid of glyph indices</td>
+            <td>Grid of base glyph IDs</td>
+          </tr>
+          <tr>
+            <td>3. Spiral Curve</td>
+            <td>Generate parametric spiral (Archimedean or logarithmic)</td>
+            <td>Continuous curve in 2D space</td>
+          </tr>
+          <tr>
+            <td>4. Glyph Placement</td>
+            <td>Transform glyphs to fit spiral curve (translate, rotate, scale)</td>
+            <td>Positioned, rotated glyph shapes</td>
+          </tr>
+          <tr>
+            <td>5. Connection Lines</td>
+            <td>Draw lines between adjacent glyphs (respecting no-intersection rule)</td>
+            <td>Visual syntax tree</td>
+          </tr>
+          <tr>
+            <td>6. Multi-spiral</td>
+            <td>Combine multiple spirals into single image with proper offsets</td>
+            <td>Final Nomai text rendering</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top: 20px;">
+        <strong>Key innovation:</strong> The same message always generates an identical spiral (deterministic). Arbitrary Unicode is supported—meaning a single message can contain multiple languages, emoji, etc., and each character gets encoded into the glyph grid and spiral positioning.
+      </p>
+
+      <p>
+        <strong>Handwriting mode:</strong> Configurable "messiness factor" (0 = computer precision, 0.5 = clean handwriting, 1.0 = messy, 2.0 = child's writing) adds random perturbations to glyph positions and line curves, simulating the variation you'd see across different Nomai authors.
+      </p>
+    </div>
+
+    <!-- GAME MECHANIC -->
+    <div class="section">
+      <h2 class="section-title">Game Mechanic: Translation as Resurrection</h2>
+
+      <p>
+        In Outer Wilds, the player acquires a <strong>Translation Tool</strong>—an instrument that instantly deciphers Nomai spirals into readable English. But rather than making reading feel mechanical, the translator heightens the sense of wonder:
+      </p>
+
+      <ul class="feature-list">
+        <li><strong>Proximity-based:</strong> Only works within 3-4 meters of Nomai text. You must physically approach the writing.</li>
+        
+        <li><strong>Real-time delay:</strong> Processing takes seconds. You watch the spiral unfold as translation happens, creating a sense of revelation.</li>
+        
+        <li><strong>Narrative function:</strong> Each translation resurrects a frozen moment of Nomai civilization. Their words persist without them—a true echo outlasting death itself.</li>
+        
+        <li><strong>Essential to gameplay:</strong> Not optional lore flavor. Reading Nomai text solves puzzles, navigates time loops, unlocks projects, and pieces together existential revelations.</li>
+      </ul>
+
+      <p style="margin-top: 20px;">
+        The mechanic is a metaphor for the entire game: unlocking moments frozen in time, learning from them, using that knowledge to inch closer to the truth.
+      </p>
+    </div>
+
+    <!-- LEARNING TRACK -->
+    <div class="section">
+      <h2 class="section-title">Glyphkeeper Learning Track</h2>
+
+      <div class="learning-track">
+        <div class="learning-phase">
+          <div class="phase-title">Phase 1: Visual Recognition (2-3 hours)</div>
+          <div class="phase-desc">Identify the six base glyphs in isolation. Practice seeing them in spirals. Note handwriting variation (precision/messiness). Goal: quick visual ID of any glyph in context.</div>
+        </div>
+
+        <div class="learning-phase">
+          <div class="phase-title">Phase 2: Spiral Structure (3-4 hours)</div>
+          <div class="phase-desc">Trace a spiral from start to end. Understand how glyphs are positioned along the curve. Recognize connection points and syntax tree structure. Practice reading order (top-row consonants vs. left-column vowels).</div>
+        </div>
+
+        <div class="learning-phase">
+          <div class="phase-title">Phase 3: Encoding Logic (4-5 hours)</div>
+          <div class="phase-desc">Study the integer-to-glyph conversion. Understand why certain messages produce certain spiral shapes. Experiment with short messages using online encoders (nomai-writing.com). Recognize patterns (longer messages = longer spirals).</div>
+        </div>
+
+        <div class="learning-phase">
+          <div class="phase-title">Phase 4: Creative Practice (5-8 hours)</div>
+          <div class="phase-desc">Generate spirals for personal messages. Analyze real Nomai text from the game. Study famous Nomai writings (Ramie's hypothesis, Yarrow's ash twin updates, Idaea's ethics debates). Write short "Nomai correspondence" in English, then translate it to spiral form.</div>
+        </div>
+
+        <div class="learning-phase">
+          <div class="phase-title">Phase 5: Mastery (Ongoing)</div>
+          <div class="phase-desc">Read complex multi-spiral documents at a glance. Recognize individual "handwriting" (who wrote this based on curve precision). Appreciate the philosophical depth—each spiral is a record of collaborative thought.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CANONICAL EXAMPLES -->
+    <div class="section">
+      <h2 class="section-title">Canonical Examples (Game Text)</h2>
+
+      <p style="font-style: italic; margin-bottom: 20px;">
+        The Nomai civilization left behind thousands of spirals across the solar system. These represent actual in-game dialogue and scientific discourse:
+      </p>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Context</th>
+            <th>Speaker</th>
+            <th>Essence of Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Ash Twin Project Updates</td>
+            <td>Yarrow</td>
+            <td>Formal construction logs: "We progress. The core deepens. All systems functional."</td>
+          </tr>
+          <tr>
+            <td>High Energy Lab Debate</td>
+            <td>Multiple (Ramie, others)</td>
+            <td>Hypothesis-driven dialogue on time travel via warp. Peer review evident in margin notes.</td>
+          </tr>
+          <tr>
+            <td>Ethics Argument</td>
+            <td>Idaea</td>
+            <td>Passionate opposition to Sun Station: "Failure destroys this system's nascent life. Unacceptable risk."</td>
+          </tr>
+          <tr>
+            <td>Personal Correspondence</td>
+            <td>Yarrow → Clary</td>
+            <td>Flirtation and affection: "Your thoughts are clear. Your spirit bright. I admire."</td>
+          </tr>
+          <tr>
+            <td>Sunless City Archive</td>
+            <td>Unknown (Archive)</td>
+            <td>Historical records of early settlement, resource discovery, population growth.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- DESIGN THEME -->
+    <div class="section">
+      <h2 class="section-title">Glyphkeeper Design Theme: "Recursive Archive"</h2>
+
+      <p style="margin-bottom: 12px;">
+        This entry uses a <strong>nested spiral aesthetic</strong> to honor the Nomai system:
+      </p>
+
+      <ul class="feature-list">
+        <li><strong>Color:</strong> Indigo (Nomai's scholarly, otherworldly tone) with gold accents (alchemical/sacred knowledge).</li>
+        
+        <li><strong>Typography:</strong> IM Fell English (ornate serif, suggesting ancient archives and procedural precision) paired with Crimson Pro (readable, warm).</li>
+        
+        <li><strong>Layout:</strong> Information spirals outward from core specs → visual system → culture → mechanics → practice. Mirrors Nomai spiral structure.</li>
+        
+        <li><strong>Borders & Lines:</strong> Gold accents on section dividers, suggesting connection points in a larger system.</li>
+      </ul>
+    </div>
+
+    <!-- STATUS & NEXT STEPS -->
+    <div class="section">
+      <h2 class="section-title">Status & Integration</h2>
+
+      <p>
+        <strong>Phase Completion:</strong> This entry marks the <strong>first fictional/procedural writing system</strong> in Glyphkeeper. Unlike syllabaries or logographic systems, Nomai writing is algorithmically generated—every message produces a unique spiral based on its content.
+      </p>
+
+      <p>
+        <strong>Pedagogical Value:</strong> Learning Nomai trains spatial reasoning, curve-following, procedural thinking, and appreciation for design-as-philosophy. It's less about memorization and more about understanding a civilization's values encoded in geometry.
+      </p>
+
+      <p>
+        <strong>Tools Available:</strong>
+      </p>
+      <ul class="feature-list">
+        <li><strong>nomai-writing.com</strong> — Web-based encoder. Input any text, get SVG spiral with handwriting controls.</li>
+        
+        <li><strong>ow-written-nomai-lang (GitHub)</strong> — Java implementation. Advanced users can modify encoding bases and spiral parameters.</li>
+        
+        <li><strong>NomaiText.jl</strong> — Julia package. Supports arbitrary-length messages and high-precision output.</li>
+      </ul>
+
+      <p style="margin-top: 20px;">
+        <strong>Future Integration:</strong> Nomai system could cross-pollinate with Glyphkeeper's sigil/procedural generation work (Sanctuary coaster design, ARX sigils). The recursive fractal nature mirrors ARX philosophy: radically transparent, collaboratively built, beautiful in constraint.
+      </p>
+    </div>
+
+    <footer>
+      Glyphkeeper Entry · Nomai Writing System · Outer Wilds (Game)<br/>
+      ARX Foundation · March 25, 2026<br/>
+      Status: Research Complete · Learning Track Available
+    </footer>
+  </div>
+</body>
+</html>

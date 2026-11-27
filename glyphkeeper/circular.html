@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glyphkeeper: Circular Writing Systems</title>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --cream: #F5EFE4;
+      --rust: #7A3A1A;
+      --indigo: #2D2A5E;
+      --gold: #D4A574;
+      --charcoal: #2A1F14;
+      --nomai-blue: #4A90E2;
+      --gallifrey-purple: #7B2D8A;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--cream) 0%, #FFF9F0 100%);
+      color: var(--charcoal);
+      font-family: 'Crimson Pro', serif;
+      padding: 20px;
+      line-height: 1.8;
+    }
+
+    header {
+      max-width: 1000px;
+      margin: 0 auto 40px;
+      border-bottom: 3px solid var(--rust);
+      padding-bottom: 20px;
+    }
+
+    .arx-mark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--rust);
+      text-transform: uppercase;
+      border: 1px solid var(--rust);
+      padding: 3px 8px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-family: 'IM Fell English', serif;
+      font-size: 36px;
+      font-style: italic;
+      color: var(--indigo);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--rust);
+      letter-spacing: 1px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-family: 'IM Fell English', serif;
+      font-size: 22px;
+      color: var(--rust);
+      margin-bottom: 16px;
+      border-left: 3px solid var(--gold);
+      padding-left: 12px;
+      font-style: italic;
+    }
+
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .system-card {
+      background: white;
+      padding: 20px;
+      border-radius: 3px;
+      border-top: 4px solid;
+    }
+
+    .system-card.nomai {
+      border-top-color: var(--nomai-blue);
+    }
+
+    .system-card.gallifrey {
+      border-top-color: var(--gallifrey-purple);
+    }
+
+    .system-name {
+      font-family: 'IM Fell English', serif;
+      font-size: 18px;
+      font-style: italic;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .system-card.nomai .system-name {
+      color: var(--nomai-blue);
+    }
+
+    .system-card.gallifrey .system-name {
+      color: var(--gallifrey-purple);
+    }
+
+    .spec-pair {
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .spec-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--rust);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .spec-value {
+      color: var(--charcoal);
+      font-size: 13px;
+    }
+
+    p {
+      margin-bottom: 14px;
+      font-size: 15px;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: white;
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(122, 58, 26, 0.08);
+    }
+
+    .comparison-table th {
+      background: var(--charcoal);
+      color: var(--cream);
+      padding: 12px;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .comparison-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--cream);
+      font-size: 13px;
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comparison-table tr:nth-child(even) {
+      background: #f9f6f1;
+    }
+
+    .comparison-table .nomai-col {
+      color: var(--nomai-blue);
+      font-weight: 500;
+    }
+
+    .comparison-table .gallifrey-col {
+      color: var(--gallifrey-purple);
+      font-weight: 500;
+    }
+
+    .architecture-box {
+      background: linear-gradient(135deg, rgba(74, 144, 226, 0.05) 0%, rgba(123, 45, 138, 0.05) 100%);
+      padding: 20px;
+      border-radius: 3px;
+      margin: 20px 0;
+      border-left: 3px solid var(--gold);
+    }
+
+    .flow-diagram {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      white-space: pre;
+      background: var(--charcoal);
+      color: var(--cream);
+      padding: 16px;
+      border-radius: 3px;
+      overflow-x: auto;
+      margin: 12px 0;
+      line-height: 1.6;
+    }
+
+    .highlight-nomai {
+      background: rgba(74, 144, 226, 0.1);
+      padding: 2px 4px;
+      border-radius: 2px;
+    }
+
+    .highlight-gallifrey {
+      background: rgba(123, 45, 138, 0.1);
+      padding: 2px 4px;
+      border-radius: 2px;
+    }
+
+    .quote-box {
+      background: var(--gold);
+      color: var(--charcoal);
+      padding: 20px;
+      border-radius: 3px;
+      font-style: italic;
+      margin: 20px 0;
+      border-left: 4px solid var(--rust);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .learning-track {
+      background: white;
+      padding: 16px;
+      border-radius: 3px;
+      border-left: 3px solid var(--gold);
+      margin: 16px 0;
+    }
+
+    .learning-phase {
+      margin-bottom: 12px;
+    }
+
+    .phase-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--rust);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .phase-desc {
+      font-size: 13px;
+      color: var(--charcoal);
+    }
+
+    .philosophy-box {
+      padding: 16px;
+      background: white;
+      border-radius: 3px;
+      margin: 12px 0;
+      border-left: 3px solid;
+    }
+
+    .philosophy-box.nomai {
+      border-left-color: var(--nomai-blue);
+    }
+
+    .philosophy-box.gallifrey {
+      border-left-color: var(--gallifrey-purple);
+    }
+
+    .philosophy-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .philosophy-box.nomai .philosophy-title {
+      color: var(--nomai-blue);
+    }
+
+    .philosophy-box.gallifrey .philosophy-title {
+      color: var(--gallifrey-purple);
+    }
+
+    .philosophy-text {
+      font-size: 13px;
+      color: var(--charcoal);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 800px) {
+      .two-column {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+    }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--cream);
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--rust);
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+  <header>
+    <div class="arx-mark">ARX Foundation</div>
+    <h1>Circular Writing Systems</h1>
+    <div class="subtitle">Nomai (Outer Wilds) vs. Gallifreyan (Doctor Who) — Procedural Spirals vs. Geometric Circles</div>
+  </header>
+
+  <div class="container">
+    <!-- SYSTEM OVERVIEW -->
+    <div class="section">
+      <h2 class="section-title">System Overview</h2>
+      
+      <div class="two-column">
+        <div class="system-card nomai">
+          <div class="system-name">◈ Nomai Writing</div>
+          <div class="spec-pair">
+            <div class="spec-label">Origin</div>
+            <div class="spec-value">Outer Wilds (Game) — Fictional Alien Species</div>
+          </div>
+          <div class="spec-pair">
+            <div class="spec-label">Type</div>
+            <div class="spec-value">Procedural Spiral Glyphics</div>
+          </div>
+          <div class="spec-pair">
+            <div class="spec-label">Base Elements</div>
+            <div class="spec-value">6 glyphs (line, bend, square, pentagon, hexagon, octagon)</div>
+          </div>
+          <div class="spec-pair">
+            <div class="spec-label">Encoding</div>
+            <div class="spec-value">Message → Integer → 2D Grid → Spiral Curve</div>
+          </div>
+          <div class="spec-pair">
+            <div class="spec-label">Determinism</div>
+            <div class="spec-value">Fully Deterministic (same message = same spiral)</div>
+          </div>
+          <div class="spec-pair">
+            <div class="spec-label">Philosophy</div>
+            <div class="spec-value">Algorithmic, Collaborative, Fractal</div>
+          </div>
+        </div>
+
+        <div class="system-card gallifrey">
+          <div class="system-name">◉ Gallifreyan Writing</div>
+          <div class="spec-pair">
+            <div class="spec-label">Origin</div>
+            <div class="spec-value">Doctor Who (TV) — Time Lord Language</div>
+          </div>
+          <div class="spec-pair">
+            <div class="spec-label">Type</div>
+            <div class="spec-value">Geometric Circular Script</div>
+          </div>
+          <div class="spec-pair">
+            <div class="spec-label">Base Elements</div>
+            <div class="spec-value">4 consonant shapes + dots/lines + vowel positions</div>
+          </div>
+          <div class="spec-pair">
+            <div class="spec-label">Encoding</div>
+            <div class="spec-value">Shape (Consonant) + Marks (Quantity) + Position (Vowel)</div>
+          </div>
+          <div class="spec-pair">
+            <div class="spec-label">Determinism</div>
+            <div class="spec-value">Context-Flexible (rules bent for clarity/aesthetics)</div>
+          </div>
+          <div class="spec-pair">
+            <div class="spec-label">Philosophy</div>
+            <div class="spec-value">Artistic, Hierarchical, Contextual</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARCHITECTURAL COMPARISON -->
+    <div class="section">
+      <h2 class="section-title">Architectural Comparison</h2>
+
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th class="nomai-col">Nomai</th>
+            <th class="gallifrey-col">Gallifreyan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Basic Unit</strong></td>
+            <td class="nomai-col">Glyph (6 types, context-dependent combinations)</td>
+            <td class="gallifrey-col">Word Circle (letters inside single circle)</td>
+          </tr>
+          <tr>
+            <td><strong>Letter Encoding</strong></td>
+            <td class="nomai-col">Procedural (integer position in grid)</td>
+            <td class="gallifrey-col">Geometric (shape + marks, attached or floating)</td>
+          </tr>
+          <tr>
+            <td><strong>Vowels</strong></td>
+            <td class="nomai-col">Attached to consonants in grid; read based on letter type</td>
+            <td class="gallifrey-col">Can attach to consonants OR float independently</td>
+          </tr>
+          <tr>
+            <td><strong>Reading Direction</strong></td>
+            <td class="nomai-col">Spiral outward or inward (determined by message)</td>
+            <td class="gallifrey-col">Counter-clockwise from bottom of circle</td>
+          </tr>
+          <tr>
+            <td><strong>Word Boundaries</strong></td>
+            <td class="nomai-col">Separate spiral branches (collaborative authors)</td>
+            <td class="gallifrey-col">Separate word circles (can interlock)</td>
+          </tr>
+          <tr>
+            <td><strong>Sentence Level</strong></td>
+            <td class="nomai-col">Multiple spirals chained/interlocked</td>
+            <td class="gallifrey-col">Multiple word circles nested in sentence circle</td>
+          </tr>
+          <tr>
+            <td><strong>Numbers</strong></td>
+            <td class="nomai-col">Integrated into glyph grid (consonant-vowel-number line)</td>
+            <td class="gallifrey-col">Separate concentric rings (outer = tens, inner = ones)</td>
+          </tr>
+          <tr>
+            <td><strong>Punctuation</strong></td>
+            <td class="nomai-col">End-word marker (⌢), implied by spiral breaks</td>
+            <td class="gallifrey-col">Dedicated punctuation circle with special marks</td>
+          </tr>
+          <tr>
+            <td><strong>Fractal/Nesting</strong></td>
+            <td class="nomai-col">Recursive spirals at multiple scales (self-similar)</td>
+            <td class="gallifrey-col">Nested circles (spiral inward for long words)</td>
+          </tr>
+          <tr>
+            <td><strong>Handwriting Variation</strong></td>
+            <td class="nomai-col">Curve precision/messiness = author state</td>
+            <td class="gallifrey-col">Line weight, circle roundness, spacing = style choice</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ENCODING MECHANISMS -->
+    <div class="section">
+      <h2 class="section-title">Encoding Mechanisms: Side-by-Side</h2>
+
+      <div class="architecture-box">
+        <h3 style="font-size: 14px; color: var(--nomai-blue); margin-bottom: 12px;">Nomai Encoding Pipeline</h3>
+        <div class="flow-diagram">Message String
+    ↓ (convert to Unicode codepoints)
+Very Large Integer (e.g., 2^256+)
+    ↓ (determine glyph grid positions)
+2D Grid of Glyph IDs (line, bend, square, ...)
+    ↓ (generate parametric curve)
+Archimedean/Logarithmic Spiral
+    ↓ (transform glyphs to spiral space)
+Positioned, Rotated Glyphs on Curve
+    ↓ (trace syntax tree)
+Connection Lines (no intersections)
+    ↓ (combine multiple spirals)
+Final Nomai Text (deterministic, unique)</div>
+
+        <p style="margin-top: 12px; font-size: 12px; color: var(--charcoal);">
+          <strong>Key property:</strong> Same message always produces identical spiral. Arbitrary Unicode supported. Handwriting mode adds controlled randomness to simulate author variation.
+        </p>
+      </div>
+
+      <div class="architecture-box" style="background: linear-gradient(135deg, rgba(123, 45, 138, 0.05) 0%, rgba(74, 144, 226, 0.05) 100%);">
+        <h3 style="font-size: 14px; color: var(--gallifrey-purple); margin-bottom: 12px;">Gallifreyan Encoding Logic</h3>
+        <div class="flow-diagram">Text String
+    ↓ (break into words)
+Word Units
+    ↓ (analyze each word)
+Consonants (4 base shapes: Ω, O, ⌢, ⊖)
+Vowels (A, E, I, O, U)
+    ↓ (determine consonant marks)
+Shape + Dots/Lines (0-3 dots or lines per mark)
+    ↓ (build word circle)
+Position Letters Counter-Clockwise
+    ↓ (attach vowels OR float them)
+Optional Vowel Attachment (context-dependent)
+    ↓ (extend lines for visual appeal)
+Line Extensions (endpoints = only markers)
+    ↓ (interlock with other words)
+Optional Word Interlocking
+    ↓ (nest in sentence circle)
+Sentence Circle + Inner Circle
+    ↓ (add punctuation)
+Punctuation on Inner Circle
+FINAL: Context-Flexible, Human-Designed</div>
+
+        <p style="margin-top: 12px; font-size: 12px; color: var(--charcoal);">
+          <strong>Key property:</strong> Rules are flexible. Correctness = readability. Different artists produce wildly different aesthetics for same text. Emphasizes artistic expression.
+        </p>
+      </div>
+    </div>
+
+    <!-- CONSONANT & VOWEL SYSTEMS -->
+    <div class="section">
+      <h2 class="section-title">Letter Systems Breakdown</h2>
+
+      <div class="two-column">
+        <div class="philosophy-box nomai">
+          <div class="philosophy-title">Nomai: Consonant Distribution</div>
+          <div class="philosophy-text">
+            <strong>6 Base Glyphs:</strong><br/>
+            • <span class="highlight-nomai">Line</span> — fundamental stroke<br/>
+            • <span class="highlight-nomai">Bend</span> — curved variant<br/>
+            • <span class="highlight-nomai">Square</span> — angular<br/>
+            • <span class="highlight-nomai">Pentagon</span> — 5-sided<br/>
+            • <span class="highlight-nomai">Hexagon</span> — 6-sided<br/>
+            • <span class="highlight-nomai">Octagon</span> — 8-sided<br/><br/>
+            <strong>Usage:</strong> Glyphs combine in pairs to form letters. Encoded by integer position in grid determines which glyphs appear. Each glyph's position on spiral curve encodes phoneme.
+          </div>
+        </div>
+
+        <div class="philosophy-box gallifrey">
+          <div class="philosophy-title">Gallifreyan: Consonant Shapes</div>
+          <div class="philosophy-text">
+            <strong>4 Base Shapes:</strong><br/>
+            • <span class="highlight-gallifrey">Ω</span> (curved double) — 1st set (B, J, T, TH)<br/>
+            • <span class="highlight-gallifrey">O</span> (circle) — 2nd set (CH, PH, WH, GH)<br/>
+            • <span class="highlight-gallifrey">⌢</span> (curved single) — 3rd set (D, K, SH, Y)<br/>
+            • <span class="highlight-gallifrey">⊖</span (circle + line) — 4th set (ND, L, R, Z)<br/><br/>
+            <strong>Marking System:</strong> Dots (●, ●●, ●●●) or lines (—, ——, ———) added to consonant shape specify which letter within that shape's set.
+          </div>
+        </div>
+      </div>
+
+      <div class="two-column">
+        <div class="philosophy-box nomai">
+          <div class="philosophy-title">Nomai: Vowel Attachment</div>
+          <div class="philosophy-text">
+            <strong>Reading Pattern:</strong><br/>
+            If letter is <strong>consonant</strong>: start top row of vowel table<br/>
+            If letter is <strong>vowel</strong>: start left column<br/><br/>
+            <strong>Position Rule:</strong> Vowels attach to consonant branch before it OR float as independent glyph.<br/><br/>
+            <strong>Double Vowels:</strong> Two vowels in sequence create double-circle or connected glyphs.
+          </div>
+        </div>
+
+        <div class="philosophy-box gallifrey">
+          <div class="philosophy-title">Gallifreyan: Vowel Positions</div>
+          <div class="philosophy-text">
+            <strong>Vowels (A, E, I, O, U):</strong><br/>
+            Each vowel has a unique symbol (○, ⊙, ◇, etc.)<br/><br/>
+            <strong>Attachment:</strong> Vowels can "attach" to consonants (occludes the shape) OR float independently in word circle.<br/><br/>
+            <strong>Optional Technique:</strong> Line across vowel moves it to before prior letter (vowel reordering for compact stacking).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHILOSOPHICAL CONTRAST -->
+    <div class="section">
+      <h2 class="section-title">Philosophical Contrast: Two Approaches to Meaning</h2>
+
+      <div class="philosophy-box nomai">
+        <div class="philosophy-title">Nomai Philosophy: Procedural Truth</div>
+        <div class="philosophy-text">
+          The Nomai believed that meaning is <strong>deterministic</strong>. A message, once encoded as a spiral, is **permanently fixed**—the same content always produces the same visual form. This reflects a scientific civilization: there is one correct encoding, one true spiral for every thought.
+          <br/><br/>
+          <strong>Why spirals?</strong> Spirals represent growth, recursion, and the infinite—fitting for a species that pursues knowledge of the cosmos. The fractal nature means examining a Nomai text at any scale reveals the same self-similar patterns, suggesting infinite depth.
+          <br/><br/>
+          <strong>Collaborative authorship visible in branches.</strong> Different spirals branching from a common root show where different individuals contributed. It's impossible to hide who said what.
+          <br/><br/>
+          <strong>Handwriting as state.</strong> The precision of curves = the author's mental clarity or agitation. Messy spirals reveal emotional content beyond words.
+        </div>
+      </div>
+
+      <div class="philosophy-box gallifrey">
+        <div class="philosophy-title">Gallifreyan Philosophy: Contextual Beauty</div>
+        <div class="philosophy-text">
+          Gallifreyan is <strong>context-flexible by design.</strong> The guide explicitly states: "It's okay to bend or even break the rules if doing so makes sense in context. The only thing that makes Gallifreyan correct is whether people can understand it."
+          <br/><br/>
+          <strong>Why circles?</strong> Circles are infinite, complete, time-like. For a civilization that manipulates time, circular logic and nested temporality make sense. Reading counter-clockwise suggests reading *backward* through causality.
+          <br/><br/>
+          <strong>Artistic expression over prescription.</strong> No two Gallifreyan texts look the same, even if they encode identical content. Artists develop personal styles—some organic and flowing, others geometric and precise, others wild and chaotic.
+          <br/><br/>
+          <strong>Rules as guides, not law.</strong> The system has structure, but the final form is determined by the writer's aesthetic judgment. This mirrors Time Lord philosophy: they transcend rigid rule-systems through superior understanding.
+        </div>
+      </div>
+
+      <div class="quote-box">
+        <strong>The Paradox:</strong> Nomai spirals are beautiful *because* they're deterministic—each message looks unique yet follows mathematical law. Gallifreyan circles are beautiful *because* they're flexible—each message looks different and reflects the artist's hand. One system says "truth is invariant." The other says "truth is interpretation."
+      </div>
+    </div>
+
+    <!-- PEDAGOGICAL PATHWAYS -->
+    <div class="section">
+      <h2 class="section-title">Pedagogical Pathways</h2>
+
+      <h3 style="font-size: 16px; color: var(--nomai-blue); margin: 20px 0 12px; border-left: 2px solid var(--nomai-blue); padding-left: 12px;">Nomai Learning Track (8-10 weeks)</h3>
+      <div class="learning-track">
+        <div class="learning-phase">
+          <div class="phase-title">Week 1-2: Visual Recognition</div>
+          <div class="phase-desc">Identify the 6 base glyphs in isolation. Practice sketching each: line (straight), bend (curved), square (4 vertices), pentagon (5), hexagon (6), octagon (8). Study how glyphs combine. Goal: rapid visual identification of any glyph.</div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Week 2-3: Spiral Structure</div>
+          <div class="phase-desc">Trace in-game Nomai spirals from start to end. Understand the parametric curve (Archimedean spiral). Map glyph positions along the curve. Study connection lines and their meaning. Goal: follow a spiral's syntax tree without getting lost.</div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Week 3-4: Encoding Logic</div>
+          <div class="phase-desc">Study the integer-to-glyph conversion. Understand why consonant/vowel/number lines emerge from word dots. Practice reading order (consonant = top row; vowel = left column). Goal: decode short words from real Outer Wilds text.</div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Week 5-6: Procedural Generation</div>
+          <div class="phase-desc">Use nomai-writing.com to generate spirals for English messages. Observe patterns: longer messages = longer spirals; similar messages = similar shapes. Experiment with handwriting modes. Goal: predict what a message's spiral will roughly look like before generating.</div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Week 7-8: Fractal Appreciation</div>
+          <div class="phase-desc">Study zooming in and out of spirals. Recognize self-similar motifs at different scales. Understand why fractals encode infinite complexity in finite space. Philosophical study: how does proceduralism reflect Nomai culture (scientific, deterministic, collaborative). Goal: articulate why spirals are the natural choice for this civilization.</div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Week 9-10: Mastery Practice</div>
+          <div class="phase-desc">Read complex multi-spiral Nomai documents. Distinguish between "clean" and "messy" handwriting—what does the author's precision tell you? Write personal messages, encode them, and present the spirals. Goal: fluency and philosophical depth.</div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 16px; color: var(--gallifrey-purple); margin: 20px 0 12px; border-left: 2px solid var(--gallifrey-purple); padding-left: 12px;">Gallifreyan Learning Track (6-8 weeks)</h3>
+      <div class="learning-track">
+        <div class="learning-phase">
+          <div class="phase-title">Week 1: Shapes & Marks</div>
+          <div class="phase-desc">Memorize the 4 base consonant shapes (Ω, O, ⌢, ⊖) and which letters belong to each set. Practice adding dots/lines to distinguish letters (B vs. CH vs. D vs. ND). Goal: quick identification of any consonant.</div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Week 2: Vowels & Attachment</div>
+          <div class="phase-desc">Learn the 5 vowel symbols. Practice attaching vowels to consonants (overlaying) and floating them independently. Understand the optional vowel reordering technique (line across vowel). Goal: encode vowels in multiple ways.</div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Week 3: Word Circles</div>
+          <div class="phase-desc">Build single-word circles. Position letters counter-clockwise from bottom. Extend lines organically. Practice interlocking words with adjacent ⌢-shaped consonants. Goal: write legible 3-4 letter words.</div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Week 4: Sentence Structure</div>
+          <div class="phase-desc">Nest multiple word circles in a sentence circle. Add punctuation (on inner circle). Study examples from community artists. Understand how to chain sentences. Goal: write a legible sentence.</div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Week 5: Numbers & Advanced Techniques</div>
+          <div class="phase-desc">Learn concentric ring system for numbers (outer ring = tens, inner = ones). Study optional techniques: consonant stacking, nested spiraling, START HERE symbol. Goal: integrate numbers and special symbols.</div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Week 6-7: Style Development</div>
+          <div class="phase-desc">Study community examples: organic flowing style, geometric precise style, chaotic expressive style. Develop personal aesthetic. Experiment with line weight, circle precision, spacing. Goal: distinctive personal Gallifreyan handwriting.</div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Week 8: Mastery & Artistic Expression</div>
+          <div class="phase-desc">Write complex multi-sentence passages. Confidently break rules when context demands it. Teach others. Contribute to community. Goal: fluent, artistic Gallifreyan writing.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARX INTEGRATION -->
+    <div class="section">
+      <h2 class="section-title">Integration into ARX Foundation</h2>
+
+      <p>
+        Both systems embody core ARX values, but in complementary ways:
+      </p>
+
+      <div class="philosophy-box nomai">
+        <div class="philosophy-title">Nomai Contribution to ARX</div>
+        <div class="philosophy-text">
+          <strong>Algorithmic Transparency:</strong> Nomai's deterministic encoding mirrors ARX's commitment to radical transparency. Every message is encoded the same way—no hidden meanings, no ambiguity. This aligns with ARX's "open-source" ethos: the algorithm is public, the rules are known, the output is verifiable.
+          <br/><br/>
+          <strong>Collaborative Authorship Visibility:</strong> Spiral branches explicitly show who contributed what. Perfect for ARX CleanOps (multi-party marketplace), Glyphkeeper (collaborative learning), and shared research documentation. Attribution is visual and immediate.
+          <br/><br/>
+          <strong>Fractal Self-Similarity:</strong> Mirrors ARX's recursive design philosophy. Small patterns scale to large ones. Relevant to hardware design (modular systems), software architecture (composable functions), and organizational structure (self-similar decision-making).
+          <br/><br/>
+          <strong>Application:</strong> Use Nomai spirals for timestamped research logs, collaborative notes, and cryptographic signing (unique spiral = unique message fingerprint).
+        </div>
+      </div>
+
+      <div class="philosophy-box gallifrey">
+        <div class="philosophy-title">Gallifreyan Contribution to ARX</div>
+        <div class="philosophy-text">
+          <strong>Context-Flexible Rules:</strong> Gallifreyan's "bend the rules if it makes sense" approach aligns with ARX's adaptive, neurodivergent-friendly design. Not everyone learns the same way; the system must accommodate variation.
+          <br/><br/>
+          <strong>Artistic Expression Over Prescription:</strong> Honors individuality while maintaining legibility. Perfect for personal branding (ARX tattoo studios), design systems (variable typography), and accessibility (flexibility = inclusion).
+          <br/><br/>
+          <strong>Infinite Nesting (Circular Time):</strong> Sentences nest in circles, circles nest in larger circles—mirroring ARX's multi-scale thinking (personal, team, organization, ecosystem). Relevant to Van Life design (nested spatial zones like Sanctuary) and temporal planning (iterative loops, cycles, recursion).
+          <br/><br/>
+          <strong>Application:</strong> Use Gallifreyan as a design system for personal sigils (Sanctuary coasters), staff identity markers (Tu Madres tattoo studio), and community artwork (ARX community circles).
+        </div>
+      </div>
+
+      <p style="margin-top: 20px;">
+        <strong>Synthesis:</strong> Nomai teaches ARX how to encode deterministic, verifiable, collaborative meaning. Gallifreyan teaches ARX how to express contextual, flexible, artistic meaning. Together, they suggest a unified system: <em>deterministic backbone with artistic surface.</em> Build the algorithm, then let humans interpret it creatively.
+      </p>
+    </div>
+
+    <!-- STATUS & TOOLS -->
+    <div class="section">
+      <h2 class="section-title">Tools & Resources</h2>
+
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>System</th>
+            <th>Tool Name</th>
+            <th>Type</th>
+            <th>Access</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="nomai-col"><strong>Nomai</strong></td>
+            <td>nomai-writing.com</td>
+            <td>Web Encoder</td>
+            <td>Free, browser-based, SVG output</td>
+          </tr>
+          <tr>
+            <td class="nomai-col"><strong>Nomai</strong></td>
+            <td>ow-written-nomai-lang (GitHub)</td>
+            <td>Java Implementation</td>
+            <td>Open-source, command-line</td>
+          </tr>
+          <tr>
+            <td class="nomai-col"><strong>Nomai</strong></td>
+            <td>NomaiText.jl</td>
+            <td>Julia Package</td>
+            <td>Open-source, arbitrary-length support</td>
+          </tr>
+          <tr>
+            <td class="gallifrey-col"><strong>Gallifreyan</strong></td>
+            <td>shermansplanet.com/gallifreyan</td>
+            <td>Guide + Community</td>
+            <td>Free guide (PDF), artist showcase</td>
+          </tr>
+          <tr>
+            <td class="gallifrey-col"><strong>Gallifreyan</strong></td>
+            <td>Community Wikis (Reddit, Tumblr)</td>
+            <td>Tutorials + Examples</td>
+            <td>User-contributed tutorials, style guides</td>
+          </tr>
+          <tr>
+            <td class="gallifrey-col"><strong>Gallifreyan</strong></td>
+            <td>Annie "Sirkles" Drahos Videos</td>
+            <td>Video Tutorials</td>
+            <td>Free instructional videos on YouTube</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COMPARATIVE LEARNING -->
+    <div class="section">
+      <h2 class="section-title">Learning Both: Recommended Path</h2>
+
+      <p>
+        If you're serious about mastering circular writing systems, here's the optimal sequence:
+      </p>
+
+      <div class="learning-track">
+        <div class="learning-phase">
+          <div class="phase-title">Month 1: Foundation (Choose One)</div>
+          <div class="phase-desc">
+            <strong>Option A (Procedural-First):</strong> Start with Nomai. Its deterministic rules and clear encoding logic provide solid foundational understanding. You learn that <em>all writing can be systematized.</em>
+            <br/><br/>
+            <strong>Option B (Artistic-First):</strong> Start with Gallifreyan. Its flexibility and emphasis on personal expression build confidence. You learn that <em>rules are tools, not laws.</em>
+          </div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Month 2: Contrast Study</div>
+          <div class="phase-desc">
+            Now learn the second system. The contrast will deepen your understanding of both. You'll see how Nomai's determinism vs. Gallifreyan's flexibility represent two valid approaches to encoding meaning.
+          </div>
+        </div>
+        <div class="learning-phase">
+          <div class="phase-title">Month 3: Synthesis & Personal System</div>
+          <div class="phase-desc">
+            Design your own hybrid system. Take Nomai's algorithmic rigor and Gallifreyan's artistic flexibility. Create something that reflects <em>your</em> philosophy. This is where real mastery emerges—not in following rules, but in understanding them deeply enough to transcend them.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Glyphkeeper Comparative Entry · Circular Writing Systems<br/>
+      Nomai (Outer Wilds) · Gallifreyan (Doctor Who)<br/>
+      ARX Foundation · March 25, 2026<br/>
+      Status: Research Complete · Pedagogical Tracks Available
+    </footer>
+  </div>
+</body>
+</html>

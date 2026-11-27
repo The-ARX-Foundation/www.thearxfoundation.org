@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>𞠀𞠁𞠂 Ki Ka Ku — Learn Mende Kikakui</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#120e0a;--bg-mid:#1c1610;--bg-card:#28201a;--bg-card-hover:#342a22;--terra:#c06a3a;--terra-light:#e08a5a;--terra-bright:#f0aa78;--terra-dim:#804a2a;--cream:#ece0d0;--cream-dim:#a09080;--cream-faint:#605548;--green:#5aaa6a;--red:#c85a4a;--shadow:rgba(0,0,0,0.5);--border:rgba(255,255,255,0.06)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--cream);font-family:'Source Sans 3',sans-serif;min-height:100vh}
+.header{text-align:center;padding:2.5rem 1rem 1.5rem;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(192,106,58,0.06) 0%,transparent 100%)}
+.header-script{font-size:1.6rem;color:var(--terra-light);letter-spacing:0.3em;margin-bottom:0.3rem}
+.header h1{font-family:'Lora',serif;font-size:1.5rem;color:var(--cream)}
+.header h1 em{font-style:italic;color:var(--terra-light)}
+.header-sub{font-size:0.8rem;color:var(--cream-faint);margin-top:0.3rem;font-weight:300}
+.rtl-badge{display:inline-block;font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;padding:0.2rem 0.6rem;border-radius:100px;background:rgba(192,106,58,0.15);color:var(--terra-light);border:1px solid rgba(192,106,58,0.3);margin-left:0.5rem}
+.nav{display:flex;justify-content:center;background:var(--bg-mid);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-btn{background:none;border:none;color:var(--cream-faint);font-family:'Source Sans 3',sans-serif;font-size:0.85rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:1rem 1.5rem;cursor:pointer;transition:all 0.3s;position:relative}
+.nav-btn:hover{color:var(--cream)}.nav-btn.active{color:var(--terra-light)}
+.nav-btn.active::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:var(--terra);border-radius:1px}
+.section{display:none;padding:2rem 1rem;max-width:1000px;margin:0 auto}.section.active{display:block}
+.hc{max-width:650px;margin:0 auto}
+.hc h2{font-family:'Lora',serif;font-size:1.5rem;color:var(--terra-light);margin-bottom:1rem}
+.hc p{font-size:0.95rem;line-height:1.8;color:var(--cream-dim);margin-bottom:1.1rem;font-weight:300}
+.hc strong{color:var(--cream);font-weight:500}
+.cg{margin-bottom:2rem}
+.cg-title{font-family:'Lora',serif;font-size:1rem;color:var(--terra);margin-bottom:0.6rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border)}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px}
+.cc{background:var(--bg-card);border-radius:6px;padding:0.5rem;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid transparent}
+.cc:hover{background:var(--bg-card-hover);border-color:rgba(192,106,58,0.3);transform:translateY(-1px)}
+.cc .g{font-size:2rem;color:var(--terra-bright);line-height:1.1;display:block}
+.cc .p{font-size:0.6rem;color:var(--cream-faint);display:block;margin-top:0.1rem}
+.detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+.detail-overlay.show{display:flex}
+.dc{background:var(--bg-mid);border:1px solid rgba(192,106,58,0.3);border-radius:12px;padding:2.5rem;text-align:center;max-width:300px;width:90%}
+.dc .bg{font-size:6rem;color:var(--terra-bright);line-height:1}
+.dc .dp{font-size:1.3rem;color:var(--cream);margin:0.5rem 0}
+.dc .dt{font-size:0.85rem;color:var(--cream-faint)}
+.dc-close{margin-top:1.5rem;background:rgba(192,106,58,0.15);border:1px solid rgba(192,106,58,0.3);color:var(--terra-light);padding:0.5rem 2rem;border-radius:6px;cursor:pointer;transition:all 0.2s}
+.pw{max-width:480px;margin:0 auto;text-align:center}
+.ms{display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.mb{background:var(--bg-card);border:1px solid var(--border);color:var(--cream-dim);padding:0.5rem 1rem;border-radius:6px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:0.8rem;font-weight:500;transition:all 0.2s}
+.mb:hover{border-color:rgba(192,106,58,0.4);color:var(--cream)}.mb.active{background:rgba(192,106,58,0.15);border-color:var(--terra);color:var(--terra-light)}
+.fc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:3rem 2rem;margin-bottom:1.5rem;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s}
+.fc:hover{border-color:rgba(192,106,58,0.3)}.fc .pg{font-size:5rem;color:var(--terra-bright);line-height:1}
+.fc .pt{font-size:1.5rem;color:var(--cream);font-weight:300}.fc .hint{font-size:0.8rem;color:var(--cream-faint);margin-top:1rem}
+.fc .ans{display:none;margin-top:1rem}.fc.rev .ans{display:block}
+.fc .ar{font-size:1.8rem;color:var(--terra-light)}.fc .ag{font-size:4rem;color:var(--terra-bright)}
+.pc{display:flex;gap:0.8rem;justify-content:center;margin-bottom:1.5rem}
+.pb{background:var(--bg-card);border:1px solid rgba(192,106,58,0.3);color:var(--cream);padding:0.7rem 1.5rem;border-radius:8px;cursor:pointer;font-size:0.9rem;font-weight:500;transition:all 0.2s}
+.pb:hover{background:rgba(192,106,58,0.15)}.pb.ok{background:rgba(90,170,106,0.2);border-color:var(--green);color:var(--green)}
+.pb.no{background:rgba(200,90,74,0.2);border-color:var(--red);color:var(--red)}
+.sb{display:flex;justify-content:center;gap:2rem;font-size:0.85rem;color:var(--cream-faint);margin-top:1rem}
+.sb span{font-weight:600}.sb .sc span{color:var(--green)}.sb .sw span{color:var(--red)}.sb .ss span{color:var(--terra-light)}
+.qo{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1.5rem}
+.qopt{background:var(--bg-card);border:2px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.2s;font-size:2.2rem;color:var(--terra-bright)}
+.qopt.ro{font-family:'Source Sans 3',sans-serif;font-size:1.1rem;color:var(--cream)}
+.qopt:hover{border-color:var(--terra);background:var(--bg-card-hover)}
+.qopt.cc2{border-color:var(--green)!important;background:rgba(90,170,106,0.15)!important}
+.qopt.cw{border-color:var(--red)!important;background:rgba(200,90,74,0.15)!important}
+.qopt.sc2{border-color:var(--green)!important;background:rgba(90,170,106,0.1)!important}
+.qopt.dis{pointer-events:none;opacity:0.7}
+.footer{text-align:center;padding:2rem 1rem;color:var(--cream-faint);font-size:0.75rem;border-top:1px solid var(--border);margin-top:2rem}
+.footer a{color:var(--terra);text-decoration:none}
+</style></head><body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="../index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+<div class="header">
+  <div class="header-script">𞠀 𞠁 𞠂</div>
+  <h1><em>Ki Ka Ku</em> — Learn Mende Kikakui <span class="rtl-badge">← Right to Left</span></h1>
+  <div class="header-sub">~195 characters · Kisimi Kamara · Sierra Leone · c. 1921</div>
+</div>
+<nav class="nav"><button class="nav-btn active" data-tab="history">History</button><button class="nav-btn" data-tab="chart">Syllabary</button><button class="nav-btn" data-tab="practice">Practice</button></nav>
+
+<div id="history" class="section active"><div class="hc">
+  <h2>The Script That Challenged an Empire</h2>
+  <p>In colonial Sierra Leone, <strong>Kisimi Kamara</strong> (c. 1890–1962) saw that the British controlled his country partly through their literacy. He decided to give the Mende people that same power.</p>
+  <p>Building on the 42-character foundation created by Islamic scholar <strong>Mohamed Turay</strong> around 1917, Kamara expanded the system to over <strong>195 syllabic characters</strong> and promoted it across southern Sierra Leone. The script was named <em>Kikakui</em> after its first three sounds: <strong>Ki, Ka, Ku</strong>.</p>
+  <p>Kikakui drew inspiration from three sources: the <strong>Vai syllabary</strong> from neighboring Liberia, the <strong>Arabic abjad</strong> (Turay was an Islamic scholar), and indigenous <strong>Mende graphic symbols</strong>. The result was unique — a right-to-left syllabary that became widely used for correspondence, record-keeping, and Quranic transcription.</p>
+  <p>By the 1930s, Kikakui was thriving. But in the <strong>1940s</strong>, the British colonial government established the Protectorate Literacy Bureau and actively promoted the Latin alphabet, suppressing indigenous scripts. Kikakui usage declined sharply.</p>
+  <p>Today fewer than 500 people use it — but revival efforts are underway. It was encoded in <strong>Unicode 7.0 (2014)</strong>, and scholars like Konrad Tuchscherer are teaching classes in Sierra Leone with intense student interest.</p>
+  <p>Note: Mende Kikakui characters are in the Unicode Supplementary Multilingual Plane (U+1E800–1E8DF) and may not render in all browsers. If you see boxes, you may need to install a Mende Kikakui font.</p>
+</div></div>
+
+<div id="chart" class="section">
+  <p style="text-align:center;margin-bottom:1.5rem;color:var(--cream-dim);font-size:0.85rem">Core Mende Kikakui syllables. Note: this script reads right-to-left. Click any to enlarge.</p>
+  <div id="chart-container"></div>
+</div>
+
+<div id="practice" class="section"><div class="pw">
+  <div class="ms"><button class="mb active" data-mode="flash-glyph">Glyph → Sound</button><button class="mb" data-mode="flash-sound">Sound → Glyph</button><button class="mb" data-mode="quiz">Quiz</button></div>
+  <div id="pa"></div>
+  <div class="sb"><div class="sc">Correct: <span id="xc">0</span></div><div class="sw">Missed: <span id="xw">0</span></div><div class="ss">Streak: <span id="xs">0</span></div></div>
+</div></div>
+
+<div class="detail-overlay" id="dov"><div class="dc"><div class="bg" id="dg"></div><div class="dp" id="dp"></div><div class="dt" id="dt"></div><button class="dc-close" onclick="cd()">Close</button></div></div>
+<div class="footer">Mende Kikakui · Unicode U+1E800–1E8DF · Part of <a href="../index.html">Glyphkeeper</a></div>
+
+<script>
+const MK=[
+  // Ki- series (the namesake)
+  {g:'𞠀',p:'ki',grp:'Ki- series'},{g:'𞠁',p:'ka',grp:'Ki- series'},{g:'𞠂',p:'ku',grp:'Ki- series'},
+  {g:'𞠃',p:'kee',grp:'Ki- series'},{g:'𞠄',p:'kɛ',grp:'Ki- series'},{g:'𞠅',p:'koo',grp:'Ki- series'},{g:'𞠆',p:'kɔ',grp:'Ki- series'},
+  // W- series
+  {g:'𞠇',p:'wi',grp:'W- series'},{g:'𞠈',p:'wa',grp:'W- series'},{g:'𞠉',p:'wu',grp:'W- series'},
+  {g:'𞠊',p:'wee',grp:'W- series'},{g:'𞠋',p:'wɛ',grp:'W- series'},{g:'𞠌',p:'woo',grp:'W- series'},{g:'𞠍',p:'wɔ',grp:'W- series'},
+  // Min- series
+  {g:'𞠎',p:'mi',grp:'M- series'},{g:'𞠏',p:'ma',grp:'M- series'},{g:'𞠐',p:'mu',grp:'M- series'},
+  {g:'𞠑',p:'mee',grp:'M- series'},{g:'𞠒',p:'mɛ',grp:'M- series'},{g:'𞠓',p:'moo',grp:'M- series'},{g:'𞠔',p:'mɔ',grp:'M- series'},
+  // Bi- series
+  {g:'𞠕',p:'bi',grp:'B- series'},{g:'𞠖',p:'ba',grp:'B- series'},{g:'𞠗',p:'bu',grp:'B- series'},
+  {g:'𞠘',p:'bee',grp:'B- series'},{g:'𞠙',p:'bɛ',grp:'B- series'},{g:'𞠚',p:'boo',grp:'B- series'},{g:'𞠛',p:'bɔ',grp:'B- series'},
+  // I- vowels
+  {g:'𞠜',p:'i',grp:'Vowels'},{g:'𞠝',p:'a',grp:'Vowels'},{g:'𞠞',p:'u',grp:'Vowels'},
+  {g:'𞠟',p:'ee',grp:'Vowels'},{g:'𞠠',p:'ɛ',grp:'Vowels'},{g:'𞠡',p:'oo',grp:'Vowels'},{g:'𞠢',p:'ɔ',grp:'Vowels'},
+  // Si- series
+  {g:'𞠣',p:'si',grp:'S- series'},{g:'𞠤',p:'sa',grp:'S- series'},{g:'𞠥',p:'su',grp:'S- series'},
+  {g:'𞠦',p:'see',grp:'S- series'},{g:'𞠧',p:'sɛ',grp:'S- series'},{g:'𞠨',p:'soo',grp:'S- series'},{g:'𞠩',p:'sɔ',grp:'S- series'},
+  // Li- series
+  {g:'𞠪',p:'li',grp:'L- series'},{g:'𞠫',p:'la',grp:'L- series'},{g:'𞠬',p:'lu',grp:'L- series'},
+  {g:'𞠭',p:'lee',grp:'L- series'},{g:'𞠮',p:'lɛ',grp:'L- series'},{g:'𞠯',p:'loo',grp:'L- series'},{g:'𞠰',p:'lɔ',grp:'L- series'},
+  // Di- series
+  {g:'𞠱',p:'di',grp:'D- series'},{g:'𞠲',p:'da',grp:'D- series'},{g:'𞠳',p:'du',grp:'D- series'},
+  {g:'𞠴',p:'dee',grp:'D- series'},{g:'𞠵',p:'dɛ',grp:'D- series'},{g:'𞠶',p:'doo',grp:'D- series'},{g:'𞠷',p:'dɔ',grp:'D- series'},
+  // Ti- series
+  {g:'𞠸',p:'ti',grp:'T- series'},{g:'𞠹',p:'ta',grp:'T- series'},{g:'𞠺',p:'tu',grp:'T- series'},
+  {g:'𞠻',p:'tee',grp:'T- series'},{g:'𞠼',p:'tɛ',grp:'T- series'},{g:'𞠽',p:'too',grp:'T- series'},{g:'𞠾',p:'tɔ',grp:'T- series'},
+  // Ji- series
+  {g:'𞠿',p:'ji',grp:'J- series'},{g:'𞡀',p:'ja',grp:'J- series'},{g:'𞡁',p:'ju',grp:'J- series'},
+  {g:'𞡂',p:'jee',grp:'J- series'},{g:'𞡃',p:'jɛ',grp:'J- series'},{g:'𞡄',p:'joo',grp:'J- series'},{g:'𞡅',p:'jɔ',grp:'J- series'},
+];
+
+const GROUPS=[...new Set(MK.map(c=>c.grp))];
+document.querySelectorAll('.nav-btn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active')})});
+function buildChart(){const c=document.getElementById('chart-container');GROUPS.forEach(grp=>{const chars=MK.filter(v=>v.grp===grp);const d=document.createElement('div');d.className='cg';d.innerHTML=`<div class="cg-title">${grp}</div>`;const g=document.createElement('div');g.className='chart-grid';chars.forEach(ch=>{const cell=document.createElement('div');cell.className='cc';cell.innerHTML=`<span class="g">${ch.g}</span><span class="p">${ch.p}</span>`;cell.onclick=()=>sd(ch);g.appendChild(cell)});d.appendChild(g);c.appendChild(d)})}
+function sd(ch){document.getElementById('dg').textContent=ch.g;document.getElementById('dp').textContent=ch.p;document.getElementById('dt').textContent=ch.grp;document.getElementById('dov').classList.add('show')}
+function cd(){document.getElementById('dov').classList.remove('show')}
+document.getElementById('dov').addEventListener('click',e=>{if(e.target===e.currentTarget)cd()});
+let pMode='flash-glyph',cur=null,score={c:0,w:0,s:0};
+document.querySelectorAll('.mb').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.mb').forEach(x=>x.classList.remove('active'));b.classList.add('active');pMode=b.dataset.mode;score={c:0,w:0,s:0};us();nxt()})});
+function rnd(ex){let c;do{c=MK[Math.floor(Math.random()*MK.length)]}while(c===ex);return c}
+function us(){document.getElementById('xc').textContent=score.c;document.getElementById('xw').textContent=score.w;document.getElementById('xs').textContent=score.s}
+function nxt(){cur=rnd(cur);const a=document.getElementById('pa');if(pMode==='flash-glyph'){a.innerHTML=`<div class="fc" id="fc" onclick="rv()"><div class="pg">${cur.g}</div><div class="hint">tap to reveal</div><div class="ans"><div class="ar">${cur.p}</div><div style="font-size:0.8rem;color:var(--cream-faint);margin-top:0.3rem">${cur.grp}</div></div></div><div class="pc"><button class="pb ok" onclick="mk(1)">Got it ✓</button><button class="pb no" onclick="mk(0)">Missed ✗</button><button class="pb" onclick="nxt()">Skip →</button></div>`}else if(pMode==='flash-sound'){a.innerHTML=`<div class="fc" id="fc" onclick="rv()"><div class="pt">${cur.p}</div><div class="hint">tap to reveal</div><div class="ans"><div class="ag">${cur.g}</div></div></div><div class="pc"><button class="pb ok" onclick="mk(1)">Got it ✓</button><button class="pb no" onclick="mk(0)">Missed ✗</button><button class="pb" onclick="nxt()">Skip →</button></div>`}else{bq()}}
+function rv(){document.getElementById('fc').classList.add('rev')}
+function mk(ok){if(ok){score.c++;score.s++}else{score.w++;score.s=0}us();nxt()}
+function bq(){const a=document.getElementById('pa');const isG=Math.random()>0.5;const ci=Math.floor(Math.random()*4);const opts=[];const used=new Set([cur.g]);for(let i=0;i<4;i++){if(i===ci){opts.push(cur)}else{let c;do{c=rnd()}while(used.has(c.g));used.add(c.g);opts.push(c)}}if(isG){a.innerHTML=`<div class="fc" style="cursor:default"><div class="pg">${cur.g}</div><div class="hint">choose the correct sound</div></div><div class="qo" id="qo">${opts.map((o,i)=>`<div class="qopt ro" onclick="qa(${i},${ci})">${o.p}</div>`).join('')}</div>`}else{a.innerHTML=`<div class="fc" style="cursor:default"><div class="pt">${cur.p}</div><div class="hint">choose the correct glyph</div></div><div class="qo" id="qo">${opts.map((o,i)=>`<div class="qopt" onclick="qa(${i},${ci})">${o.g}</div>`).join('')}</div>`}}
+function qa(ch,co){const os=document.querySelectorAll('#qo .qopt');os.forEach(o=>o.classList.add('dis'));os[co].classList.add('sc2');if(ch===co){os[ch].classList.add('cc2');score.c++;score.s++}else{os[ch].classList.add('cw');score.w++;score.s=0}us();setTimeout(nxt,1200)}
+buildChart();nxt();
+</script></body></html>

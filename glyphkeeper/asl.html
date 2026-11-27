@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASL Fingerspelling · Glyphkeeper</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --parchment: #F5EFE4;
+  --parchment-dark: #E8DFD0;
+  --rust: #7A3A1A;
+  --rust-light: #A0522D;
+  --rust-glow: rgba(122,58,26,0.15);
+  --ink: #2C1810;
+  --ink-light: #5C4033;
+  --gold: #B8860B;
+  --gold-light: rgba(184,134,11,0.2);
+  --indigo: #2E3A59;
+  --lotus: #8B3A62;
+  --correct: #2D5A3D;
+  --wrong: #8B2020;
+  --hand-skin: #E8D5B7;
+  --hand-outline: #5C4033;
+  --hand-shadow: rgba(44,24,16,0.12);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--parchment);
+  color: var(--ink);
+  min-height: 100vh;
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+.header-bar {
+  background: var(--ink);
+  color: var(--parchment);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.header-bar a { color: var(--gold); text-decoration: none; }
+
+.hero {
+  text-align: center;
+  padding: 40px 20px 20px;
+  border-bottom: 1px solid var(--parchment-dark);
+}
+.hero h1 {
+  font-family: 'IM Fell English', serif;
+  font-size: 2.4em;
+  color: var(--rust);
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+}
+.hero .sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-light);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.hero .desc {
+  font-size: 1.05em;
+  color: var(--ink-light);
+  margin-top: 10px;
+  font-style: italic;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* TAB NAV */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  border-bottom: 2px solid var(--rust);
+  margin: 0 20px;
+}
+.tab {
+  padding: 10px 22px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--ink-light);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+.tab:hover { color: var(--rust); }
+.tab.active {
+  color: var(--rust);
+  border-bottom-color: var(--rust);
+  font-weight: 500;
+}
+
+.panel { display: none; padding: 20px; max-width: 900px; margin: 0 auto; }
+.panel.active { display: block; }
+
+/* STATS BAR */
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 14px;
+  margin-bottom: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-light);
+}
+.stat-val { color: var(--rust); font-weight: 500; }
+
+/* FLASHCARD */
+.card-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 420px;
+}
+.flashcard {
+  width: 320px;
+  height: 340px;
+  background: white;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px var(--hand-shadow), 0 1px 3px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.flashcard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--hand-shadow), 0 2px 6px rgba(0,0,0,0.1);
+}
+.flashcard .hand-display {
+  width: 180px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flashcard .hand-display svg {
+  width: 160px;
+  height: 180px;
+}
+.flashcard .letter-display {
+  font-family: 'IM Fell English', serif;
+  font-size: 8em;
+  color: var(--rust);
+  line-height: 1;
+}
+.flashcard .hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-light);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 12px;
+}
+.flashcard .answer-text {
+  font-family: 'IM Fell English', serif;
+  font-size: 2.2em;
+  color: var(--rust);
+  margin-top: 8px;
+}
+.flashcard .desc-text {
+  font-size: 0.9em;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-top: 8px;
+  padding: 0 20px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* QUIZ OPTIONS */
+.quiz-opts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+  width: 320px;
+}
+.qopt {
+  padding: 14px;
+  background: white;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.1em;
+  transition: all 0.2s;
+}
+.qopt:hover { border-color: var(--rust); background: var(--rust-glow); }
+.qopt.correct { background: #D4EDDA; border-color: var(--correct); color: var(--correct); }
+.qopt.wrong { background: #F8D7DA; border-color: var(--wrong); color: var(--wrong); }
+.qopt.disabled { pointer-events: none; opacity: 0.6; }
+.qopt svg { width: 80px; height: 90px; margin: 0 auto; display: block; }
+
+/* RATING BUTTONS */
+.rating-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+.rbtn {
+  padding: 8px 16px;
+  border: 1px solid var(--parchment-dark);
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+.rbtn:hover { border-color: var(--rust); }
+.rbtn.again { border-color: var(--wrong); color: var(--wrong); }
+.rbtn.hard { border-color: var(--gold); color: var(--gold); }
+.rbtn.good { border-color: var(--correct); color: var(--correct); }
+.rbtn.easy { border-color: var(--indigo); color: var(--indigo); }
+
+/* BROWSE GRID */
+.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+.browse-card {
+  background: white;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 6px;
+  padding: 16px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.browse-card:hover {
+  border-color: var(--rust);
+  box-shadow: 0 4px 12px var(--hand-shadow);
+  transform: translateY(-1px);
+}
+.browse-card svg { width: 70px; height: 80px; margin: 0 auto 8px; display: block; }
+.browse-card .bc-letter {
+  font-family: 'IM Fell English', serif;
+  font-size: 1.5em;
+  color: var(--rust);
+}
+.browse-card .bc-desc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--ink-light);
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+/* MODE TOGGLE */
+.mode-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.mode-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--parchment-dark);
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+.mode-btn:hover { border-color: var(--rust); }
+.mode-btn.active { background: var(--rust); color: var(--parchment); border-color: var(--rust); }
+
+/* CHART */
+.chart-wrap {
+  margin-top: 20px;
+  background: white;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 8px;
+  padding: 20px;
+}
+.chart-wrap h3 {
+  font-family: 'IM Fell English', serif;
+  color: var(--rust);
+  margin-bottom: 12px;
+}
+.chart-bar-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+.chart-label { width: 24px; color: var(--ink-light); text-align: center; }
+.chart-bar-bg {
+  flex: 1;
+  height: 18px;
+  background: var(--parchment);
+  border-radius: 3px;
+  margin-left: 8px;
+  overflow: hidden;
+}
+.chart-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s;
+}
+.chart-bar-fill.new { background: var(--ink-light); }
+.chart-bar-fill.learning { background: var(--gold); }
+.chart-bar-fill.review { background: var(--correct); }
+.chart-bar-fill.mastered { background: var(--rust); }
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-light);
+}
+.chart-legend span::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.chart-legend .l-new::before { background: var(--ink-light); }
+.chart-legend .l-learning::before { background: var(--gold); }
+.chart-legend .l-review::before { background: var(--correct); }
+.chart-legend .l-mastered::before { background: var(--rust); }
+
+.footer-bar {
+  background: var(--ink);
+  color: var(--parchment-dark);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  margin-top: 40px;
+}
+
+/* DETAIL MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(44,24,16,0.5);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--parchment);
+  border: 1px solid var(--parchment-dark);
+  border-radius: 10px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-box svg { width: 140px; height: 160px; margin: 0 auto 16px; display: block; }
+.modal-box h2 {
+  font-family: 'IM Fell English', serif;
+  color: var(--rust);
+  font-size: 2em;
+  margin-bottom: 8px;
+}
+.modal-box .modal-desc {
+  color: var(--ink-light);
+  font-style: italic;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.modal-box .modal-tips {
+  text-align: left;
+  font-size: 0.95em;
+  line-height: 1.6;
+  color: var(--ink);
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid var(--parchment-dark);
+}
+.modal-close {
+  margin-top: 16px;
+  padding: 8px 24px;
+  background: var(--rust);
+  color: var(--parchment);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+</style>
+</head>
+<body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+
+<div class="header-bar">
+  <div>Glyphkeeper · Sign Systems</div>
+  <div>ASL Fingerspelling · 26 handshapes</div>
+</div>
+
+<div class="hero">
+  <h1>ASL Fingerspelling</h1>
+  <div class="sub">American Sign Language Manual Alphabet</div>
+  <div class="desc">26 one-handed handshapes representing the English alphabet. Palm faces the viewer. The foundation of ASL literacy.</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('learn')">Learn</div>
+  <div class="tab" onclick="showTab('quiz')">Quiz</div>
+  <div class="tab" onclick="showTab('browse')">Browse</div>
+  <div class="tab" onclick="showTab('progress')">Progress</div>
+</div>
+
+<!-- LEARN PANEL -->
+<div id="panel-learn" class="panel active">
+  <div class="stats">
+    <div>Streak: <span class="stat-val" id="streak">0</span></div>
+    <div>Reviewed: <span class="stat-val" id="reviewed">0</span></div>
+    <div>Mastered: <span class="stat-val" id="mastered">0</span>/26</div>
+  </div>
+  <div class="mode-row">
+    <div class="mode-btn active" onclick="setLearnMode('hand')" id="mode-hand">Hand → Letter</div>
+    <div class="mode-btn" onclick="setLearnMode('letter')" id="mode-letter">Letter → Hand</div>
+  </div>
+  <div class="card-area" id="learn-area"></div>
+</div>
+
+<!-- QUIZ PANEL -->
+<div id="panel-quiz" class="panel">
+  <div class="stats">
+    <div>Score: <span class="stat-val" id="q-score">0</span></div>
+    <div>Streak: <span class="stat-val" id="q-streak">0</span></div>
+    <div>Best: <span class="stat-val" id="q-best">0</span></div>
+  </div>
+  <div class="mode-row">
+    <div class="mode-btn active" onclick="setQuizMode('identify')" id="qmode-identify">Identify Letter</div>
+    <div class="mode-btn" onclick="setQuizMode('match')" id="qmode-match">Match Hand</div>
+  </div>
+  <div class="card-area" id="quiz-area"></div>
+</div>
+
+<!-- BROWSE PANEL -->
+<div id="panel-browse" class="panel">
+  <div class="browse-grid" id="browse-grid"></div>
+</div>
+
+<!-- PROGRESS PANEL -->
+<div id="panel-progress" class="panel">
+  <div class="chart-wrap" id="progress-chart"></div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal-box" id="modal-box"></div>
+</div>
+
+<div class="footer-bar">
+  <div>Glyphkeeper · An ARX Foundation project</div>
+  <div>Sign Systems · Gestural Category</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// ASL FINGERSPELLING DATA
+// Each letter: hand description, SVG path data, tips
+// SVG hands drawn palm-forward, simplified line art
+// ═══════════════════════════════════════
+
+const LETTERS = [
+  { letter:'A', desc:'Fist, thumb rests on side', tips:'Make a fist. Thumb sits alongside index finger, not tucked under or on top.',
+    svg: (c) => { drawFist(c); drawThumbSide(c); }},
+  { letter:'B', desc:'Flat hand up, thumb tucked across palm', tips:'Fingers straight up, pressed together. Thumb folds across the palm at the base of the fingers.',
+    svg: (c) => { drawFlatUp(c); drawThumbTuck(c); }},
+  { letter:'C', desc:'Curved hand, like holding a can', tips:'Fingers and thumb curve to form a C shape. Think of gripping a soda can.',
+    svg: (c) => { drawCurveC(c); }},
+  { letter:'D', desc:'Index up, others touch thumb in circle', tips:'Index finger points straight up. Middle, ring, and pinky curl down to touch the thumb tip, forming a circle.',
+    svg: (c) => { drawDShape(c); }},
+  { letter:'E', desc:'Fingers curled, thumb tucked under', tips:'All four fingers curl down. Thumb tucks underneath the fingertips.',
+    svg: (c) => { drawEShape(c); }},
+  { letter:'F', desc:'Thumb + index circle, 3 fingers up', tips:'Thumb and index finger touch to form a circle (like OK). Middle, ring, and pinky extend upward.',
+    svg: (c) => { drawFShape(c); }},
+  { letter:'G', desc:'Index + thumb point sideways', tips:'Index finger and thumb extend horizontally, parallel to each other, pointing left. Other fingers curled.',
+    svg: (c) => { drawGShape(c); }},
+  { letter:'H', desc:'Index + middle point sideways', tips:'Index and middle finger extend sideways together, horizontal. Thumb may rest on curled ring finger.',
+    svg: (c) => { drawHShape(c); }},
+  { letter:'I', desc:'Pinky up, fist closed', tips:'Make a fist. Extend only the pinky finger straight up.',
+    svg: (c) => { drawIShape(c); }},
+  { letter:'J', desc:'Pinky up, trace a J in the air', tips:'Start with I handshape (pinky up), then draw a J in the air by sweeping the pinky down and curving it toward you. One of two motion letters.',
+    svg: (c) => { drawJShape(c); }},
+  { letter:'K', desc:'Index up, middle angled out, thumb between', tips:'Index points up. Middle finger angles forward. Thumb presses between index and middle at their base.',
+    svg: (c) => { drawKShape(c); }},
+  { letter:'L', desc:'Index up, thumb out to side, making L', tips:'Index points up, thumb extends perpendicular to the side. Other fingers curl in. Literally looks like the letter L.',
+    svg: (c) => { drawLShape(c); }},
+  { letter:'M', desc:'Three fingers over thumb in fist', tips:'Tuck thumb under index, middle, and ring fingers. Pinky and thumb are hidden under three fingers.',
+    svg: (c) => { drawMShape(c); }},
+  { letter:'N', desc:'Two fingers over thumb in fist', tips:'Tuck thumb under index and middle fingers only. Ring and pinky curl beside them.',
+    svg: (c) => { drawNShape(c); }},
+  { letter:'O', desc:'All fingertips touch thumb, forming O', tips:'All four fingertips curl down to meet the thumb tip, creating an O shape.',
+    svg: (c) => { drawOShape(c); }},
+  { letter:'P', desc:'Like K but pointing downward', tips:'Same handshape as K (index up, middle angled, thumb between) but the whole wrist drops so fingers point down.',
+    svg: (c) => { drawPShape(c); }},
+  { letter:'Q', desc:'Like G but pointing downward', tips:'Same as G (index + thumb extended parallel) but wrist drops so they point down.',
+    svg: (c) => { drawQShape(c); }},
+  { letter:'R', desc:'Index + middle crossed', tips:'Cross your middle finger over your index finger. Other fingers curl in. Thumb holds ring finger.',
+    svg: (c) => { drawRShape(c); }},
+  { letter:'S', desc:'Fist, thumb over fingers', tips:'Make a fist with thumb crossing over the front of the curled fingers (not beside them like A).',
+    svg: (c) => { drawSShape(c); }},
+  { letter:'T', desc:'Thumb tucked between index and middle', tips:'Make a fist. Slide your thumb between your index and middle fingers so the thumb tip peeks out.',
+    svg: (c) => { drawTShape(c); }},
+  { letter:'U', desc:'Index + middle up together', tips:'Index and middle fingers point straight up, pressed together. Other fingers curl, thumb holds them.',
+    svg: (c) => { drawUShape(c); }},
+  { letter:'V', desc:'Index + middle up, spread apart (peace sign)', tips:'Same as U but with fingers spread into a V. The classic peace/victory sign.',
+    svg: (c) => { drawVShape(c); }},
+  { letter:'W', desc:'Index + middle + ring up, spread', tips:'Three fingers (index, middle, ring) point up and spread apart. Pinky curls down, thumb holds it.',
+    svg: (c) => { drawWShape(c); }},
+  { letter:'X', desc:'Index finger hooked/bent', tips:'Extend index finger and bend it into a hook at the middle joint. Other fingers curl in.',
+    svg: (c) => { drawXShape(c); }},
+  { letter:'Y', desc:'Thumb + pinky out (hang loose)', tips:'Extend thumb and pinky. Curl index, middle, and ring fingers. The "hang loose" / shaka sign.',
+    svg: (c) => { drawYShape(c); }},
+  { letter:'Z', desc:'Index traces Z in the air', tips:'Point index finger forward and draw a Z shape in the air. The other motion letter alongside J.',
+    svg: (c) => { drawZShape(c); }},
+];
+
+// ═══════════════════════════════════════
+// SVG HAND DRAWING FUNCTIONS
+// Simplified but recognizable line art
+// ═══════════════════════════════════════
+
+function createHandSVG(letterObj, size='normal') {
+  const w = size === 'small' ? 80 : 160;
+  const h = size === 'small' ? 90 : 180;
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 120 140');
+  svg.setAttribute('width', w);
+  svg.setAttribute('height', h);
+
+  const ctx = {
+    ns, svg,
+    line(x1,y1,x2,y2,w=2.5,col='var(--hand-outline)') {
+      const l = document.createElementNS(ns,'line');
+      l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+      l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+      l.setAttribute('stroke',col); l.setAttribute('stroke-width',w);
+      l.setAttribute('stroke-linecap','round');
+      svg.appendChild(l);
+    },
+    path(d,fill='none',stroke='var(--hand-outline)',w=2.5) {
+      const p = document.createElementNS(ns,'path');
+      p.setAttribute('d',d); p.setAttribute('fill',fill);
+      p.setAttribute('stroke',stroke); p.setAttribute('stroke-width',w);
+      p.setAttribute('stroke-linecap','round'); p.setAttribute('stroke-linejoin','round');
+      svg.appendChild(p);
+    },
+    circle(cx,cy,r,fill='none',stroke='var(--hand-outline)',w=2) {
+      const c = document.createElementNS(ns,'circle');
+      c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',r);
+      c.setAttribute('fill',fill); c.setAttribute('stroke',stroke); c.setAttribute('stroke-width',w);
+      svg.appendChild(c);
+    },
+    text(x,y,txt,size=10) {
+      const t = document.createElementNS(ns,'text');
+      t.setAttribute('x',x); t.setAttribute('y',y);
+      t.setAttribute('font-family','JetBrains Mono, monospace');
+      t.setAttribute('font-size',size);
+      t.setAttribute('fill','var(--ink-light)');
+      t.setAttribute('text-anchor','middle');
+      t.textContent = txt;
+      svg.appendChild(t);
+    }
+  };
+
+  // Draw palm base for most letters
+  letterObj.svg(ctx);
+  return svg;
+}
+
+// Palm base shape
+function palmBase(c, y=75) {
+  c.path(`M35,${y} Q35,${y+40} 42,${y+52} L78,${y+52} Q85,${y+40} 85,${y}`, 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+}
+
+// Wrist
+function wrist(c, y=127) {
+  c.path(`M45,${y} L45,${y+10} M75,${y} L75,${y+10}`, 'none', 'var(--hand-outline)', 2);
+}
+
+// === LETTER SHAPES ===
+
+function drawFist(c) {
+  // Curled fingers
+  c.path('M35,50 Q30,42 38,35 Q50,28 62,28 Q74,28 82,35 Q90,42 85,50 L85,85 Q85,100 78,107 L42,107 Q35,100 35,85 Z', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  // Finger lines
+  c.path('M40,50 Q42,42 50,40', 'none', 'var(--hand-outline)', 1.5);
+  c.path('M42,56 Q48,48 58,46', 'none', 'var(--hand-outline)', 1.5);
+  c.path('M44,63 Q52,56 65,54', 'none', 'var(--hand-outline)', 1.5);
+  wrist(c);
+}
+function drawThumbSide(c) {
+  c.path('M35,52 Q28,48 26,40 Q24,34 28,32 Q32,30 35,35', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+}
+
+function drawFlatUp(c) {
+  palmBase(c, 80);
+  // Four fingers up
+  c.path('M42,80 L42,22 Q42,18 45,18 Q48,18 48,22 L48,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.path('M52,80 L52,16 Q52,12 55,12 Q58,12 58,16 L58,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.path('M62,80 L62,18 Q62,14 65,14 Q68,14 68,18 L68,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.path('M72,80 L72,26 Q72,22 75,22 Q78,22 78,26 L78,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  wrist(c);
+}
+function drawThumbTuck(c) {
+  c.path('M35,90 Q28,86 30,80 Q32,76 38,80 L42,84', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+}
+
+function drawCurveC(c) {
+  c.path('M55,20 Q80,20 85,45 Q88,65 85,80 Q82,100 70,115 L50,115 Q38,100 35,80 Q32,65 35,45 Q38,25 55,20 Z', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  c.path('M52,28 Q42,35 40,50', 'none', 'var(--hand-outline)', 1.5);
+  c.path('M72,28 Q80,35 82,50', 'none', 'var(--hand-outline)', 1.5);
+  // Gap for C opening
+  c.path('M40,65 L35,65', 'none', 'var(--hand-outline)', 2);
+  c.path('M82,65 L87,65', 'none', 'var(--hand-outline)', 2);
+  wrist(c, 115);
+}
+
+function drawDShape(c) {
+  palmBase(c, 80);
+  // Index up
+  c.path('M52,80 L52,16 Q52,12 55,12 Q58,12 58,16 L58,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Circle from other fingers + thumb
+  c.circle(60, 90, 14, 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Thumb
+  c.path('M35,82 Q30,78 34,72 Q38,68 44,76', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  wrist(c);
+}
+
+function drawEShape(c) {
+  c.path('M35,50 Q30,42 38,35 Q50,28 62,28 Q74,28 82,35 Q90,42 85,50 L85,90 Q85,105 78,112 L42,112 Q35,105 35,90 Z', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  // Curled finger tips showing
+  c.path('M40,48 Q48,38 55,36 Q62,38 68,42', 'none', 'var(--hand-outline)', 2);
+  // Thumb tucked under
+  c.path('M38,55 Q32,52 30,46 Q30,42 34,42 Q38,44 40,50', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  wrist(c, 112);
+}
+
+function drawFShape(c) {
+  palmBase(c, 80);
+  // Three fingers up (middle, ring, pinky)
+  c.path('M55,80 L55,18 Q55,14 58,14 Q61,14 61,18 L61,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.path('M65,80 L65,20 Q65,16 68,16 Q71,16 71,20 L71,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.path('M75,80 L75,28 Q75,24 78,24 Q81,24 81,28 L81,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Index + thumb circle
+  c.circle(42, 72, 12, 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  wrist(c);
+}
+
+function drawGShape(c) {
+  // Sideways hand
+  c.path('M30,55 L30,95 Q30,105 40,105 L80,105 Q90,105 90,95 L90,55 Q90,45 80,45 L40,45 Q30,45 30,55 Z', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  // Index pointing left
+  c.path('M30,60 L8,60 Q4,60 4,63 Q4,66 8,66 L30,66', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Thumb parallel below
+  c.path('M30,74 L14,74 Q10,74 10,77 Q10,80 14,80 L30,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.text(60, 130, '← points sideways', 8);
+}
+
+function drawHShape(c) {
+  // Sideways hand
+  c.path('M30,55 L30,95 Q30,105 40,105 L80,105 Q90,105 90,95 L90,55 Q90,45 80,45 L40,45 Q30,45 30,55 Z', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  // Two fingers pointing sideways
+  c.path('M30,56 L8,56 Q4,56 4,59 Q4,62 8,62 L30,62', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.path('M30,66 L8,66 Q4,66 4,69 Q4,72 8,72 L30,72', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.text(60, 130, '← two fingers sideways', 8);
+}
+
+function drawIShape(c) {
+  drawFist(c);
+  // Pinky up
+  c.path('M80,50 L80,16 Q80,12 83,12 Q86,12 86,16 L86,50', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+}
+
+function drawJShape(c) {
+  drawIShape(c);
+  // Motion arrow for J trace
+  c.path('M83,12 L83,4 Q83,-2 77,2 L70,10', 'none', 'var(--rust)', 2);
+  c.path('M70,10 L74,4 M70,10 L76,12', 'none', 'var(--rust)', 1.5);
+  c.text(60, 136, '↓ trace J in air', 8);
+}
+
+function drawKShape(c) {
+  palmBase(c, 80);
+  // Index up
+  c.path('M48,80 L48,20 Q48,16 51,16 Q54,16 54,20 L54,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Middle angled
+  c.path('M58,80 L68,28 Q69,24 72,25 Q74,26 73,30 L63,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Thumb between
+  c.path('M36,82 Q30,76 32,68 Q34,62 40,64 L50,72', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  wrist(c);
+}
+
+function drawLShape(c) {
+  palmBase(c, 80);
+  // Index up
+  c.path('M52,80 L52,16 Q52,12 55,12 Q58,12 58,16 L58,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Thumb out to side
+  c.path('M35,82 L10,82 Q6,82 6,86 Q6,90 10,90 L35,90', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  wrist(c);
+}
+
+function drawMShape(c) {
+  c.path('M35,45 Q30,38 38,32 Q50,25 62,25 Q74,25 82,32 Q90,38 85,45 L85,90 Q85,105 78,112 L42,112 Q35,105 35,90 Z', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  // Three fingers over thumb
+  c.path('M42,45 L42,38 Q44,32 48,38 L48,45', 'none', 'var(--hand-outline)', 2);
+  c.path('M52,45 L52,35 Q54,30 58,35 L58,45', 'none', 'var(--hand-outline)', 2);
+  c.path('M62,45 L62,38 Q64,32 68,38 L68,45', 'none', 'var(--hand-outline)', 2);
+  // Thumb tip showing
+  c.circle(72, 48, 3, 'var(--hand-skin)', 'var(--hand-outline)', 1.5);
+  wrist(c, 112);
+}
+
+function drawNShape(c) {
+  c.path('M35,45 Q30,38 38,32 Q50,25 62,25 Q74,25 82,32 Q90,38 85,45 L85,90 Q85,105 78,112 L42,112 Q35,105 35,90 Z', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  // Two fingers over thumb
+  c.path('M45,45 L45,36 Q47,30 51,36 L51,45', 'none', 'var(--hand-outline)', 2);
+  c.path('M55,45 L55,36 Q57,30 61,36 L61,45', 'none', 'var(--hand-outline)', 2);
+  // Thumb tip showing
+  c.circle(66, 48, 3, 'var(--hand-skin)', 'var(--hand-outline)', 1.5);
+  wrist(c, 112);
+}
+
+function drawOShape(c) {
+  // Oval from fingers meeting thumb
+  c.path('M60,30 Q85,30 85,60 Q85,85 60,90 Q35,85 35,60 Q35,30 60,30 Z', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  // Inner circle to show O
+  c.circle(60, 58, 16, 'none', 'var(--hand-outline)', 1.5);
+  // Palm below
+  c.path('M42,88 L42,115 Q42,120 50,120 L70,120 Q78,120 78,115 L78,88', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  wrist(c, 120);
+}
+
+function drawPShape(c) {
+  // Like K but pointing down - rotated
+  c.path('M35,30 L35,60 Q35,70 45,70 L75,70 Q85,70 85,60 L85,30 Q85,20 75,20 L45,20 Q35,20 35,30 Z', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  // Index pointing down
+  c.path('M45,70 L45,110 Q45,114 48,114 Q51,114 51,110 L51,70', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Middle angled down
+  c.path('M56,70 L62,108 Q63,112 66,111 Q68,110 67,106 L61,70', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.text(60, 130, '↓ points down', 8);
+}
+
+function drawQShape(c) {
+  // Like G but pointing down
+  c.path('M35,30 L35,60 Q35,70 45,70 L75,70 Q85,70 85,60 L85,30 Q85,20 75,20 L45,20 Q35,20 35,30 Z', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  // Index + thumb pointing down
+  c.path('M48,70 L48,112 Q48,116 51,116 Q54,116 54,112 L54,70', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.path('M60,70 L60,108 Q60,112 63,112 Q66,112 66,108 L66,70', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.text(60, 132, '↓ points down', 8);
+}
+
+function drawRShape(c) {
+  palmBase(c, 80);
+  // Crossed fingers
+  c.path('M48,80 L56,18 Q56,14 59,14 Q62,14 61,18 L53,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.path('M56,80 L50,18 Q50,14 53,14 Q56,14 57,18 L63,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Cross mark
+  c.text(55, 10, '✕', 9);
+  wrist(c);
+}
+
+function drawSShape(c) {
+  c.path('M35,45 Q30,38 38,32 Q50,25 62,25 Q74,25 82,32 Q90,38 85,45 L85,90 Q85,105 78,112 L42,112 Q35,105 35,90 Z', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  // Finger curls
+  c.path('M40,48 Q48,38 56,36 Q64,38 72,44', 'none', 'var(--hand-outline)', 1.8);
+  // Thumb OVER fingers (different from A)
+  c.path('M38,52 Q32,50 30,44 L30,38 Q38,34 44,40 L44,52', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.text(60, 132, 'thumb over front', 8);
+  wrist(c, 112);
+}
+
+function drawTShape(c) {
+  c.path('M35,45 Q30,38 38,32 Q50,25 62,25 Q74,25 82,32 Q90,38 85,45 L85,90 Q85,105 78,112 L42,112 Q35,105 35,90 Z', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  // Finger curls
+  c.path('M42,48 Q50,38 58,36 Q66,38 74,44', 'none', 'var(--hand-outline)', 1.8);
+  // Thumb peeking between index and middle
+  c.path('M50,44 Q48,36 50,32 Q54,30 56,34 Q56,38 52,44', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.text(60, 132, 'thumb between 1+2', 8);
+  wrist(c, 112);
+}
+
+function drawUShape(c) {
+  palmBase(c, 80);
+  // Two fingers up together
+  c.path('M52,80 L52,16 Q52,12 55,12 Q58,12 58,16 L58,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.path('M60,80 L60,16 Q60,12 63,12 Q66,12 66,16 L66,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Thumb holding others
+  c.path('M35,82 Q30,78 32,72 Q34,68 40,72', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  wrist(c);
+}
+
+function drawVShape(c) {
+  palmBase(c, 80);
+  // Two fingers up spread
+  c.path('M48,80 L42,16 Q41,12 44,11 Q47,10 48,14 L54,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.path('M62,80 L72,16 Q73,12 76,13 Q78,14 77,18 L67,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Thumb holding others
+  c.path('M35,82 Q30,78 32,72 Q34,68 40,72', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  wrist(c);
+}
+
+function drawWShape(c) {
+  palmBase(c, 80);
+  // Three fingers up spread
+  c.path('M42,80 L36,18 Q35,14 38,13 Q41,12 42,16 L48,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.path('M55,80 L55,14 Q55,10 58,10 Q61,10 61,14 L61,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.path('M68,80 L76,18 Q77,14 80,15 Q82,16 81,20 L73,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  wrist(c);
+}
+
+function drawXShape(c) {
+  palmBase(c, 80);
+  // Hooked index finger
+  c.path('M52,80 L52,40 Q52,30 58,34 Q62,38 58,46 L55,55', 'var(--hand-skin)', 'var(--hand-outline)', 2.5);
+  // Thumb
+  c.path('M35,82 Q30,78 32,72 Q34,68 40,72', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.text(60, 28, '↩ hooked', 8);
+  wrist(c);
+}
+
+function drawYShape(c) {
+  palmBase(c, 80);
+  // Thumb out
+  c.path('M35,82 L10,70 Q6,68 6,72 Q6,76 10,78 L35,88', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Pinky up
+  c.path('M76,80 L76,20 Q76,16 79,16 Q82,16 82,20 L82,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  c.text(60, 14, '🤙 shaka', 8);
+  wrist(c);
+}
+
+function drawZShape(c) {
+  palmBase(c, 80);
+  // Index pointing forward
+  c.path('M52,80 L52,40 Q52,36 55,36 Q58,36 58,40 L58,80', 'var(--hand-skin)', 'var(--hand-outline)', 2);
+  // Z trace arrow
+  c.path('M40,18 L72,18 L40,38 L72,38', 'none', 'var(--rust)', 2.5);
+  c.path('M72,38 L66,34 M72,38 L68,44', 'none', 'var(--rust)', 1.5);
+  c.text(56, 52, '↗ trace Z', 8);
+  wrist(c);
+}
+
+
+// ═══════════════════════════════════════
+// SM-2 SPACED REPETITION
+// ═══════════════════════════════════════
+
+const STORAGE_KEY = 'glyphkeeper_asl_v1';
+
+function loadState() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return null;
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+let state = loadState() || {
+  cards: LETTERS.map((l,i) => ({
+    idx: i,
+    ef: 2.5,
+    interval: 0,
+    reps: 0,
+    due: Date.now(),
+    lastReview: 0,
+    correct: 0,
+    wrong: 0,
+  })),
+  stats: { reviewed: 0, streak: 0, bestStreak: 0 },
+  quizStats: { score: 0, streak: 0, best: 0 }
+};
+
+function sm2(card, quality) {
+  // quality: 0=again, 1=hard, 2=good, 3=easy
+  const q = [0, 2, 4, 5][quality];
+  if (q < 3) {
+    card.reps = 0;
+    card.interval = 1;
+    card.wrong++;
+  } else {
+    card.correct++;
+    if (card.reps === 0) card.interval = 1;
+    else if (card.reps === 1) card.interval = 3;
+    else card.interval = Math.round(card.interval * card.ef);
+    card.reps++;
+  }
+  card.ef = Math.max(1.3, card.ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)));
+  card.due = Date.now() + card.interval * 60000;
+  card.lastReview = Date.now();
+}
+
+function getDueCards() {
+  const now = Date.now();
+  return state.cards.filter(c => c.due <= now).sort((a,b) => a.due - b.due);
+}
+
+function getNewCards(n=5) {
+  return state.cards.filter(c => c.reps === 0).slice(0, n);
+}
+
+function nextCard() {
+  let due = getDueCards();
+  if (due.length > 0) return due[0];
+  let newC = getNewCards();
+  if (newC.length > 0) return newC[0];
+  // All reviewed - return lowest EF
+  return [...state.cards].sort((a,b) => a.ef - b.ef)[0];
+}
+
+
+// ═══════════════════════════════════════
+// UI STATE
+// ═══════════════════════════════════════
+
+let learnMode = 'hand'; // hand or letter
+let quizMode = 'identify'; // identify or match
+let currentCard = null;
+let flipped = false;
+
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`#panel-${name}`).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'learn') renderLearn();
+  if (name === 'quiz') renderQuiz();
+  if (name === 'browse') renderBrowse();
+  if (name === 'progress') renderProgress();
+}
+
+function setLearnMode(m) {
+  learnMode = m;
+  document.getElementById('mode-hand').classList.toggle('active', m==='hand');
+  document.getElementById('mode-letter').classList.toggle('active', m==='letter');
+  flipped = false;
+  renderLearn();
+}
+
+function setQuizMode(m) {
+  quizMode = m;
+  document.getElementById('qmode-identify').classList.toggle('active', m==='identify');
+  document.getElementById('qmode-match').classList.toggle('active', m==='match');
+  renderQuiz();
+}
+
+function updateStats() {
+  const mastered = state.cards.filter(c => c.reps >= 3 && c.ef > 2.0).length;
+  document.getElementById('streak').textContent = state.stats.streak;
+  document.getElementById('reviewed').textContent = state.stats.reviewed;
+  document.getElementById('mastered').textContent = mastered;
+}
+
+
+// ═══════════════════════════════════════
+// LEARN MODE
+// ═══════════════════════════════════════
+
+function renderLearn() {
+  currentCard = nextCard();
+  flipped = false;
+  const area = document.getElementById('learn-area');
+  const l = LETTERS[currentCard.idx];
+
+  if (learnMode === 'hand') {
+    area.innerHTML = `
+      <div class="flashcard" onclick="flipCard()">
+        <div class="hand-display" id="hand-container"></div>
+        <div class="hint">${flipped ? '' : 'tap to reveal letter'}</div>
+      </div>`;
+    document.getElementById('hand-container').appendChild(createHandSVG(l));
+  } else {
+    area.innerHTML = `
+      <div class="flashcard" onclick="flipCard()">
+        <div class="letter-display">${l.letter}</div>
+        <div class="hint">tap to reveal handshape</div>
+      </div>`;
+  }
+  updateStats();
+}
+
+function flipCard() {
+  if (flipped) return;
+  flipped = true;
+  const area = document.getElementById('learn-area');
+  const l = LETTERS[currentCard.idx];
+
+  if (learnMode === 'hand') {
+    area.innerHTML = `
+      <div class="flashcard">
+        <div class="hand-display" id="hand-container"></div>
+        <div class="answer-text">${l.letter}</div>
+        <div class="desc-text">${l.desc}</div>
+      </div>
+      <div class="rating-btns">
+        <div class="rbtn again" onclick="rateCard(0)">Again</div>
+        <div class="rbtn hard" onclick="rateCard(1)">Hard</div>
+        <div class="rbtn good" onclick="rateCard(2)">Good</div>
+        <div class="rbtn easy" onclick="rateCard(3)">Easy</div>
+      </div>`;
+    document.getElementById('hand-container').appendChild(createHandSVG(l));
+  } else {
+    area.innerHTML = `
+      <div class="flashcard">
+        <div class="hand-display" id="hand-container"></div>
+        <div class="answer-text">${l.letter} — ${l.desc}</div>
+      </div>
+      <div class="rating-btns">
+        <div class="rbtn again" onclick="rateCard(0)">Again</div>
+        <div class="rbtn hard" onclick="rateCard(1)">Hard</div>
+        <div class="rbtn good" onclick="rateCard(2)">Good</div>
+        <div class="rbtn easy" onclick="rateCard(3)">Easy</div>
+      </div>`;
+    document.getElementById('hand-container').appendChild(createHandSVG(l));
+  }
+}
+
+function rateCard(quality) {
+  sm2(currentCard, quality);
+  state.stats.reviewed++;
+  if (quality >= 2) state.stats.streak++;
+  else state.stats.streak = 0;
+  if (state.stats.streak > state.stats.bestStreak) state.stats.bestStreak = state.stats.streak;
+  saveState();
+  renderLearn();
+}
+
+
+// ═══════════════════════════════════════
+// QUIZ MODE
+// ═══════════════════════════════════════
+
+function renderQuiz() {
+  const area = document.getElementById('quiz-area');
+  const idx = Math.floor(Math.random() * 26);
+  const correct = LETTERS[idx];
+
+  // Get 3 wrong answers
+  let options = [idx];
+  while (options.length < 4) {
+    const r = Math.floor(Math.random() * 26);
+    if (!options.includes(r)) options.push(r);
+  }
+  // Shuffle
+  options.sort(() => Math.random() - 0.5);
+  const correctPos = options.indexOf(idx);
+
+  if (quizMode === 'identify') {
+    // Show hand, pick letter
+    area.innerHTML = `
+      <div class="flashcard" style="cursor:default">
+        <div class="hand-display" id="quiz-hand"></div>
+        <div class="hint">which letter is this?</div>
+      </div>
+      <div class="quiz-opts" id="quiz-opts">
+        ${options.map((o,i) => `<div class="qopt" onclick="quizAnswer(${i},${correctPos})">${LETTERS[o].letter}</div>`).join('')}
+      </div>`;
+    document.getElementById('quiz-hand').appendChild(createHandSVG(correct));
+  } else {
+    // Show letter, pick hand
+    area.innerHTML = `
+      <div class="flashcard" style="cursor:default">
+        <div class="letter-display">${correct.letter}</div>
+        <div class="hint">which hand matches?</div>
+      </div>
+      <div class="quiz-opts" id="quiz-opts">
+        ${options.map((o,i) => `<div class="qopt" onclick="quizAnswer(${i},${correctPos})" id="qopt-${i}"></div>`).join('')}
+      </div>`;
+    options.forEach((o,i) => {
+      document.getElementById(`qopt-${i}`).appendChild(createHandSVG(LETTERS[o], 'small'));
+    });
+  }
+  updateQuizStats();
+}
+
+function quizAnswer(picked, correct) {
+  const opts = document.querySelectorAll('#quiz-opts .qopt');
+  opts.forEach(o => o.classList.add('disabled'));
+  opts[correct].classList.add('correct');
+  if (picked === correct) {
+    state.quizStats.score++;
+    state.quizStats.streak++;
+    if (state.quizStats.streak > state.quizStats.best) state.quizStats.best = state.quizStats.streak;
+  } else {
+    opts[picked].classList.add('wrong');
+    state.quizStats.streak = 0;
+  }
+  saveState();
+  updateQuizStats();
+  setTimeout(renderQuiz, 1200);
+}
+
+function updateQuizStats() {
+  document.getElementById('q-score').textContent = state.quizStats.score;
+  document.getElementById('q-streak').textContent = state.quizStats.streak;
+  document.getElementById('q-best').textContent = state.quizStats.best;
+}
+
+
+// ═══════════════════════════════════════
+// BROWSE
+// ═══════════════════════════════════════
+
+function renderBrowse() {
+  const grid = document.getElementById('browse-grid');
+  grid.innerHTML = LETTERS.map((l,i) => `
+    <div class="browse-card" onclick="openDetail(${i})" id="bc-${i}">
+      <div id="bc-svg-${i}"></div>
+      <div class="bc-letter">${l.letter}</div>
+      <div class="bc-desc">${l.desc}</div>
+    </div>
+  `).join('');
+  LETTERS.forEach((l,i) => {
+    document.getElementById(`bc-svg-${i}`).appendChild(createHandSVG(l, 'small'));
+  });
+}
+
+function openDetail(idx) {
+  const l = LETTERS[idx];
+  const card = state.cards[idx];
+  const modal = document.getElementById('modal');
+  const box = document.getElementById('modal-box');
+  const status = card.reps === 0 ? 'New' : card.reps < 3 ? 'Learning' : card.ef > 2.0 ? 'Mastered' : 'Review';
+  box.innerHTML = `
+    <div id="modal-svg"></div>
+    <h2>${l.letter}</h2>
+    <div class="modal-desc">${l.desc}</div>
+    <div class="modal-tips">
+      <strong>How to sign:</strong><br>
+      ${l.tips}<br><br>
+      <strong>Status:</strong> ${status} · EF: ${card.ef.toFixed(2)} · Reviews: ${card.correct + card.wrong}
+    </div>
+    <button class="modal-close" onclick="closeModal()">Close</button>
+  `;
+  document.getElementById('modal-svg').appendChild(createHandSVG(l));
+  modal.classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+  }
+}
+
+
+// ═══════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════
+
+function renderProgress() {
+  const container = document.getElementById('progress-chart');
+  const cats = { new: [], learning: [], review: [], mastered: [] };
+  state.cards.forEach((c,i) => {
+    if (c.reps === 0) cats.new.push(i);
+    else if (c.reps < 3) cats.learning.push(i);
+    else if (c.ef > 2.0) cats.mastered.push(i);
+    else cats.review.push(i);
+  });
+
+  let html = `<h3>Letter Mastery</h3>`;
+  LETTERS.forEach((l,i) => {
+    const c = state.cards[i];
+    let cat = 'new';
+    if (c.reps >= 3 && c.ef > 2.0) cat = 'mastered';
+    else if (c.reps >= 1) cat = c.reps >= 3 ? 'review' : 'learning';
+    const pct = cat === 'new' ? 5 : cat === 'learning' ? 35 : cat === 'review' ? 70 : 100;
+    html += `
+      <div class="chart-bar-row">
+        <div class="chart-label">${l.letter}</div>
+        <div class="chart-bar-bg">
+          <div class="chart-bar-fill ${cat}" style="width:${pct}%"></div>
+        </div>
+      </div>`;
+  });
+
+  html += `
+    <div class="chart-legend">
+      <span class="l-new">New (${cats.new.length})</span>
+      <span class="l-learning">Learning (${cats.learning.length})</span>
+      <span class="l-review">Review (${cats.review.length})</span>
+      <span class="l-mastered">Mastered (${cats.mastered.length})</span>
+    </div>
+    <div style="margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-light)">
+      Total reviews: ${state.stats.reviewed} · Best streak: ${state.stats.bestStreak} · Quiz score: ${state.quizStats.score}
+    </div>`;
+
+  container.innerHTML = html;
+}
+
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+
+renderLearn();
+</script>
+</body>
+</html>

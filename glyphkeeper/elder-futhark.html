@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glyphkeeper — Elder Futhark</title>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --stone: #2C2B28; --stone-light: #3D3B36; --stone-mid: #4A4843;
+      --moss: #5A7247; --moss-dim: #4A6139;
+      --mead: #C9A961; --mead-dim: #A68B4B;
+      --iron: #8A8580; --bone: #E8E0D0; --bone-dim: #C8C0B0;
+      --parchment: #F5EFE4; --blood: #8B2E1A; --frost: #7BA4B8; --charcoal: #1A1918;
+      --freya: #B87333; --heimdall: #7BA4B8; --tyr: #8B2E1A;
+    }
+    body { font-family: 'Crimson Pro', Georgia, serif; background: var(--stone); color: var(--bone); min-height: 100vh; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="200" height="200" filter="url(%23n)" opacity="0.08"/></svg>'); pointer-events: none; z-index: 0; }
+    .app { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+    .knotwork { height: 6px; background: repeating-linear-gradient(90deg, var(--mead) 0px, var(--mead) 12px, transparent 12px, transparent 16px, var(--moss) 16px, var(--moss) 28px, transparent 28px, transparent 32px); opacity: 0.6; }
+    .header { padding: 24px 20px 20px; text-align: center; background: linear-gradient(180deg, rgba(26,25,24,0.4) 0%, transparent 100%); }
+    .arx-mark { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 3px; color: var(--mead); text-transform: uppercase; border: 1px solid var(--mead-dim); padding: 3px 10px; display: inline-block; margin-bottom: 12px; opacity: 0.7; }
+    .title { font-family: 'IM Fell English', serif; font-size: 26px; color: var(--bone); font-style: italic; letter-spacing: 1px; margin-bottom: 2px; }
+    .title-runes { font-size: 16px; letter-spacing: 6px; color: var(--mead); margin-bottom: 8px; font-style: normal; }
+    .subtitle { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--iron); letter-spacing: 2px; text-transform: uppercase; }
+    .mastery-bar { height: 3px; background: var(--stone-mid); }
+    .mastery-fill { height: 100%; background: linear-gradient(90deg, var(--moss) 0%, var(--mead) 100%); transition: width 0.4s; }
+    .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--stone-mid); }
+    .stat { background: var(--stone); padding: 12px 8px; text-align: center; }
+    .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 500; }
+    .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--iron); margin-top: 3px; }
+    .sv-mead { color: var(--mead); } .sv-frost { color: var(--frost); } .sv-moss { color: var(--moss); } .sv-blood { color: var(--blood); }
+
+    .tab-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--stone-mid); border-bottom: 1px solid var(--stone-mid); }
+    .tab { background: var(--stone); padding: 12px 8px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--iron); cursor: pointer; border: none; transition: all 0.2s; border-bottom: 2px solid transparent; }
+    .tab:hover { color: var(--bone); background: var(--stone-light); }
+    .tab.active { color: var(--mead); border-bottom-color: var(--mead); background: var(--stone-light); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .controls { padding: 14px 20px; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid var(--stone-mid); }
+    .control-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+    .control-label { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--iron); text-align: center; margin-bottom: 2px; }
+    .btn { padding: 6px 12px; background: var(--stone-light); border: 1px solid var(--stone-mid); color: var(--iron); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+    .btn:hover { border-color: var(--mead-dim); color: var(--bone); }
+    .btn.active { background: var(--stone-mid); border-color: var(--mead); color: var(--mead); }
+    .btn.active-freya { border-color: var(--freya); color: var(--freya); background: rgba(184,115,51,0.1); }
+    .btn.active-heimdall { border-color: var(--heimdall); color: var(--heimdall); background: rgba(123,164,184,0.1); }
+    .btn.active-tyr { border-color: var(--tyr); color: var(--tyr); background: rgba(139,46,26,0.1); }
+
+    .card-area { padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 360px; }
+    .card-counter { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--iron); letter-spacing: 1px; margin-bottom: 14px; }
+    .card { width: 100%; max-width: 400px; min-height: 260px; background: linear-gradient(145deg, var(--stone-light) 0%, var(--stone) 100%); border: 1px solid var(--stone-mid); border-radius: 4px; cursor: pointer; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 20px; transition: border-color 0.3s; user-select: none; }
+    .card:hover { border-color: var(--mead-dim); }
+    .card::before { content: ''; position: absolute; top: 7px; left: 7px; right: 7px; bottom: 7px; border: 1px solid var(--stone-mid); border-radius: 2px; pointer-events: none; opacity: 0.4; }
+    .card-aett-mark { position: absolute; top: 12px; right: 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; }
+    .aett-freya { color: var(--freya); } .aett-heimdall { color: var(--heimdall); } .aett-tyr { color: var(--tyr); }
+    .card-glyph { font-size: 68px; line-height: 1; margin-bottom: 14px; color: var(--bone); text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    .card-prompt { font-family: 'Crimson Pro', serif; font-size: 17px; font-style: italic; color: var(--iron); margin-bottom: 6px; }
+    .card-name { font-family: 'IM Fell English', serif; font-size: 22px; color: var(--mead); margin-bottom: 4px; }
+    .card-sound { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--frost); margin-bottom: 10px; }
+    .card-meaning { font-family: 'Crimson Pro', serif; font-size: 15px; color: var(--bone); text-align: center; line-height: 1.5; max-width: 300px; }
+    .card-lore { font-family: 'Crimson Pro', serif; font-size: 13px; font-style: italic; color: var(--iron); text-align: center; margin-top: 10px; line-height: 1.5; max-width: 280px; border-top: 1px solid var(--stone-mid); padding-top: 10px; }
+    .flip-hint { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--stone-mid); letter-spacing: 1px; margin-top: 14px; text-transform: uppercase; }
+    .score-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 18px; width: 100%; max-width: 400px; }
+    .score-btn { padding: 10px 6px; border: 1px solid var(--stone-mid); background: var(--stone-light); color: var(--bone); font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; text-align: center; transition: all 0.2s; border-radius: 2px; }
+    .score-btn .interval { font-size: 9px; color: var(--iron); margin-top: 3px; }
+    .score-btn:hover { transform: translateY(-1px); }
+    .score-btn.again { border-color: #6B3030; } .score-btn.again:hover { background: rgba(107,48,48,0.3); }
+    .score-btn.hard { border-color: #6B5A30; } .score-btn.hard:hover { background: rgba(107,90,48,0.3); }
+    .score-btn.good { border-color: #3A6B30; } .score-btn.good:hover { background: rgba(58,107,48,0.3); }
+    .score-btn.easy { border-color: #305A6B; } .score-btn.easy:hover { background: rgba(48,90,107,0.3); }
+    .empty-state { text-align: center; padding: 40px 20px; }
+    .empty-rune { font-size: 48px; color: var(--moss); margin-bottom: 16px; opacity: 0.5; }
+    .empty-text { font-family: 'IM Fell English', serif; font-size: 18px; font-style: italic; color: var(--iron); margin-bottom: 8px; }
+    .empty-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--stone-mid); letter-spacing: 1px; }
+
+    /* CHART */
+    .chart-section { padding: 20px; }
+    .aett-header { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 10px 14px; background: var(--stone-light); margin-bottom: 1px; }
+    .aett-header.freya { color: var(--freya); border-left: 3px solid var(--freya); }
+    .aett-header.heimdall { color: var(--heimdall); border-left: 3px solid var(--heimdall); }
+    .aett-header.tyr { color: var(--tyr); border-left: 3px solid var(--tyr); }
+    .rune-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--stone-mid); margin-bottom: 16px; }
+    .rune-cell { background: var(--stone); padding: 14px 8px; text-align: center; cursor: pointer; transition: all 0.2s; border-bottom: 2px solid var(--stone-mid); }
+    .rune-cell:hover { background: var(--stone-light); }
+    .rune-cell.mastered { border-bottom-color: var(--moss); }
+    .rune-cell.learned { border-bottom-color: var(--mead); }
+    .rune-cell.learning { border-bottom-color: var(--frost); }
+    .rune-cell.selected { background: var(--stone-light); border-bottom-color: var(--mead); box-shadow: inset 0 0 0 1px var(--mead-dim); }
+    .rc-glyph { font-size: 30px; color: var(--bone); margin-bottom: 4px; }
+    .rc-name { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--mead-dim); }
+    .rc-keyword { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--iron); margin-top: 2px; }
+
+    .rune-detail { background: var(--stone-light); border: 1px solid var(--stone-mid); border-radius: 4px; padding: 24px 20px; margin: 0 0 20px; position: relative; animation: slideIn 0.25s ease; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .rune-detail-close { position: absolute; top: 12px; right: 14px; background: none; border: 1px solid var(--stone-mid); color: var(--iron); font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 4px 10px; cursor: pointer; transition: all 0.2s; }
+    .rune-detail-close:hover { border-color: var(--mead); color: var(--mead); }
+    .rd-top { display: flex; align-items: center; gap: 20px; margin-bottom: 16px; }
+    .rd-glyph { font-size: 64px; color: var(--bone); text-shadow: 0 2px 12px rgba(0,0,0,0.3); line-height: 1; }
+    .rd-info { flex: 1; }
+    .rd-name { font-family: 'IM Fell English', serif; font-size: 24px; color: var(--mead); margin-bottom: 2px; }
+    .rd-sound { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--frost); margin-bottom: 6px; }
+    .rd-aett { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; }
+    .rd-meaning { font-family: 'Crimson Pro', serif; font-size: 18px; color: var(--bone); margin-bottom: 4px; }
+    .rd-keyword { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--mead-dim); margin-bottom: 14px; }
+    .rd-lore { font-family: 'Crimson Pro', serif; font-size: 15px; font-style: italic; color: var(--iron); line-height: 1.65; border-top: 1px solid var(--stone-mid); padding-top: 14px; }
+    .rd-sr-status { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--stone-mid); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--iron); display: flex; gap: 14px; flex-wrap: wrap; }
+    .rd-sr-status span { display: inline-flex; align-items: center; gap: 4px; }
+    .rd-sr-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+
+    /* LORE */
+    .lore-section { padding: 24px 20px; }
+    .lore-era { margin-bottom: 28px; }
+    .era-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--stone-mid); }
+    .era-rune { font-size: 24px; color: var(--mead); }
+    .era-title { font-family: 'IM Fell English', serif; font-size: 20px; color: var(--bone); }
+    .era-date { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--iron); letter-spacing: 1px; text-transform: uppercase; margin-left: auto; }
+    .era-body { font-family: 'Crimson Pro', serif; font-size: 15px; color: var(--bone-dim); line-height: 1.7; }
+    .era-body p { margin-bottom: 12px; }
+    .era-body strong { color: var(--bone); font-weight: 600; }
+    .era-callout { background: var(--stone-light); border-left: 3px solid var(--mead-dim); padding: 14px 18px; margin: 16px 0; font-style: italic; color: var(--iron); font-size: 14px; line-height: 1.6; }
+    .lore-divider { height: 1px; background: var(--stone-mid); margin: 8px 0; }
+
+    /* PRACTICES */
+    .practices-section { padding: 24px 20px; }
+    .practices-intro { font-family: 'Crimson Pro', serif; font-size: 15px; font-style: italic; color: var(--iron); text-align: center; max-width: 540px; margin: 0 auto 24px; line-height: 1.6; }
+    .practice-card { background: var(--stone-light); border: 1px solid var(--stone-mid); border-radius: 3px; padding: 18px 20px; margin-bottom: 10px; position: relative; overflow: hidden; }
+    .practice-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+    .practice-card:nth-child(2)::before { background: var(--freya); }
+    .practice-card:nth-child(3)::before { background: var(--mead); }
+    .practice-card:nth-child(4)::before { background: var(--frost); }
+    .practice-card:nth-child(5)::before { background: var(--moss); }
+    .practice-card:nth-child(6)::before { background: var(--heimdall); }
+    .practice-card:nth-child(7)::before { background: var(--tyr); }
+    .practice-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+    .practice-rune { font-size: 22px; color: var(--mead); line-height: 1; }
+    .practice-title { font-family: 'IM Fell English', serif; font-size: 17px; color: var(--bone); }
+    .practice-tag { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--stone); background: var(--mead-dim); padding: 2px 8px; border-radius: 2px; margin-left: auto; }
+    .practice-body { font-family: 'Crimson Pro', serif; font-size: 14px; color: var(--iron); line-height: 1.65; }
+    .practice-body strong { color: var(--bone); font-weight: 400; }
+    .practice-tip { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--moss); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--stone-mid); letter-spacing: 0.5px; }
+
+    .footer { text-align: center; padding: 18px; border-top: 1px solid var(--stone-mid); margin-top: 4px; }
+    .footer-text { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--stone-mid); letter-spacing: 2px; text-transform: uppercase; }
+    .hidden { display: none !important; }
+    @media (max-width: 480px) {
+      .title { font-size: 22px; } .card-glyph { font-size: 54px; } .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .rune-grid { grid-template-columns: repeat(4, 1fr); } .rd-glyph { font-size: 48px; } .rd-top { gap: 14px; }
+      .tab { font-size: 9px; padding: 10px 4px; letter-spacing: 1px; }
+    }
+  </style>
+</head>
+<body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+<div class="app">
+  <div class="knotwork"></div>
+  <div class="header">
+    <div class="arx-mark">Glyphkeeper · Script 24</div>
+    <div class="title">Elder Futhark</div>
+    <div class="title-runes">ᚠᚢᚦᚨᚱᚲ</div>
+    <div class="subtitle">24 Runes · 3 Aettir · c. 150–800 CE</div>
+  </div>
+  <div class="mastery-bar"><div class="mastery-fill" id="mastery-fill" style="width:0%"></div></div>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-value sv-mead" id="st-total">24</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-value sv-frost" id="st-due">24</div><div class="stat-label">Due</div></div>
+    <div class="stat"><div class="stat-value sv-moss" id="st-mastered">0</div><div class="stat-label">Mastered</div></div>
+    <div class="stat"><div class="stat-value sv-blood" id="st-streak">0</div><div class="stat-label">Streak</div></div>
+  </div>
+
+  <div class="tab-bar" id="tab-bar"></div>
+
+  <div class="tab-panel active" id="panel-study">
+    <div class="controls">
+      <div><div class="control-label">Aett</div><div class="control-row" id="aett-btns">
+        <button class="btn active" onclick="setAett('all')">All</button>
+        <button class="btn" onclick="setAett('freya')">Freyja's</button>
+        <button class="btn" onclick="setAett('heimdall')">Heimdall's</button>
+        <button class="btn" onclick="setAett('tyr')">Tyr's</button>
+      </div></div>
+      <div><div class="control-label">Mode</div><div class="control-row" id="mode-btns">
+        <button class="btn active" onclick="setMode('recognize')">Rune → Name</button>
+        <button class="btn" onclick="setMode('recall')">Name → Rune</button>
+        <button class="btn" onclick="setMode('meaning')">Rune → Meaning</button>
+      </div></div>
+    </div>
+    <div class="card-area" id="card-area"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-chart"><div class="chart-section"><div id="rune-detail-container"></div><div id="chart-grid"></div></div></div>
+
+  <div class="tab-panel" id="panel-lore">
+    <div class="lore-section">
+      <div class="lore-era"><div class="era-header"><div class="era-rune">ᚠ</div><div class="era-title">Origins in Mystery</div><div class="era-date">c. 150 CE</div></div><div class="era-body"><p>The Elder Futhark emerged in northern Europe around the <strong>2nd century CE</strong>, making it the oldest known runic alphabet. Its origins remain genuinely debated — the leading candidates: adaptation from the <strong>Latin alphabet</strong> through Roman trade, derivation from <strong>North Italic scripts</strong> (Raetic or Venetic alphabets of the Alps), or independent invention influenced by multiple Mediterranean writing systems.</p><p>What's striking is the <strong>deliberate divergence</strong>. Whoever created it didn't just copy — they reordered the alphabet entirely (F-U-Þ-A-R-K instead of A-B-C), assigned names and symbolic meanings to each letter, and organized them into three groups of eight called <strong>aettir</strong>. This wasn't pragmatic record-keeping. It was a system designed from the start to carry meaning beyond sound.</p><div class="era-callout">The earliest known runic inscription: the Vimose comb from Denmark (c. 160 CE) — a bone comb inscribed with ᚺᚨᚱᛃᚨ, likely a personal name. Literacy began with ownership.</div></div></div>
+      <div class="lore-divider"></div>
+      <div class="lore-era"><div class="era-header"><div class="era-rune">ᚨ</div><div class="era-title">The Migration Age</div><div class="era-date">300–700 CE</div></div><div class="era-body"><p>During the great migrations that reshaped Europe, runes traveled with Germanic peoples across the continent and into Britain. The Elder Futhark was the <strong>shared script</strong> — Gothic, Norse, Anglo-Saxon, and Continental Germanic peoples all used variants of the same 24-character system.</p><p>Inscriptions appear on <strong>weapons</strong> (the Thorsberg chape, Illerup spearheads), <strong>jewelry</strong> (gold bracteates worn as amulets), and <strong>memorial stones</strong>. Many are explicitly magical: protection formulas, divine invocations, or the word <strong>alu</strong> — a ritual term found across hundreds of artifacts, meaning uncertain (possibly "ale," "protection," or "divine power").</p><div class="era-callout">The Kylver stone (c. 400 CE, Gotland) contains the complete Elder Futhark sequence — all 24 runes in order. The sequence itself was considered powerful, not just the individual characters.</div></div></div>
+      <div class="lore-divider"></div>
+      <div class="lore-era"><div class="era-header"><div class="era-rune">ᛃ</div><div class="era-title">Transformation &amp; Succession</div><div class="era-date">700–1100 CE</div></div><div class="era-body"><p>Around 700 CE, the Elder Futhark <strong>evolved</strong>. In Scandinavia, it compressed into the <strong>Younger Futhark</strong> (16 runes) — counterintuitively reducing characters even as Old Norse grew more complex. In England, it expanded into the <strong>Anglo-Saxon Futhorc</strong> (up to 33 runes).</p><p>The Viking Age (793–1066 CE) brought runes to their widest spread. Younger Futhark inscriptions appear from <strong>Greenland to Constantinople</strong> — Varangian Guard graffiti in the Hagia Sophia, runestones across Scandinavia numbering in the thousands. But it's the Elder Futhark that carries the deeper weight, as the <strong>original</strong> system with meaning built into its architecture.</p><div class="era-callout">The Rök stone in Sweden (c. 800 CE) — the longest known runic inscription, 750+ characters. References Theodoric the Great, Norse mythology, and cosmological questions. A stone-carved poem-encyclopedia.</div></div></div>
+      <div class="lore-divider"></div>
+      <div class="lore-era"><div class="era-header"><div class="era-rune">ᛁ</div><div class="era-title">Medieval Eclipse</div><div class="era-date">1100–1600 CE</div></div><div class="era-body"><p>Christianization didn't kill runes immediately. <strong>Runic and Latin coexisted</strong> for centuries — church inventories, merchant tallies, and personal messages still carved in runes through the 1400s. The Bryggen inscriptions from Bergen include business records, love notes, and crude jokes, all in medieval runes.</p><p>The Elder Futhark had been out of active use for 400+ years by then. It survived as <strong>antiquarian knowledge</strong> — referenced in Icelandic manuscripts and magical stave traditions. The rune poems (Old Norwegian, Old Icelandic, Anglo-Saxon) preserved the name-meaning associations that make each rune more than a letter.</p></div></div>
+      <div class="lore-divider"></div>
+      <div class="lore-era"><div class="era-header"><div class="era-rune">ᛊ</div><div class="era-title">Romantic Revival</div><div class="era-date">1600–1900 CE</div></div><div class="era-body"><p>The Scandinavian Renaissance rediscovered runes as heritage. <strong>Johannes Bureus</strong> (1568–1652) created the first systematic study, blending genuine scholarship with Kabbalistic frameworks — inaugurating the <strong>scholarly-mystical split</strong> that still defines runic studies.</p><p>The Romantic era amplified this. Runes became symbols of <strong>pre-Christian Northern identity</strong>, appearing in nationalist movements, poetry, and Germanic philology. Jacob Grimm studied runic inscriptions as windows into proto-Germanic language and culture.</p></div></div>
+      <div class="lore-divider"></div>
+      <div class="lore-era"><div class="era-header"><div class="era-rune">ᛞ</div><div class="era-title">Modern Reclamation</div><div class="era-date">1900–Present</div></div><div class="era-body"><p>The 20th century forced runes through <strong>their darkest chapter</strong>. The Nazi regime appropriated runic symbols — Sowilo (ᛊ) became the SS lightning bolt. This was propaganda, not scholarship, and the damage was real: post-war, runic symbols became associated with far-right extremism in ways that still require active decontamination.</p><p>Reclamation has been <strong>multi-directional</strong>. Academic runology continued through scholars like Ralph Elliott, Michael Barnes, and Terje Spurkland. The Heathen/Ásatrú revival (1970s onward) reclaimed runes as living spiritual tools. The broader New Age community, sparked by <strong>Ralph Blum's Book of Runes</strong> (1982), brought rune casting into mainstream metaphysical practice — though purists critique Blum's system as ahistorical.</p><div class="era-callout">Today runes exist across simultaneous contexts: archaeological evidence, living spiritual practice, divination tool, design element, tattoo culture, gaming iconography, and — for the symbol-obsessed agnostic — cognitive technology. The alphabet hasn't been this alive since the Migration Age.</div><p><strong>Unicode inclusion</strong> (Runic block U+16A0–U+16FF, added 1999) gave the Elder Futhark digital permanence. The same symbols carved into bone 1,800 years ago now render on every screen on earth. Not revival — persistence through every medium humans have invented.</p></div></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-practices">
+    <div class="practices-section">
+      <div class="practices-intro">Runes as cognitive technology, not religion. Symbolic tools for an agnostic mind that respects the weight of what it holds.</div>
+      <div class="practice-card"><div class="practice-header"><div class="practice-rune">ᛊ</div><div class="practice-title">Morning Draw</div><div class="practice-tag">Daily</div></div><div class="practice-body">Pull one stone blind from the bag. Don't divine anything — use it as a <strong>perceptual lens</strong> for the day. Hagalaz doesn't mean your day will suck. It means: notice what's breaking down and ask whether it needed to. Kenaz means: track what illuminates versus what obscures. You're assigning yourself a phenomenological filter for 24 hours.</div><div class="practice-tip">→ Keep a one-line log: date, rune, what you noticed. After weeks the data reveals your own cognitive patterns.</div></div>
+      <div class="practice-card"><div class="practice-header"><div class="practice-rune">ᛈ</div><div class="practice-title">Decision Mirror</div><div class="practice-tag">As needed</div></div><div class="practice-body">When stuck on a choice, draw three stones. Your brain <strong>will</strong> construct a narrative from three random symbols, and that narrative reveals what you already think but haven't articulated. The runes don't know anything. But your pattern-recognition engine, forced to reconcile Othala + Isa + Jera, will surface what your conscious mind was circling.</div><div class="practice-tip">→ Randomness + forced interpretation = surfacing latent beliefs. Same mechanism as oblique strategies or I Ching.</div></div>
+      <div class="practice-card"><div class="practice-header"><div class="practice-rune">ᚷ</div><div class="practice-title">Bind Runes as Personal Sigils</div><div class="practice-tag">Creative</div></div><div class="practice-body">Take 2–3 runes that map to a project or intention and <strong>overlay them into a single glyph</strong>. Visual compression forces you to distill an abstract goal into symbolic shorthand. You're building a logo for an internal state. Each ARX project could carry its own bind rune. Tattoo candidates live here.</div><div class="practice-tip">→ Start by overlapping strokes that share vertical or diagonal lines. Fehu + Kenaz + Wunjo = wealth-illumination-joy with surprisingly clean geometry.</div></div>
+      <div class="practice-card"><div class="practice-header"><div class="practice-rune">ᚨ</div><div class="practice-title">Futhark Journaling</div><div class="practice-tag">Practice</div></div><div class="practice-body">Write English but substitute rune phonetics. <strong>"Today I started building"</strong> becomes ᛏᛟᛞᚨᛁ ᚨᛁ ᛊᛏᚨᚱᛏᛖᛞ... Slow, deliberate, forces a different relationship with language. Your brain processes it more like drawing than writing. The Study tab is the training tool — once all 24 mappings are internalized, you can write at speed.</div><div class="practice-tip">→ Use "Rune → Name" mode until mastered, then switch to writing. Physical set + digital tool = full loop.</div></div>
+      <div class="practice-card"><div class="practice-header"><div class="practice-rune">ᛃ</div><div class="practice-title">Systems Casting</div><div class="practice-tag">Analysis</div></div><div class="practice-body">Draw a 2×2 grid on leather: <strong>internal/external</strong> × <strong>present/emerging</strong>. Toss a handful of runes. Read them positionally. Not fortune-telling — forcing a structured brainstorm with random symbolic input. Randomness + constraint = novel connections.</div><div class="practice-tip">→ Variation: draw the ARX project quadrant (hardware/software × research/infrastructure). Map runes to workstreams by where they fall.</div></div>
+      <div class="practice-card"><div class="practice-header"><div class="practice-rune">ᛞ</div><div class="practice-title">What Would This Rune Build?</div><div class="practice-tag">Ideation</div></div><div class="practice-body">Pick a rune, sit with its meaning, ask: <strong>if this rune were a project, what would it be?</strong> Laguz → streaming architecture. Dagaz → moment-of-clarity UX. Build a symbolic index across your work. Eventually each project has a rune — a personal cosmology that maps to real infrastructure.</div><div class="practice-tip">→ 24 runes, 71+ projects. Some runes claim multiples. Some projects need bind runes. That tension is the interesting part.</div></div>
+    </div>
+  </div>
+
+  <div class="knotwork"></div>
+  <div class="footer"><div class="footer-text">ARX Foundation · Glyphkeeper · Elder Futhark Module</div></div>
+</div>
+
+<script>
+const RUNES = [
+  { id:'fehu',g:'ᚠ',name:'Fehu',sound:'F',aett:'freya',meaning:'Wealth, cattle',keyword:'abundance',lore:'Moveable wealth — the herd, not the land. First rune: all journeys begin with resources gathered.' },
+  { id:'uruz',g:'ᚢ',name:'Uruz',sound:'U',aett:'freya',meaning:'Aurochs, strength',keyword:'primal force',lore:'The wild ox, untameable. Raw creative power before it takes shape.' },
+  { id:'thurisaz',g:'ᚦ',name:'Þurisaz',sound:'Th',aett:'freya',meaning:'Thorn, giant',keyword:'reactive force',lore:"Thor's rune. The thorn that protects and the giant that threatens — defense through destruction." },
+  { id:'ansuz',g:'ᚨ',name:'Ansuz',sound:'A',aett:'freya',meaning:'God, mouth',keyword:'divine breath',lore:"Odin's rune. The gift of speech, consciousness, and poetic inspiration — önd, the breath of life." },
+  { id:'raidho',g:'ᚱ',name:'Raidho',sound:'R',aett:'freya',meaning:'Ride, journey',keyword:'right action',lore:'The cosmic order of movement. Not just travel — the rhythm of ritual, the wheel of seasons.' },
+  { id:'kenaz',g:'ᚲ',name:'Kenaz',sound:'K',aett:'freya',meaning:'Torch, knowledge',keyword:'illumination',lore:'The controlled flame — craft, skill, and the fire of understanding passed between generations.' },
+  { id:'gebo',g:'ᚷ',name:'Gebo',sound:'G',aett:'freya',meaning:'Gift, partnership',keyword:'sacred exchange',lore:'The X of equal exchange. A gift demands a gift — the bond between giver and receiver creates obligation.' },
+  { id:'wunjo',g:'ᚹ',name:'Wunjo',sound:'W',aett:'freya',meaning:'Joy, harmony',keyword:'fulfillment',lore:"Clan-joy, the happiness of belonging. Freyja's aett ends where it aimed: contentment through connection." },
+  { id:'hagalaz',g:'ᚺ',name:'Hagalaz',sound:'H',aett:'heimdall',meaning:'Hail, disruption',keyword:'necessary destruction',lore:'The seed within the hailstone. What shatters the harvest also waters the next planting.' },
+  { id:'nauthiz',g:'ᚾ',name:'Nauthiz',sound:'N',aett:'heimdall',meaning:'Need, constraint',keyword:'friction as teacher',lore:'The need-fire lit by friction. Constraint creates innovation — the bow-drill that starts the flame.' },
+  { id:'isa',g:'ᛁ',name:'Isa',sound:'I',aett:'heimdall',meaning:'Ice, stillness',keyword:'crystallized waiting',lore:'The bridge of ice that spans the abyss. Perfect stillness. Not death — preservation.' },
+  { id:'jera',g:'ᛃ',name:'Jera',sound:'J',aett:'heimdall',meaning:'Year, harvest',keyword:'earned reward',lore:"The year's turning. Results come only after the full cycle — no shortcut through winter." },
+  { id:'eihwaz',g:'ᛇ',name:'Eihwaz',sound:'Ei',aett:'heimdall',meaning:'Yew, endurance',keyword:'axis between worlds',lore:"The yew tree — toxic, evergreen, impossibly long-lived. Yggdrasil's cousin. The backbone of the rune row." },
+  { id:'perthro',g:'ᛈ',name:'Perthro',sound:'P',aett:'heimdall',meaning:'Mystery, lot-cup',keyword:'hidden pattern',lore:"The dice cup, the well of Wyrd. What emerges was always there — you simply couldn't see it yet." },
+  { id:'algiz',g:'ᛉ',name:'Algiz',sound:'Z',aett:'heimdall',meaning:'Elk-sedge, protection',keyword:'warding',lore:"The splayed hand, the elk's antler, the sedge that cuts. Protection through awareness, not walls." },
+  { id:'sowilo',g:'ᛊ',name:'Sowilo',sound:'S',aett:'heimdall',meaning:'Sun, victory',keyword:'guiding light',lore:"The sun that always returns. Will-force and clarity. Heimdall's aett ends with the light that reveals truth." },
+  { id:'tiwaz',g:'ᛏ',name:'Tiwaz',sound:'T',aett:'tyr',meaning:'Tyr, justice',keyword:'sacrifice for order',lore:"Tyr placed his hand in Fenrir's mouth knowing the cost. Honor is measured by what you lose to keep it." },
+  { id:'berkano',g:'ᛒ',name:'Berkano',sound:'B',aett:'tyr',meaning:'Birch, renewal',keyword:'new growth',lore:'First tree to leaf after winter. The birch rod that purifies. Beginnings rooted in the old soil.' },
+  { id:'ehwaz',g:'ᛖ',name:'Ehwaz',sound:'E',aett:'tyr',meaning:'Horse, partnership',keyword:'trust in motion',lore:'Horse and rider as one mind. Not ownership — the bond between equals moving toward a shared destination.' },
+  { id:'mannaz',g:'ᛗ',name:'Mannaz',sound:'M',aett:'tyr',meaning:'Human, self',keyword:'collective humanity',lore:'Ask and Embla — the first humans. Not the individual ego but the shared inheritance of consciousness.' },
+  { id:'laguz',g:'ᛚ',name:'Laguz',sound:'L',aett:'tyr',meaning:'Water, flow',keyword:'intuitive depth',lore:'The lake, the leek, the life-force. What moves beneath the surface. Trust the current.' },
+  { id:'ingwaz',g:'ᛜ',name:'Ingwaz',sound:'Ng',aett:'tyr',meaning:'Ing, fertility',keyword:'gestation',lore:'The seed buried in earth. Ing — the god who departed across the waves. Potential held in silence.' },
+  { id:'dagaz',g:'ᛞ',name:'Dagaz',sound:'D',aett:'tyr',meaning:'Day, breakthrough',keyword:'transformation',lore:'The butterfly rune — the hour between night and dawn. Not gradual change but sudden clarity.' },
+  { id:'othala',g:'ᛟ',name:'Othala',sound:'O',aett:'tyr',meaning:'Heritage, ancestral home',keyword:'sacred enclosure',lore:'The inherited land, the family seat. Where you came from defines where you can go. The final rune: home.' },
+];
+
+const TABS = ['study','chart','lore','practices'];
+const TAB_LABELS = ['Study','Chart','Lore','Practices'];
+const STORAGE_KEY = 'glyphkeeper:elder-futhark';
+let srData = {}, currentAett = 'all', currentMode = 'recognize', currentQueue = [], currentIndex = 0, isFlipped = false, sessionStreak = 0, selectedRuneId = null, activeTab = 'study';
+
+function newCard() { return { interval: 0, ease: 2.5, reps: 0, nextReview: Date.now(), state: 'new' }; }
+function sm2(card, q) {
+  let { interval, ease, reps } = card; const now = Date.now(), DAY = 86400000;
+  if (q < 1) return { interval: 0, ease: Math.max(1.3, ease - 0.2), reps: 0, nextReview: now + DAY * 0.01, state: 'learning' };
+  if (q === 1) { interval = Math.max(1, interval * 1.2); ease = Math.max(1.3, ease - 0.15); }
+  else if (q === 2) { if (reps === 0) interval = 1; else if (reps === 1) interval = 3; else interval = Math.round(interval * ease); }
+  else { if (reps === 0) interval = 4; else if (reps === 1) interval = 7; else interval = Math.round(interval * ease * 1.3); ease += 0.15; }
+  reps++;
+  return { interval, ease, reps, nextReview: now + interval * DAY, state: interval >= 21 ? 'mastered' : interval >= 7 ? 'learned' : 'learning' };
+}
+
+async function loadData() { try { const r = ({value:(()=>{try{return localStorage.getItem(STORAGE_KEY)}catch(e){return null}})()}); if (r?.value) srData = JSON.parse(r.value); } catch(e) {} RUNES.forEach(r => { if (!srData[r.id]) srData[r.id] = newCard(); }); }
+async function saveData() { try { (()=>{try{localStorage.setItem(STORAGE_KEY, JSON.stringify(srData))}catch(e){}})(); } catch(e) {} }
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } }
+function buildQueue() {
+  const now = Date.now(); let pool = currentAett === 'all' ? RUNES : RUNES.filter(r => r.aett === currentAett);
+  const due = pool.filter(r => srData[r.id]?.nextReview <= now && srData[r.id]?.state !== 'new');
+  const nw = pool.filter(r => srData[r.id]?.state === 'new');
+  const later = pool.filter(r => srData[r.id]?.nextReview > now && srData[r.id]?.state !== 'new');
+  shuffle(due); shuffle(nw); shuffle(later);
+  currentQueue = [...due, ...nw, ...later]; currentIndex = 0; isFlipped = false;
+}
+
+// TABS
+function initTabs() {
+  document.getElementById('tab-bar').innerHTML = TABS.map((t,i) => `<button class="tab${t === activeTab ? ' active' : ''}" data-tab="${t}">${TAB_LABELS[i]}</button>`).join('');
+  document.querySelectorAll('.tab').forEach(el => el.addEventListener('click', () => switchTab(el.dataset.tab)));
+}
+function switchTab(name) {
+  activeTab = name;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+  if (name === 'chart') renderChart();
+}
+
+function renderStats() {
+  const now = Date.now(); let pool = currentAett === 'all' ? RUNES : RUNES.filter(r => r.aett === currentAett);
+  document.getElementById('st-total').textContent = pool.length;
+  document.getElementById('st-due').textContent = pool.filter(r => srData[r.id] && (srData[r.id].nextReview <= now || srData[r.id].state === 'new')).length;
+  document.getElementById('st-mastered').textContent = pool.filter(r => srData[r.id]?.state === 'mastered').length;
+  document.getElementById('st-streak').textContent = sessionStreak;
+  document.getElementById('mastery-fill').style.width = Math.round((RUNES.filter(r => srData[r.id]?.state === 'mastered' || srData[r.id]?.state === 'learned').length / RUNES.length) * 100) + '%';
+}
+
+function renderCard() {
+  const area = document.getElementById('card-area');
+  if (!currentQueue.length) { area.innerHTML = '<div class="empty-state"><div class="empty-rune">ᛊ</div><div class="empty-text">The sun rests.</div><div class="empty-sub">All reviewed · change aett for more</div></div>'; return; }
+  const rune = currentQueue[currentIndex]; if (!rune) { buildQueue(); renderCard(); return; }
+  const c = srData[rune.id], ac = 'aett-' + rune.aett, al = rune.aett === 'freya' ? "Freyja's Aett" : rune.aett === 'heimdall' ? "Heimdall's Aett" : "Tyr's Aett", iv = [0,1,2,3].map(q => { const r = sm2({...c}, q); return r.interval < 1 ? '<1d' : r.interval < 30 ? r.interval + 'd' : r.interval < 365 ? Math.round(r.interval/30) + 'mo' : Math.round(r.interval/365) + 'y'; });
+  let f = '', b = '';
+  if (currentMode === 'recognize') { f = `<div class="card-aett-mark ${ac}">${al}</div><div class="card-glyph">${rune.g}</div><div class="card-prompt">Name this rune</div><div class="flip-hint">tap to reveal</div>`; b = `<div class="card-aett-mark ${ac}">${al}</div><div class="card-glyph" style="font-size:48px;opacity:.5">${rune.g}</div><div class="card-name">${rune.name}</div><div class="card-sound">${rune.sound}</div><div class="card-meaning">${rune.meaning}</div><div class="card-lore">${rune.lore}</div>`; }
+  else if (currentMode === 'recall') { f = `<div class="card-aett-mark ${ac}">${al}</div><div class="card-name" style="font-size:28px">${rune.name}</div><div class="card-meaning" style="margin-top:8px">${rune.meaning}</div><div class="card-prompt" style="margin-top:16px">Visualize the rune</div><div class="flip-hint">tap to reveal</div>`; b = `<div class="card-aett-mark ${ac}">${al}</div><div class="card-glyph">${rune.g}</div><div class="card-name">${rune.name}</div><div class="card-sound">${rune.sound}</div><div class="card-lore">${rune.lore}</div>`; }
+  else { f = `<div class="card-aett-mark ${ac}">${al}</div><div class="card-glyph">${rune.g}</div><div class="card-name">${rune.name}</div><div class="card-prompt">What does it signify?</div><div class="flip-hint">tap to reveal</div>`; b = `<div class="card-aett-mark ${ac}">${al}</div><div class="card-glyph" style="font-size:48px;opacity:.5">${rune.g}</div><div class="card-meaning" style="font-size:20px">${rune.meaning}</div><div style="font-family:'JetBrains Mono';font-size:11px;color:var(--mead);margin:8px 0">${rune.keyword}</div><div class="card-lore">${rune.lore}</div>`; }
+  area.innerHTML = `<div class="card-counter">${currentIndex+1} / ${currentQueue.length}</div><div class="card" onclick="flipCard()">${isFlipped ? b : f}</div>${isFlipped ? `<div class="score-row"><button class="score-btn again" onclick="event.stopPropagation();scoreCard(0)">Again<div class="interval">${iv[0]}</div></button><button class="score-btn hard" onclick="event.stopPropagation();scoreCard(1)">Hard<div class="interval">${iv[1]}</div></button><button class="score-btn good" onclick="event.stopPropagation();scoreCard(2)">Good<div class="interval">${iv[2]}</div></button><button class="score-btn easy" onclick="event.stopPropagation();scoreCard(3)">Easy<div class="interval">${iv[3]}</div></button></div>` : ''}`;
+}
+
+function flipCard() { isFlipped = !isFlipped; renderCard(); }
+async function scoreCard(q) {
+  const rune = currentQueue[currentIndex]; if (!rune) return;
+  srData[rune.id] = sm2(srData[rune.id], q);
+  if (q >= 2) sessionStreak++; else sessionStreak = 0;
+  await saveData();
+  if (q < 1) currentQueue.splice(Math.min(currentIndex + 3 + Math.floor(Math.random() * 4), currentQueue.length), 0, rune);
+  currentIndex++; if (currentIndex >= currentQueue.length) buildQueue();
+  isFlipped = false; renderStats(); renderCard();
+}
+function setAett(a) { currentAett = a; const btns = document.querySelectorAll('#aett-btns .btn'); btns.forEach(b => b.className = 'btn'); const i = ['all','freya','heimdall','tyr'].indexOf(a); btns[i].classList.add(['active','active-freya','active-heimdall','active-tyr'][i]); buildQueue(); renderStats(); renderCard(); }
+function setMode(m) { currentMode = m; const btns = document.querySelectorAll('#mode-btns .btn'); btns.forEach(b => b.className = 'btn'); btns[['recognize','recall','meaning'].indexOf(m)].classList.add('active'); isFlipped = false; renderCard(); }
+
+// CHART
+function renderChart() {
+  const grid = document.getElementById('chart-grid');
+  const aetts = [{key:'freya',label:"Freyja's Aett — Abundance to Joy",cls:'freya'},{key:'heimdall',label:"Heimdall's Aett — Disruption to Victory",cls:'heimdall'},{key:'tyr',label:"Tyr's Aett — Justice to Heritage",cls:'tyr'}];
+  let h = '';
+  aetts.forEach(a => {
+    h += `<div class="aett-header ${a.cls}">${a.label}</div><div class="rune-grid">`;
+    RUNES.filter(r => r.aett === a.key).forEach(r => {
+      const c = srData[r.id], sc = c.state === 'mastered' ? 'mastered' : c.state === 'learned' ? 'learned' : c.state === 'learning' ? 'learning' : '', sel = selectedRuneId === r.id ? ' selected' : '';
+      h += `<div class="rune-cell ${sc}${sel}" onclick="selectRune('${r.id}')"><div class="rc-glyph">${r.g}</div><div class="rc-name">${r.name} [${r.sound}]</div><div class="rc-keyword">${r.keyword}</div></div>`;
+    });
+    h += '</div>';
+  });
+  grid.innerHTML = h;
+  renderRuneDetail();
+}
+function selectRune(id) { selectedRuneId = selectedRuneId === id ? null : id; renderChart(); }
+function closeDetail() { selectedRuneId = null; renderChart(); }
+function renderRuneDetail() {
+  const ct = document.getElementById('rune-detail-container');
+  if (!selectedRuneId) { ct.innerHTML = ''; return; }
+  const r = RUNES.find(x => x.id === selectedRuneId), c = srData[r.id], ac = 'aett-' + r.aett;
+  const al = r.aett === 'freya' ? "Freyja's Aett" : r.aett === 'heimdall' ? "Heimdall's Aett" : "Tyr's Aett";
+  const pos = RUNES.indexOf(r) + 1;
+  const sl = c.state === 'mastered' ? 'Mastered' : c.state === 'learned' ? 'Learned' : c.state === 'learning' ? 'Learning' : 'New';
+  const sc = c.state === 'mastered' ? 'var(--moss)' : c.state === 'learned' ? 'var(--mead)' : c.state === 'learning' ? 'var(--frost)' : 'var(--stone-mid)';
+  const nr = c.state === 'new' ? 'Not yet studied' : new Date(c.nextReview).toLocaleDateString();
+  ct.innerHTML = `<div class="rune-detail"><button class="rune-detail-close" onclick="closeDetail()">✕</button><div class="rd-top"><div class="rd-glyph">${r.g}</div><div class="rd-info"><div class="rd-name">${r.name}</div><div class="rd-sound">Sound: /${r.sound}/ · Rune #${pos}</div><div class="rd-aett ${ac}">${al}</div></div></div><div class="rd-meaning">${r.meaning}</div><div class="rd-keyword">${r.keyword}</div><div class="rd-lore">${r.lore}</div><div class="rd-sr-status"><span><div class="rd-sr-dot" style="background:${sc}"></div> ${sl}</span><span>Interval: ${c.interval < 1 ? '—' : c.interval + 'd'}</span><span>Ease: ${c.ease.toFixed(2)}</span><span>Next: ${nr}</span><span>Reps: ${c.reps}</span></div></div>`;
+}
+
+async function init() { await loadData(); initTabs(); buildQueue(); renderStats(); renderCard(); }
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glyphkeeper — Learn the World's Writing Systems</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bamum:wght@400;700&family=Noto+Sans+Cherokee:wght@400;700&family=Noto+Sans+Ethiopic:wght@400;700&family=Noto+Sans+Egyptian+Hieroglyphs&family=Noto+Serif+Tibetan:wght@400;700&family=Noto+Sans+Yi&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-void: #0a0a0f;
+    --bg-deep: #10101a;
+    --bg-card: #181825;
+    --bg-card-hover: #1f1f35;
+    --bg-tag: rgba(255,255,255,0.06);
+    --gold: #c9a84c;
+    --gold-dim: #8a7234;
+    --gold-bright: #e8c65a;
+    --copper: #c67d3e;
+    --teal: #3a9e8f;
+    --teal-dim: #2a6e63;
+    --coral: #d4665a;
+    --lavender: #8a7ab8;
+    --sky: #5a8ab8;
+    --sage: #6a9a6a;
+    --cream: #e8e0d0;
+    --cream-dim: #9a9080;
+    --cream-faint: #5a5550;
+    --white: #f0ece4;
+    --shadow: rgba(0,0,0,0.5);
+    --border: rgba(255,255,255,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-void);
+    color: var(--cream);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ═══ HERO ═══ */
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 5rem 1.5rem 4rem;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 100%),
+      radial-gradient(ellipse 80% 60% at 50% 100%, rgba(10,10,15,1) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-glyphs {
+    font-size: 1.4rem;
+    letter-spacing: 0.4em;
+    color: var(--gold-dim);
+    margin-bottom: 1rem;
+    opacity: 0.7;
+    position: relative;
+    z-index: 1;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    font-weight: 400;
+    color: var(--white);
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    position: relative;
+    z-index: 1;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--cream-dim);
+    margin-top: 1.2rem;
+    font-weight: 300;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-top: 2.5rem;
+    position: relative;
+    z-index: 1;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--cream-faint);
+    margin-top: 0.2rem;
+  }
+
+  /* ═══ FILTER NAV ═══ */
+  .filter-bar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1.5rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(180deg, var(--bg-void) 60%, transparent 100%);
+  }
+  .filter-btn {
+    background: var(--bg-tag);
+    border: 1px solid var(--border);
+    color: var(--cream-dim);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.2rem;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .filter-btn:hover { color: var(--cream); border-color: rgba(255,255,255,0.15); }
+  .filter-btn.active {
+    background: rgba(201,168,76,0.12);
+    border-color: var(--gold-dim);
+    color: var(--gold);
+  }
+
+  /* ═══ SECTIONS ═══ */
+  .section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 3rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    color: var(--white);
+    font-weight: 600;
+  }
+  .section-count {
+    font-size: 0.75rem;
+    color: var(--cream-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .section-desc {
+    font-size: 0.85rem;
+    color: var(--cream-dim);
+    font-weight: 300;
+    margin-left: auto;
+  }
+
+  /* ═══ CARD GRID ═══ */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: default;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--card-accent, var(--gold-dim)), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(255,255,255,0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px var(--shadow);
+  }
+  .card:hover::before { opacity: 1; }
+  .card.built { cursor: pointer; }
+  .card.built .card-status { background: rgba(58,158,143,0.15); color: var(--teal); border-color: var(--teal-dim); }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .card-glyph-area {
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .card-glyph {
+    font-size: 2.4rem;
+    line-height: 1;
+    color: var(--card-accent, var(--gold));
+  }
+  .card-meta {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .card-status {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 100px;
+    border: 1px solid var(--cream-faint);
+    color: var(--cream-faint);
+    margin-bottom: 0.4rem;
+  }
+  .card-chars {
+    font-size: 0.7rem;
+    color: var(--cream-faint);
+  }
+
+  .card-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    color: var(--white);
+    font-weight: 600;
+    margin-bottom: 0.15rem;
+  }
+  .card-native {
+    font-size: 0.8rem;
+    color: var(--card-accent, var(--gold-dim));
+    margin-bottom: 0.6rem;
+    font-weight: 300;
+  }
+  .card-origin {
+    font-size: 0.78rem;
+    color: var(--cream-dim);
+    font-weight: 300;
+    line-height: 1.5;
+    margin-bottom: 0.8rem;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+  .tag {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    background: var(--bg-tag);
+    color: var(--cream-faint);
+    font-weight: 400;
+  }
+  .tag.difficulty-1 { color: var(--sage); background: rgba(106,154,106,0.1); }
+  .tag.difficulty-2 { color: var(--gold); background: rgba(201,168,76,0.1); }
+  .tag.difficulty-3 { color: var(--coral); background: rgba(212,102,90,0.1); }
+  .tag.unicode { color: var(--teal); background: rgba(58,158,143,0.08); }
+  .tag.endangered { color: var(--coral); background: rgba(212,102,90,0.08); }
+
+  /* ═══ LEGEND ═══ */
+  .legend {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    font-size: 0.75rem;
+    color: var(--cream-faint);
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ═══ FOOTER ═══ */
+  .footer {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    border-top: 1px solid var(--border);
+    max-width: 700px;
+    margin: 2rem auto 0;
+  }
+  .footer-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: var(--cream-dim);
+    margin-bottom: 0.6rem;
+  }
+  .footer p {
+    font-size: 0.8rem;
+    color: var(--cream-faint);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  .footer a { color: var(--gold-dim); text-decoration: none; }
+
+  @media (max-width: 700px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .stats-row { gap: 1.5rem; }
+    .section-header { flex-direction: column; gap: 0.3rem; }
+    .section-desc { margin-left: 0; }
+    .filter-btn { font-size: 0.72rem; padding: 0.4rem 0.9rem; }
+  }
+</style>
+</head>
+<body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+
+<div class="hero">
+  <div class="hero-glyphs">𖣂 ꚠ Ꭰ ꔀ 𒀀 ꆈ འ ​​ ​​ ​​​​ ​​​​​​ ​​​​​​​​</div>
+  <h1>Glyph<em>keeper</em></h1>
+  <p class="hero-sub">An open learning suite for the world's most visually compelling writing systems — syllabaries, logograms, abugidas, and pictographic scripts, each with interactive flashcards, charts, and history.</p>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num">24</div><div class="stat-label">Scripts</div></div>
+    <div class="stat"><div class="stat-num">6</div><div class="stat-label">Continents</div></div>
+    <div class="stat"><div class="stat-num">5,000+</div><div class="stat-label">Years of Writing</div></div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all">All Scripts</button>
+  <button class="filter-btn" data-filter="syllabary">Syllabaries</button>
+  <button class="filter-btn" data-filter="logographic">Logographic</button>
+  <button class="filter-btn" data-filter="abugida">Abugidas</button>
+  <button class="filter-btn" data-filter="ancient">Ancient</button>
+  <button class="filter-btn" data-filter="endangered">Endangered</button>
+  <button class="filter-btn" data-filter="built">Built</button>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--sage)"></div> Beginner</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> Intermediate</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--coral)"></div> Advanced</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div> In Unicode</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--coral)"></div> Endangered</div>
+</div>
+
+<!-- ═══════ SYLLABARIES ═══════ -->
+<div class="section" data-section="syllabary">
+  <div class="section-header">
+    <div class="section-title">Syllabaries</div>
+    <div class="section-count">8 scripts</div>
+    <div class="section-desc">One symbol = one syllable</div>
+  </div>
+  <div class="card-grid">
+
+    <div class="card built" style="--card-accent:#c67d3e" data-types="syllabary endangered built" onclick="window.open('learn/bamum.html','_blank')">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph" style="font-family:'Noto Sans Bamum',sans-serif">ꚠ</div></div>
+        <div class="card-meta"><div class="card-status">Ready</div><div class="card-chars">80 characters</div></div>
+      </div>
+      <div class="card-name">Bamum</div>
+      <div class="card-native" style="font-family:'Noto Sans Bamum',sans-serif">ꚠ ꚡ ꚢ ꚣ — A Ka U Ku</div>
+      <div class="card-origin">Western Cameroon · Invented 1896 by King Ibrahim Njoya · Evolved through 7 phases from 465 pictograms to 80 syllables</div>
+      <div class="card-tags">
+        <span class="tag difficulty-2">Intermediate</span>
+        <span class="tag unicode">Unicode 5.2+</span>
+        <span class="tag endangered">Endangered</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#d4665a" data-types="syllabary">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph" style="font-family:'Noto Sans Cherokee',sans-serif">Ꭰ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">85 characters</div></div>
+      </div>
+      <div class="card-name">Cherokee</div>
+      <div class="card-native" style="font-family:'Noto Sans Cherokee',sans-serif">ᏣᎳᎩ ᎦᏬᏂᎯᏍᏗ</div>
+      <div class="card-origin">North America · Invented c. 1821 by Sequoyah — the only known instance of a member of a non-literate people independently creating a writing system</div>
+      <div class="card-tags">
+        <span class="tag difficulty-2">Intermediate</span>
+        <span class="tag unicode">Unicode 1.1+</span>
+        <span class="tag endangered">Revitalizing</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#e8c65a" data-types="syllabary">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">あ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">46 + 46 kana</div></div>
+      </div>
+      <div class="card-name">Japanese Kana</div>
+      <div class="card-native">ひらがな · カタカナ</div>
+      <div class="card-origin">Japan · Hiragana & Katakana · Derived from Chinese characters (man'yōgana) in the 8th–9th century · Mora-based system</div>
+      <div class="card-tags">
+        <span class="tag difficulty-1">Beginner</span>
+        <span class="tag unicode">Unicode 1.1+</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#8a7ab8" data-types="syllabary endangered">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph" style="font-family:'Noto Sans Yi',sans-serif">ꆈ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">1,165 syllables</div></div>
+      </div>
+      <div class="card-name">Yi (Modern)</div>
+      <div class="card-native" style="font-family:'Noto Sans Yi',sans-serif">ꆈꌠꁱꂷ</div>
+      <div class="card-origin">Yunnan & Sichuan, China · Standardized 1974 from Classical Yi · One of the largest syllabaries still in active use</div>
+      <div class="card-tags">
+        <span class="tag difficulty-3">Advanced</span>
+        <span class="tag unicode">Unicode 3.0+</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#5a8ab8" data-types="syllabary endangered">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">ꔀ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">300 characters</div></div>
+      </div>
+      <div class="card-name">Vai</div>
+      <div class="card-native">ꕙꔤ</div>
+      <div class="card-origin">Liberia & Sierra Leone · Invented c. 1833 by Mɔmɔlu Duwalu Bukɛlɛ · One of the earliest independently created African scripts</div>
+      <div class="card-tags">
+        <span class="tag difficulty-3">Advanced</span>
+        <span class="tag unicode">Unicode 5.1+</span>
+        <span class="tag endangered">Endangered</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#d4665a" data-types="syllabary endangered">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">𞠀</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">195 characters</div></div>
+      </div>
+      <div class="card-name">Mende Kikakui</div>
+      <div class="card-native">𞠀𞠁𞠂</div>
+      <div class="card-origin">Sierra Leone · Invented c. 1921 by Kisimi Kamara — a syllabary written right-to-left, rare for Africa</div>
+      <div class="card-tags">
+        <span class="tag difficulty-2">Intermediate</span>
+        <span class="tag unicode">Unicode 7.0+</span>
+        <span class="tag endangered">Endangered</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#6a9a6a" data-types="syllabary">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">ᐊ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">160 syllables</div></div>
+      </div>
+      <div class="card-name">Canadian Aboriginal</div>
+      <div class="card-native">ᓀᐦᐃᔭᐍᐏᐣ</div>
+      <div class="card-origin">Canada · Adapted 1840 by James Evans for Cree · Rotation of glyphs indicates vowel — a brilliant geometric system</div>
+      <div class="card-tags">
+        <span class="tag difficulty-1">Beginner</span>
+        <span class="tag unicode">Unicode 3.0+</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#c67d3e" data-types="syllabary ancient">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">𐠀</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">~90 signs</div></div>
+      </div>
+      <div class="card-name">Linear B</div>
+      <div class="card-native">Mycenaean Greek</div>
+      <div class="card-origin">Bronze Age Crete & Greece · c. 1450 BCE · Deciphered 1952 by Michael Ventris — the oldest known Greek writing</div>
+      <div class="card-tags">
+        <span class="tag difficulty-2">Intermediate</span>
+        <span class="tag unicode">Unicode 4.0+</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ LOGOGRAPHIC / PICTOGRAPHIC ═══════ -->
+<div class="section" data-section="logographic">
+  <div class="section-header">
+    <div class="section-title">Logographic &amp; Pictographic</div>
+    <div class="section-count">6 scripts</div>
+    <div class="section-desc">One symbol = one word, concept, or morpheme</div>
+  </div>
+  <div class="card-grid">
+
+    <div class="card" style="--card-accent:#d4665a" data-types="logographic">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">漢</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">~3,500 common</div></div>
+      </div>
+      <div class="card-name">Chinese Hanzi</div>
+      <div class="card-native">汉字 / 漢字</div>
+      <div class="card-origin">China · Evolved from oracle bone inscriptions c. 1200 BCE · The world's longest continuously used writing system · Radical + phonetic compound structure</div>
+      <div class="card-tags">
+        <span class="tag difficulty-3">Advanced</span>
+        <span class="tag unicode">Unicode 1.1+</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#e8c65a" data-types="logographic">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">漢</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">~2,136 jōyō</div></div>
+      </div>
+      <div class="card-name">Japanese Kanji</div>
+      <div class="card-native">漢字</div>
+      <div class="card-origin">Japan (via China) · Each character has on'yomi (Chinese) and kun'yomi (Japanese) readings · Used alongside kana syllabaries</div>
+      <div class="card-tags">
+        <span class="tag difficulty-3">Advanced</span>
+        <span class="tag unicode">Unicode CJK</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#c9a84c" data-types="logographic ancient">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph" style="font-family:'Noto Sans Egyptian Hieroglyphs',sans-serif">𓀀</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">~1,000 common</div></div>
+      </div>
+      <div class="card-name">Egyptian Hieroglyphs</div>
+      <div class="card-native">𓊹𓌃𓏏</div>
+      <div class="card-origin">Egypt · c. 3200 BCE – 400 CE · Deciphered via the Rosetta Stone · Mix of logographic, alphabetic, and determinative signs</div>
+      <div class="card-tags">
+        <span class="tag difficulty-3">Advanced</span>
+        <span class="tag unicode">Unicode 5.2+</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#8a7ab8" data-types="logographic ancient">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">𒀀</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">~600 signs</div></div>
+      </div>
+      <div class="card-name">Cuneiform</div>
+      <div class="card-native">𒀀𒈾𒂗𒆠</div>
+      <div class="card-origin">Mesopotamia · c. 3400 BCE · The world's oldest writing · Evolved from pictographs pressed into clay with a wedge-shaped reed stylus</div>
+      <div class="card-tags">
+        <span class="tag difficulty-3">Advanced</span>
+        <span class="tag unicode">Unicode 5.0+</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#6a9a6a" data-types="logographic ancient">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">𝋠</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">~800 glyphs</div></div>
+      </div>
+      <div class="card-name">Maya Glyphs</div>
+      <div class="card-native">Mesoamerica</div>
+      <div class="card-origin">Mesoamerica · c. 300 BCE – 1600 CE · A logosyllabary: each glyph block combines a main sign with affixes · Partially deciphered in the 20th century</div>
+      <div class="card-tags">
+        <span class="tag difficulty-3">Advanced</span>
+        <span class="tag">Partial Unicode</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#d4665a" data-types="logographic endangered">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph" style="font-size:1.6rem">🏔️☀️</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">~1,400 pictograms</div></div>
+      </div>
+      <div class="card-name">Naxi Dongba</div>
+      <div class="card-native">DTO-MBA</div>
+      <div class="card-origin">Yunnan, China · c. 7th century CE · The only living pictographic script in the world · UNESCO Memory of the World · Used by Dongba priests</div>
+      <div class="card-tags">
+        <span class="tag difficulty-3">Advanced</span>
+        <span class="tag">Not yet in Unicode</span>
+        <span class="tag endangered">Critically endangered</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ ABUGIDAS ═══════ -->
+<div class="section" data-section="abugida">
+  <div class="section-header">
+    <div class="section-title">Abugidas &amp; Unique Alphabets</div>
+    <div class="section-count">7 scripts</div>
+    <div class="section-desc">Consonant base + vowel modifiers — visually dense and beautiful</div>
+  </div>
+  <div class="card-grid">
+
+    <div class="card" style="--card-accent:#5a8ab8" data-types="abugida">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph" style="font-family:'Noto Sans Ethiopic',sans-serif">ሀ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">231 syllables</div></div>
+      </div>
+      <div class="card-name">Ge'ez (Ethiopic)</div>
+      <div class="card-native" style="font-family:'Noto Sans Ethiopic',sans-serif">ፊደል</div>
+      <div class="card-origin">Ethiopia & Eritrea · c. 5th century BCE · Each consonant has 7 forms (one per vowel) · Used for Amharic, Tigrinya, and many others</div>
+      <div class="card-tags">
+        <span class="tag difficulty-2">Intermediate</span>
+        <span class="tag unicode">Unicode 3.0+</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#8a7ab8" data-types="abugida">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph" style="font-family:'Noto Serif Tibetan',serif">འ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">30 consonants</div></div>
+      </div>
+      <div class="card-name">Tibetan</div>
+      <div class="card-native" style="font-family:'Noto Serif Tibetan',serif">བོད་སྐད་</div>
+      <div class="card-origin">Tibet · c. 7th century CE · Derived from Brahmi · Stacked consonant clusters create towering vertical syllables · Used for Buddhist scriptures</div>
+      <div class="card-tags">
+        <span class="tag difficulty-2">Intermediate</span>
+        <span class="tag unicode">Unicode 2.0+</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#c67d3e" data-types="abugida">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">अ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">47 primary</div></div>
+      </div>
+      <div class="card-name">Devanagari</div>
+      <div class="card-native">देवनागरी</div>
+      <div class="card-origin">India · c. 7th century CE · "City of the Gods" script · Used for Hindi, Sanskrit, Marathi, Nepali · Connected by a horizontal headline (shirorekha)</div>
+      <div class="card-tags">
+        <span class="tag difficulty-2">Intermediate</span>
+        <span class="tag unicode">Unicode 1.1+</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#6a9a6a" data-types="abugida">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">ㄱ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">24 letters</div></div>
+      </div>
+      <div class="card-name">Korean Hangul</div>
+      <div class="card-native">한글</div>
+      <div class="card-origin">Korea · Invented 1443 by King Sejong the Great · Featural alphabet: letter shapes map to tongue/mouth position · Arranged in syllable blocks</div>
+      <div class="card-tags">
+        <span class="tag difficulty-1">Beginner</span>
+        <span class="tag unicode">Unicode 1.1+</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#e8c65a" data-types="abugida">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">ᮃ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">32 characters</div></div>
+      </div>
+      <div class="card-name">Sundanese</div>
+      <div class="card-native">ᮃᮊ᮪ᮞᮛ ᮞᮥᮔ᮪ᮓ</div>
+      <div class="card-origin">West Java, Indonesia · Derived from Brahmi via Old Javanese · Flowing, rounded forms · Currently being revitalized in schools</div>
+      <div class="card-tags">
+        <span class="tag difficulty-2">Intermediate</span>
+        <span class="tag unicode">Unicode 6.1+</span>
+        <span class="tag endangered">Revitalizing</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#d4665a" data-types="abugida">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph"> མ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">33 consonants</div></div>
+      </div>
+      <div class="card-name">Georgian</div>
+      <div class="card-native">ქართული</div>
+      <div class="card-origin">Georgia · c. 430 CE · UNESCO Intangible Heritage · Three distinct historical scripts (Asomtavruli, Nuskhuri, Mkhedruli) · Completely unique lineage</div>
+      <div class="card-tags">
+        <span class="tag difficulty-2">Intermediate</span>
+        <span class="tag unicode">Unicode 1.1+</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#5a8ab8" data-types="abugida endangered">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">ߒ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">27 letters</div></div>
+      </div>
+      <div class="card-name">N'Ko</div>
+      <div class="card-native">ߒߞߏ</div>
+      <div class="card-origin">Guinea · Invented 1949 by Solomana Kanté · Written right-to-left · Created to prove Manding languages could have their own script · Growing digital adoption</div>
+      <div class="card-tags">
+        <span class="tag difficulty-1">Beginner</span>
+        <span class="tag unicode">Unicode 5.0+</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ ANCIENT / UNDECIPHERED ═══════ -->
+<div class="section" data-section="ancient">
+  <div class="section-header">
+    <div class="section-title">Ancient &amp; Undeciphered</div>
+    <div class="section-count">3 scripts</div>
+    <div class="section-desc">The deep past — some still holding secrets</div>
+  </div>
+  <div class="card-grid">
+
+    <div class="card" style="--card-accent:#8a7ab8" data-types="ancient">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">𐤀</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">22 letters</div></div>
+      </div>
+      <div class="card-name">Phoenician</div>
+      <div class="card-native">𐤀𐤋𐤐𐤁𐤕</div>
+      <div class="card-origin">Lebanon · c. 1050 BCE · The ancestor of Greek, Latin, Arabic, Hebrew, and most modern alphabets · The original abjad</div>
+      <div class="card-tags">
+        <span class="tag difficulty-1">Beginner</span>
+        <span class="tag unicode">Unicode 5.0+</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#c67d3e" data-types="ancient">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph">𐘀</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">~77 signs</div></div>
+      </div>
+      <div class="card-name">Linear A</div>
+      <div class="card-native">Minoan</div>
+      <div class="card-origin">Crete · c. 1800–1450 BCE · Still undeciphered · The writing system of the Minoan civilization · One of archaeology's greatest mysteries</div>
+      <div class="card-tags">
+        <span class="tag difficulty-3">Advanced</span>
+        <span class="tag unicode">Unicode 7.0+</span>
+        <span class="tag">Undeciphered</span>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:#6a9a6a" data-types="ancient">
+      <div class="card-top">
+        <div class="card-glyph-area"><div class="card-glyph" style="font-size:1.6rem">ᚠ</div></div>
+        <div class="card-meta"><div class="card-status">Coming soon</div><div class="card-chars">24 runes</div></div>
+      </div>
+      <div class="card-name">Elder Futhark</div>
+      <div class="card-native">ᚠᚢᚦᚨᚱᚲ</div>
+      <div class="card-origin">Northern Europe · c. 150–800 CE · The original runic alphabet · Each rune has a name and symbolic meaning beyond its sound value</div>
+      <div class="card-tags">
+        <span class="tag difficulty-1">Beginner</span>
+        <span class="tag unicode">Unicode 3.0+</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-title">This is just the beginning.</div>
+  <p>Each script will get its own interactive learner — with a full character chart, cultural history, flashcard drills, and quiz modes. The Bamum module is live now. The rest are being built, one ancient alphabet at a time.</p>
+  <p style="margin-top:1rem;">Built by <a href="#">The ARX Foundation</a> · Data from Unicode Consortium, Omniglot, Endangered Alphabets Project, and Wikipedia</p>
+</div>
+
+<script>
+  // Filter logic
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.card');
+  const sections = document.querySelectorAll('.section');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+
+      if (f === 'all') {
+        cards.forEach(c => c.style.display = '');
+        sections.forEach(s => s.style.display = '');
+      } else {
+        cards.forEach(c => {
+          const types = c.dataset.types || '';
+          c.style.display = types.includes(f) ? '' : 'none';
+        });
+        sections.forEach(s => {
+          const visibleCards = s.querySelectorAll('.card:not([style*="display: none"])');
+          s.style.display = visibleCards.length === 0 ? 'none' : '';
+        });
+      }
+    });
+  });
+
+  // Subtle entrance animation
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  cards.forEach((c, i) => {
+    c.style.opacity = '0';
+    c.style.transform = 'translateY(20px)';
+    c.style.transition = `opacity 0.5s ${i * 0.05}s, transform 0.5s ${i * 0.05}s, background 0.3s, border-color 0.3s, box-shadow 0.3s`;
+    observer.observe(c);
+  });
+</script>
+</body>
+</html>

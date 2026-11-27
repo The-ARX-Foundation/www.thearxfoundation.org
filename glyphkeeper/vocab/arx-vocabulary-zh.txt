@@ -1,0 +1,230 @@
+GlyphKeeper 词汇表 (Vocabulary for Study)
+═══════════════════════════════════════════════════════════════════════════
+
+本表是你从 arx_network_topology.jsx 和相关代码中会看到的最高频字符。
+按出现频次排序（最常见的先）。
+
+推荐：在 GlyphKeeper 中创建名为 "ARX 网络项目" 的卡组，按下列顺序逐个添加。
+学完一组 (5-10 个字符) 后，再推进到下一组。
+
+
+【第1组】基础拓扑词汇 (Core Topology)
+────────────────────────────────
+
+节点  (jié diǎn)      Node              [频率: 15×]
+  笔画: 6
+  
+连接  (lián jiē)      Connection        [频率: 12×]
+  笔画: 10
+  Context: 节点间的连接线（connection lines）
+
+编码  (biān mǎ)       Encoding          [频率: 11×]
+  笔画: 12
+  Context: nD 编码、拓扑编码
+
+数据  (shù jù)        Data              [频率: 9×]
+  笔画: 10
+  Context: 数据流、数据位
+
+拓扑  (tuò pū)        Topology          [频率: 8×]
+  笔画: 8
+  Context: 网络拓扑、拓扑特征
+
+
+【第2组】网络概念 (Network Concepts)
+─────────────────────────────
+
+同步  (tóng bù)       Sync / Synchronize [频率: 9×]
+  笔画: 8
+  Context: 模拟同步、节点同步
+
+流    (liú)           Flow               [频率: 7×]
+  笔画: 5
+  Context: 数据流
+
+地理  (dì lǐ)         Geography          [频率: 6×]
+  笔画: 10
+  Context: 地理位置
+
+延迟  (yán chí)       Latency / Delay    [频率: 7×]
+  笔画: 10
+  Context: 节点间延迟、网络延迟
+
+镜像  (jìng xiàng)    Mirror             [频率: 4×]
+  笔画: 14
+  Context: 备份节点、mirror node
+
+
+【第3组】拓扑数学 (Topological Math)
+──────────────────────────
+
+贝蒂数 (bèi dì shù)   Betti number       [频率: 10×]
+  汉字: 贝 蒂 数 (3 字)
+  Context: β₀, β₁, β₂
+  笔画: 贝(9) + 蒂(13) + 数(13)
+
+环    (huán)          Loop / Cycle       [频率: 5×]
+  笔画: 8
+  Context: 拓扑环（H₁ 的几何意义）
+
+特征  (tè zhēng)      Feature            [频率: 8×]
+  笔画: 10
+  Context: 拓扑特征、持久特征
+
+持久度 (chí jiǔ dù)   Persistence        [频率: 6×]
+  汉字: 持(8) 久(3) 度(9)
+  Context: 持久性、生命周期
+
+容量  (rónɡ liàng)    Capacity           [频率: 7×]
+  笔画: 12
+  Context: 编码容量、纠正容量
+
+
+【第4组】错误和纠正 (Error & Correction)
+───────────────────────────
+
+错误  (cuò wù)        Error              [频率: 6×]
+  笔画: 10
+  Context: 错误率、错误检测
+
+纠正  (jiū zhèng)     Correct / Fix      [频率: 6×]
+  笔画: 10
+  Context: 错误纠正、自动纠正
+
+校验  (xiào yàn)      Checksum / Verify  [频率: 5×]
+  笔画: 12
+  Context: 校验位
+
+冗余  (rǒng yú)       Redundancy         [频率: 4×]
+  笔画: 12
+  Context: ECC 冗余
+
+
+【第5组】操作动词 (Action Verbs)
+──────────────────────
+
+显示  (xiǎn shì)      Show / Display     [频率: 4×]
+  笔画: 12
+  Context: 显示编码
+
+隐藏  (yǐn cáng)      Hide               [频率: 3×]
+  笔画: 10
+  Context: 隐藏编码
+
+计算  (jì suàn)       Calculate / Compute [频率: 5×]
+  笔画: 10
+  Context: 计算延迟、计算特征
+
+生成  (shēng chéng)   Generate           [频率: 4×]
+  笔画: 12
+  Context: 生成ECC、生成编码
+
+进度  (jìn dù)        Progress           [频率: 5×]
+  笔画: 12
+  Context: 同步进度
+
+
+【第6组】ARX 基础设施 (ARX Infrastructure)
+────────────────────────────
+
+基金会 (jī jīn huì)   Foundation         [频率: 3×]
+  汉字: 基(11) 金(8) 会(6)
+  Context: ARX 基金会
+
+锻造所 (duàn zào suǒ) Forge              [频率: 5×]
+  汉字: 锻(16) 造(10) 所(8)
+  Context: Forgejo / forge.arx.foundation
+  Note: 中文里 "锻造" = 锻铁所，所以 Forgejo ≈ 锻造所
+
+分布式 (fēn bù shì)   Distributed        [频率: 4×]
+  汉字: 分(4) 布(5) 式(6)
+  Context: 分布式节点
+
+镜像服务 (jìng xiàng  Mirror service     [频率: 2×]
+         fú wù)
+  Context: EU Mirror, US Mirror
+
+
+【第7组】参数和属性 (Parameters & Attributes)
+─────────────────────────────────
+
+名称  (míng chèn)     Name               [频率: 3×]
+  笔画: 12
+  Context: 节点名称
+
+坐标  (zuò biāo)      Coordinate         [频率: 3×]
+  笔画: 12
+  Context: 节点坐标
+
+颜色  (yán sè)        Color              [频率: 3×]
+  笔画: 12
+  Context: 节点颜色
+
+角色  (jué sè)        Role               [频率: 2×]
+  笔画: 10
+  Context: Primary vs Secondary
+
+文本  (wén běn)       Text               [频率: 4×]
+  笔画: 12
+  Context: 输入文本
+
+
+【第8组】高级概念 (Advanced Concepts)
+─────────────────────────
+
+持久同调 (chí jiǔ     Persistent         [频率: 3×]
+         tóng diào)   Homology
+  汉字: 持(8) 久(3) 同(6) 调(10)
+  Context: 持久同调编码、拓扑纠错
+
+Vietoris-Rips      (Vietoris-Rips)    [频率: 2×]
+复形    (fù xíng)    Complex
+  Context: 高维拓扑构造
+
+哈明码  (hā míng      Hamming Code       [频率: 2×]
+        mǎ)
+  Context: 错误纠正码原理
+
+
+═══════════════════════════════════════════════════════════════════════════
+学习建议 (Study Tips)
+═══════════════════════════════════════════════════════════════════════════
+
+1. 按组学习，每组 5-10 字符
+   推荐进度：每天 1 组 (5-10 分钟)
+
+2. 在 GlyphKeeper 中添加时，包含：
+   - 汉字
+   - 拼音 (pinyin)
+   - 英文
+   - 笔画数
+   - 你从代码里见过的具体用例
+
+3. 复习方式：
+   - 背景：打开 arx_network_topology.jsx，在代码注释里查找你正在学的字
+   - 实践：尝试在代码里找到该字出现的所有地方
+   - 记忆：GlyphKeeper 的 SRS（间隔重复）会帮你强化
+
+4. 拓展：
+   - 学完 §1 后，尝试读懂代码注释
+   - 学完 §3 后，理解拓扑概念的中文解释
+   - 学完全部 8 组后，能理解整个项目的核心概念
+
+═══════════════════════════════════════════════════════════════════════════
+快速索引 (Quick Index by Stroke Count)
+═══════════════════════════════════════════════════════════════════════════
+
+5 笔:  流
+6 笔:  节
+8 笔:  拓、特、错、纠、隐、同、贝、坐
+10 笔: 连、拓、延、编、特、整、检、隐、角、镜、文、基、式、名、题、角
+12 笔: 数、编、延、显、容、同、计、校、生、金、进、坐、颜、文
+
+═══════════════════════════════════════════════════════════════════════════
+
+版本：1.0
+项目：ARX Network Topology
+语言：Mandarin Chinese (Simplified)
+建议工具：GlyphKeeper (手机学习)
+
+═══════════════════════════════════════════════════════════════════════════

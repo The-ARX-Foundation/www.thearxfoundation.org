@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glyphkeeper — Review Session</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --rust: #7A3A1A;
+      --cream: #F5EFE4;
+      --ink: #2C2418;
+      --sage: #4A6741;
+      --amber: #B8860B;
+      --teal: #00a89b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--cream);
+      color: var(--ink);
+      padding: 24px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #ddd;
+    }
+    .title { font-family: 'Playfair Display', serif; font-size: 1.8rem; }
+    .stats-bar {
+      display: flex;
+      gap: 24px;
+      font-size: 0.85rem;
+    }
+    .stat { display: flex; flex-direction: column; }
+    .stat-label { color: #666; text-transform: uppercase; font-size: 0.7rem; }
+    .stat-value { font-weight: bold; font-size: 1.1rem; color: var(--rust); }
+    
+    .view-selector {
+      margin-bottom: 32px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .script-btn {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.2s;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .script-btn:hover {
+      border-color: var(--rust);
+      box-shadow: 0 2px 8px rgba(122, 58, 26, 0.1);
+    }
+    .script-btn.active {
+      background: var(--rust);
+      color: #fff;
+      border-color: var(--rust);
+    }
+    .script-name { font-weight: 600; margin-bottom: 4px; }
+    .script-info { font-size: 0.75rem; opacity: 0.7; }
+    
+    .review-session {
+      display: none;
+    }
+    .review-session.active {
+      display: block;
+    }
+    
+    .card-front {
+      background: #fff;
+      border: 2px solid var(--rust);
+      border-radius: 6px;
+      padding: 48px 24px;
+      text-align: center;
+      margin-bottom: 32px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .card-front:hover {
+      box-shadow: 0 8px 24px rgba(122, 58, 26, 0.2);
+    }
+    .glyph-display {
+      font-size: 4rem;
+      margin-bottom: 16px;
+      font-weight: bold;
+      color: var(--rust);
+    }
+    .card-prompt {
+      font-size: 0.85rem;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .card-back {
+      background: #fff;
+      border: 2px solid var(--sage);
+      border-radius: 6px;
+      padding: 32px;
+      margin-bottom: 32px;
+      display: none;
+    }
+    .card-back.revealed {
+      display: block;
+    }
+    
+    .back-row {
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eee;
+    }
+    .back-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .back-content {
+      font-size: 1.1rem;
+      color: var(--ink);
+    }
+    
+    .quality-buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .quality-btn {
+      padding: 12px;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .quality-btn:hover { opacity: 0.8; }
+    .quality-btn.q0 { border-color: #d84040; color: #d84040; }
+    .quality-btn.q1 { border-color: #ff8c42; color: #ff8c42; }
+    .quality-btn.q2 { border-color: #ffc857; color: #ffc857; }
+    .quality-btn.q3 { border-color: var(--sage); color: var(--sage); }
+    .quality-btn.q4, .quality-btn.q5 { border-color: var(--teal); color: var(--teal); }
+    .quality-btn:active { opacity: 0.6; }
+    
+    .sm2-preview {
+      background: rgba(122, 58, 26, 0.05);
+      border-left: 3px solid var(--rust);
+      padding: 16px;
+      margin-bottom: 24px;
+      border-radius: 2px;
+      font-size: 0.85rem;
+    }
+    .sm2-label { color: #666; text-transform: uppercase; margin-bottom: 8px; font-size: 0.7rem; }
+    .sm2-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .sm2-key { color: #666; }
+    .sm2-val { font-weight: 600; color: var(--ink); }
+    
+    .session-end {
+      text-align: center;
+      padding: 48px 24px;
+      background: #fff;
+      border-radius: 6px;
+    }
+    .session-end-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      margin-bottom: 16px;
+    }
+    .session-stats {
+      margin-bottom: 32px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .end-stat {
+      background: #f5f5f5;
+      padding: 16px;
+      border-radius: 3px;
+    }
+    .end-stat-value { font-size: 1.4rem; font-weight: bold; color: var(--rust); margin-bottom: 4px; }
+    .end-stat-label { font-size: 0.75rem; color: #666; text-transform: uppercase; }
+    
+    .button {
+      background: var(--rust);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+    .button:hover { opacity: 0.85; }
+    .button-secondary {
+      background: var(--sage);
+      margin-right: 8px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      background: #fff;
+      border-radius: 6px;
+    }
+    .empty-state-icon { font-size: 3rem; margin-bottom: 16px; }
+    .empty-state-text { color: #666; margin-bottom: 24px; }
+  </style>
+</head>
+<body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="../index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+
+<div class="container">
+  <div class="header">
+    <div class="title">Review Session</div>
+    <div class="stats-bar">
+      <div class="stat">
+        <span class="stat-label">Queue</span>
+        <span class="stat-value" id="queueCount">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Correct</span>
+        <span class="stat-value" id="correctCount">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Streak</span>
+        <span class="stat-value" id="streak">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT SELECTOR -->
+  <div class="view-selector" id="scriptSelector"></div>
+
+  <!-- REVIEW SESSIONS -->
+  <div id="reviewContainer"></div>
+</div>
+
+<script>
+// SM-2 Implementation
+const SM2 = {
+  init: () => ({
+    interval: 1,
+    ease_factor: 2.5,
+    repetitions: 0,
+    next_review: new Date().toISOString(),
+    state: 'new'
+  }),
+  
+  update: (card, quality) => {
+    if (quality >= 3) {
+      if (card.repetitions === 0) card.interval = 1;
+      else if (card.repetitions === 1) card.interval = 6;
+      else card.interval = Math.round(card.interval * card.ease_factor);
+      
+      card.repetitions += 1;
+      card.ease_factor = Math.max(1.3, card.ease_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
+      
+      if (card.repetitions >= 2 && card.interval > 20) card.state = 'mature';
+      else if (card.repetitions >= 1) card.state = 'review';
+      else card.state = 'learning';
+    } else {
+      card.repetitions = 0;
+      card.interval = 1;
+      card.state = 'learning';
+    }
+    
+    const next = new Date();
+    next.setDate(next.getDate() + card.interval);
+    card.next_review = next.toISOString();
+    
+    return card;
+  }
+};
+
+// Storage
+const Storage = {
+  KEY: 'glyphkeeper_sr_data',
+  get: () => {
+    try {
+      const stored = localStorage.getItem(Storage.KEY);
+      return stored ? JSON.parse(stored) : {};
+    } catch (e) {
+      return {};
+    }
+  },
+  set: (data) => {
+    try {
+      localStorage.setItem(Storage.KEY, JSON.stringify(data));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+};
+
+// Script database with character mappings
+const SCRIPT_DATA = {
+  mandarin: {
+    name: 'Mandarin (Token-Optimized)',
+    chars: [
+      { g: '的', m: 'possessive particle', py: 'de' },
+      { g: '一', m: 'one', py: 'yī' },
+      { g: '是', m: 'to be', py: 'shì' },
+      { g: '在', m: 'at/exist', py: 'zài' },
+      { g: '不', m: 'not', py: 'bù' },
+      { g: '了', m: 'perfective particle', py: 'le' },
+      { g: '有', m: 'have', py: 'yǒu' },
+      { g: '人', m: 'person', py: 'rén' },
+      { g: '这', m: 'this', py: 'zhè' },
+      { g: '中', m: 'middle/China', py: 'zhōng' },
+      { g: '大', m: 'big', py: 'dà' },
+      { g: '为', m: 'for/because', py: 'wèi' },
+      { g: '上', m: 'up', py: 'shàng' },
+      { g: '个', m: 'measure word', py: 'ge' },
+      { g: '国', m: 'country', py: 'guó' },
+      { g: '我', m: 'I/me', py: 'wǒ' },
+      { g: '以', m: 'use/with', py: 'yǐ' },
+      { g: '要', m: 'want/need', py: 'yào' },
+      { g: '他', m: 'he/him', py: 'tā' },
+      { g: '也', m: 'also', py: 'yě' }
+    ]
+  },
+  yi: {
+    name: 'Yi Syllabary',
+    chars: [
+      { g: 'ꀀ', m: 'a (low tone)', py: 'a' },
+      { g: 'ꀁ', m: 'a (high tone)', py: 'á' },
+      { g: 'ꀈ', m: 'pa (mid)', py: 'pa' },
+      { g: 'ꀉ', m: 'pa (high)', py: 'pá' },
+      { g: 'ꀚ', m: 'ba (mid)', py: 'ba' },
+      { g: 'ꀛ', m: 'ba (high)', py: 'bá' },
+      { g: 'ꀨ', m: 'ta (mid)', py: 'ta' },
+      { g: 'ꀩ', m: 'ta (high)', py: 'tá' },
+      { g: 'ꀴ', m: 'da (mid)', py: 'da' },
+      { g: 'ꀵ', m: 'da (high)', py: 'dá' }
+    ]
+  },
+  vai: {
+    name: 'Vai Syllabary',
+    chars: [
+      { g: 'ꕙ', m: 'a', py: 'a' },
+      { g: 'ꔞ', m: 'e', py: 'e' },
+      { g: 'ꕎ', m: 'i', py: 'i' },
+      { g: 'ꕁ', m: 'o', py: 'o' },
+      { g: 'ꕒ', m: 'u', py: 'u' },
+      { g: 'ꔟ', m: 'ka', py: 'ka' },
+      { g: 'ꔛ', m: 'sa', py: 'sa' },
+      { g: 'ꔬ', m: 'ga', py: 'ga' },
+      { g: 'ꔯ', m: 'pa', py: 'pa' },
+      { g: 'ꖚ', m: 'wa', py: 'wa' }
+    ]
+  },
+  egyptian: {
+    name: 'Egyptian Hieroglyphs',
+    chars: [
+      { g: '𓅿', m: 'aleph (glottal stop)', trans: 'ꜣ' },
+      { g: '𓇌', m: 'reed (y sound)', trans: 'j' },
+      { g: '𓁐', m: 'arm', trans: 'ꜥ' },
+      { g: '𓆑', m: 'quail chick', trans: 'w' },
+      { g: '𓃀', m: 'foot', trans: 'b' },
+      { g: '𓆔', m: 'stool', trans: 'p' },
+      { g: '𓎡', m: 'horned viper', trans: 'f' },
+      { g: '𓐁', m: 'owl', trans: 'm' },
+      { g: '𓎼', m: 'water', trans: 'n' },
+      { g: '𓅬', m: 'mouth', trans: 'r' }
+    ]
+  },
+  japanese: {
+    name: 'Japanese Kanji (N5)',
+    chars: [
+      { g: '一', m: 'one', on: 'ichi', kun: 'hito' },
+      { g: '二', m: 'two', on: 'ni', kun: 'futa' },
+      { g: '三', m: 'three', on: 'san', kun: 'mi' },
+      { g: '日', m: 'day/sun', on: 'nichi', kun: 'hi' },
+      { g: '月', m: 'month/moon', on: 'getsu', kun: 'tsuki' },
+      { g: '年', m: 'year', on: 'nen', kun: 'toshi' },
+      { g: '人', m: 'person', on: 'jin', kun: 'hito' },
+      { g: '女', m: 'woman', on: 'jo', kun: 'onna' },
+      { g: '男', m: 'man', on: 'dan', kun: 'otoko' },
+      { g: '子', m: 'child', on: 'shi', kun: 'ko' }
+    ]
+  }
+};
+
+let currentScript = null;
+let currentIndex = 0;
+let sessionQueue = [];
+let sessionStats = { correct: 0, attempted: 0, streak: 0 };
+
+// Initialize
+function init() {
+  renderScriptSelector();
+}
+
+function renderScriptSelector() {
+  const container = document.getElementById('scriptSelector');
+  let html = '';
+  
+  Object.entries(SCRIPT_DATA).forEach(([id, data]) => {
+    html += `
+      <button class="script-btn" onclick="startSession('${id}')">
+        <div class="script-name">${data.name}</div>
+        <div class="script-info">${data.chars.length} characters</div>
+      </button>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+function startSession(scriptId) {
+  currentScript = scriptId;
+  const data = Storage.get();
+  const scriptData = SCRIPT_DATA[scriptId];
+  
+  // Build review queue: due cards first, then new cards
+  sessionQueue = [];
+  const now = new Date();
+  
+  scriptData.chars.forEach((char, idx) => {
+    const cardId = idx.toString();
+    if (!data[scriptId]) data[scriptId] = {};
+    if (!data[scriptId][cardId]) {
+      data[scriptId][cardId] = SM2.init();
+    }
+    
+    const card = data[scriptId][cardId];
+    const nextReview = new Date(card.next_review);
+    
+    if (nextReview <= now || card.state === 'new') {
+      sessionQueue.push({ idx, char, card, cardId });
+    }
+  });
+  
+  // Sort: due first
+  sessionQueue.sort((a, b) => new Date(a.card.next_review) - new Date(b.card.next_review));
+  
+  currentIndex = 0;
+  sessionStats = { correct: 0, attempted: 0, streak: 0 };
+  
+  renderSession();
+}
+
+function renderSession() {
+  if (currentIndex >= sessionQueue.length) {
+    renderSessionEnd();
+    return;
+  }
+  
+  const container = document.getElementById('reviewContainer');
+  const item = sessionQueue[currentIndex];
+  const card = item.char;
+  
+  let backContent = `<div class="back-row"><div class="back-label">Meaning</div><div class="back-content">${card.m}</div></div>`;
+  
+  if (card.py) backContent += `<div class="back-row"><div class="back-label">Pinyin</div><div class="back-content">${card.py}</div></div>`;
+  if (card.trans) backContent += `<div class="back-row"><div class="back-label">Transliteration</div><div class="back-content">${card.trans}</div></div>`;
+  if (card.on) {
+    backContent += `<div class="back-row"><div class="back-label">On'yomi</div><div class="back-content">${card.on}</div></div>`;
+    backContent += `<div class="back-row"><div class="back-label">Kun'yomi</div><div class="back-content">${card.kun}</div></div>`;
+  }
+  
+  const qualityButtons = [0, 1, 2, 3, 4, 5].map(q => {
+    const labels = ['Forgot', 'Hard', 'Difficult', 'Fair', 'Good', 'Perfect'];
+    return `<button class="quality-btn q${q}" onclick="recordResponse(${q})">${labels[q]}</button>`;
+  }).join('');
+  
+  const sm2Prev = `
+    <div class="sm2-row">
+      <span class="sm2-key">Interval:</span>
+      <span class="sm2-val">${item.card.interval} days</span>
+    </div>
+    <div class="sm2-row">
+      <span class="sm2-key">Ease:</span>
+      <span class="sm2-val">${item.card.ease_factor.toFixed(2)}</span>
+    </div>
+    <div class="sm2-row">
+      <span class="sm2-key">Reps:</span>
+      <span class="sm2-val">${item.card.repetitions}</span>
+    </div>
+    <div class="sm2-row">
+      <span class="sm2-key">State:</span>
+      <span class="sm2-val">${item.card.state}</span>
+    </div>
+  `;
+  
+  const html = `
+    <div class="review-session active" id="reviewSession">
+      <div style="margin-bottom: 32px;">
+        <div style="text-align: center; font-size: 0.85rem; color: #999; margin-bottom: 8px;">
+          Card ${currentIndex + 1} of ${sessionQueue.length}
+        </div>
+        <div style="width: 100%; height: 6px; background: #eee; border-radius: 3px; overflow: hidden;">
+          <div style="width: ${(currentIndex / sessionQueue.length) * 100}%; height: 100%; background: var(--rust);"></div>
+        </div>
+      </div>
+      
+      <div class="card-front" onclick="toggleRevealed()">
+        <div class="glyph-display">${card.g}</div>
+        <div class="card-prompt">Click to reveal</div>
+      </div>
+      
+      <div class="card-back" id="cardBack">
+        ${backContent}
+      </div>
+      
+      <div class="sm2-preview">
+        <div class="sm2-label">Current SM-2 State</div>
+        ${sm2Prev}
+      </div>
+      
+      <div class="quality-buttons">
+        ${qualityButtons}
+      </div>
+    </div>
+  `;
+  
+  container.innerHTML = html;
+  updateStats();
+}
+
+function toggleRevealed() {
+  const back = document.getElementById('cardBack');
+  back.classList.toggle('revealed');
+}
+
+function recordResponse(quality) {
+  const item = sessionQueue[currentIndex];
+  const data = Storage.get();
+  
+  if (!data[currentScript]) data[currentScript] = {};
+  
+  // Update card
+  item.card = SM2.update(item.card, quality);
+  data[currentScript][item.cardId] = item.card;
+  Storage.set(data);
+  
+  // Update session stats
+  sessionStats.attempted++;
+  if (quality >= 3) {
+    sessionStats.correct++;
+    sessionStats.streak++;
+  } else {
+    sessionStats.streak = 0;
+  }
+  
+  // Next card
+  currentIndex++;
+  renderSession();
+}
+
+function updateStats() {
+  document.getElementById('queueCount').textContent = sessionQueue.length - currentIndex;
+  document.getElementById('correctCount').textContent = sessionStats.correct;
+  document.getElementById('streak').textContent = sessionStats.streak;
+}
+
+function renderSessionEnd() {
+  const accuracy = sessionStats.attempted > 0 ? Math.round((sessionStats.correct / sessionStats.attempted) * 100) : 0;
+  
+  const container = document.getElementById('reviewContainer');
+  const html = `
+    <div class="session-end">
+      <div class="session-end-title">Session Complete</div>
+      <div class="session-stats">
+        <div class="end-stat">
+          <div class="end-stat-value">${sessionStats.attempted}</div>
+          <div class="end-stat-label">Cards Reviewed</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-value">${accuracy}%</div>
+          <div class="end-stat-label">Accuracy</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-value">${sessionStats.streak}</div>
+          <div class="end-stat-label">Current Streak</div>
+        </div>
+      </div>
+      <button class="button button-secondary" onclick="location.reload()">Back to Dashboard</button>
+      <button class="button" onclick="startSession('${currentScript}')">Continue Reviewing</button>
+    </div>
+  `;
+  
+  container.innerHTML = html;
+}
+
+init();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glyphkeeper: Trithemian Cipher Systems</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --parchment: #F5EFE4;
+            --rust: #7A3A1A;
+            --rust-light: #A85835;
+            --rust-dark: #5C2814;
+            --ink: #2A2419;
+            --ink-light: #4A4439;
+            --accent-gold: #C9A961;
+            --accent-indigo: #4A5568;
+        }
+
+        body {
+            font-family: Georgia, 'EB Garamond', serif;
+            background: var(--parchment);
+            color: var(--ink);
+            line-height: 1.6;
+            padding: 2rem;
+            background-image: 
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" /><feColorMatrix type="saturate" values="0"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.03"/></svg>');
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 3px solid var(--rust);
+            padding-bottom: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--rust-dark);
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--ink-light);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .intro-note {
+            background: rgba(122, 58, 26, 0.05);
+            border-left: 4px solid var(--rust);
+            padding: 1.5rem;
+            margin-bottom: 3rem;
+            font-style: italic;
+        }
+
+        .script-section {
+            margin-bottom: 4rem;
+            border-top: 1px solid var(--rust-light);
+            padding-top: 2rem;
+        }
+
+        .script-header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 2rem;
+            align-items: start;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--rust);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .script-meta {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--ink-light);
+            text-align: right;
+            line-height: 1.8;
+        }
+
+        .script-meta strong {
+            color: var(--rust);
+        }
+
+        .context {
+            background: rgba(74, 85, 104, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 2px;
+        }
+
+        .context h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--accent-indigo);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .character-card {
+            background: white;
+            border: 2px solid var(--rust-light);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .character-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(122, 58, 26, 0.15);
+            border-color: var(--rust);
+        }
+
+        .glyph {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            color: var(--rust-dark);
+            font-weight: 300;
+        }
+
+        .char-latin {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.25rem;
+            color: var(--ink);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .char-name {
+            font-size: 0.7rem;
+            color: var(--ink-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .usage-note {
+            background: rgba(201, 169, 97, 0.1);
+            border-left: 3px solid var(--accent-gold);
+            padding: 1rem;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .cipher-example {
+            background: white;
+            border: 1px solid var(--rust-light);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .cipher-example h4 {
+            font-family: Georgia, serif;
+            color: var(--rust);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .cipher-row {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(122, 58, 26, 0.1);
+        }
+
+        .cipher-row:last-child {
+            border-bottom: none;
+        }
+
+        .cipher-label {
+            color: var(--rust);
+            font-weight: 600;
+        }
+
+        .spirit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .spirit-card {
+            background: white;
+            border: 2px solid var(--accent-indigo);
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .spirit-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 85, 104, 0.2);
+        }
+
+        .spirit-name {
+            font-size: 1.25rem;
+            color: var(--rust-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .spirit-direction {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-indigo);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .spirit-specialty {
+            font-size: 0.85rem;
+            color: var(--ink-light);
+            font-style: italic;
+        }
+
+        .sigil-placeholder {
+            width: 80px;
+            height: 80px;
+            margin: 1rem auto;
+            background: rgba(122, 58, 26, 0.05);
+            border: 2px dashed var(--rust-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--ink-light);
+        }
+
+        .alchemical-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .alchemical-card {
+            background: white;
+            border: 2px solid var(--accent-gold);
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+
+        .alchemical-symbol {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--rust);
+        }
+
+        .alchemical-name {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--ink);
+            margin-bottom: 0.25rem;
+        }
+
+        .alchemical-meaning {
+            font-size: 0.7rem;
+            color: var(--ink-light);
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--rust-light);
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--ink-light);
+        }
+
+        .data-export {
+            background: var(--ink-dark);
+            color: var(--parchment);
+            padding: 2rem;
+            margin: 3rem 0;
+            border-radius: 2px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+        }
+
+        .data-export h3 {
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .integration-note {
+            background: rgba(122, 58, 26, 0.1);
+            border: 2px dashed var(--rust);
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .integration-note h3 {
+            color: var(--rust-dark);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+    <div class="container">
+        <header>
+            <h1>Glyphkeeper Extension: Trithemian Cipher Systems</h1>
+            <div class="subtitle">Cryptographic Angel Magic • Johannes Trithemius • c. 1499–1518</div>
+        </header>
+
+        <div class="intro-note">
+            <strong>Integration Note:</strong> These cipher systems represent a unique convergence of practical cryptography, magical symbolism, and spiritual technology. Unlike phonetic scripts, these are <em>operational systems</em> where the "reading" of a glyph involves executing an encryption/decryption protocol. Extracted from Dr. Justin Sledge's comprehensive lecture on Trithemius's <em>Ars Steganographia</em> and related works (March 2026).
+        </div>
+
+        <!-- THEBAN ALPHABET -->
+        <section class="script-section">
+            <div class="script-header">
+                <div>
+                    <h2>Theban Alphabet</h2>
+                    <p style="font-style: italic; color: var(--ink-light);">The Honorian Script / Witches' Alphabet</p>
+                </div>
+                <div class="script-meta">
+                    <div><strong>Origin:</strong> Trithemius, Polygraphia (1518)</div>
+                    <div><strong>Characters:</strong> 24</div>
+                    <div><strong>Type:</strong> Latin substitution cipher</div>
+                    <div><strong>Direction:</strong> Left-to-right</div>
+                    <div><strong>Status:</strong> Actively used in modern practice</div>
+                </div>
+            </div>
+
+            <div class="context">
+                <h3>Historical Context</h3>
+                <p>Attributed to the fictional "Honorius of Thebes" in Trithemius's cryptographic manual <em>Polygraphia</em>. Despite dubious origins, it became foundational to Western ceremonial magic after being reprinted by Agrippa in <em>Three Books of Occult Philosophy</em> (1533). Still widely used in contemporary Wicca and ceremonial magic for inscribing ritual tools, Books of Shadows, and sacred texts.</p>
+            </div>
+
+            <div class="usage-note">
+                <strong>Glyphkeeper Practice Strategy:</strong> One-to-one Latin mapping makes this ideal for beginner cipher work. Practice by transcribing short English phrases, then progress to copying historical grimoire passages. The simplicity masks profound lineage — every glyph connects to 500+ years of Western occult tradition.
+            </div>
+
+            <div class="character-grid">
+                <div class="character-card">
+                    <div class="glyph">𐌀</div>
+                    <div class="char-latin">A</div>
+                    <div class="char-name">Alpha</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌁</div>
+                    <div class="char-latin">B</div>
+                    <div class="char-name">Beth</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌂</div>
+                    <div class="char-latin">C</div>
+                    <div class="char-name">Coph</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌃</div>
+                    <div class="char-latin">D</div>
+                    <div class="char-name">Daleth</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌄</div>
+                    <div class="char-latin">E</div>
+                    <div class="char-name">Epsilon</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌅</div>
+                    <div class="char-latin">F</div>
+                    <div class="char-name">Phi</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌆</div>
+                    <div class="char-latin">G</div>
+                    <div class="char-name">Gamma</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌇</div>
+                    <div class="char-latin">H</div>
+                    <div class="char-name">Heth</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌈</div>
+                    <div class="char-latin">I/J</div>
+                    <div class="char-name">Iota</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌊</div>
+                    <div class="char-latin">K</div>
+                    <div class="char-name">Kappa</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌋</div>
+                    <div class="char-latin">L</div>
+                    <div class="char-name">Lambda</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌌</div>
+                    <div class="char-latin">M</div>
+                    <div class="char-name">Mu</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌍</div>
+                    <div class="char-latin">N</div>
+                    <div class="char-name">Nu</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌎</div>
+                    <div class="char-latin">O</div>
+                    <div class="char-name">Omicron</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌐</div>
+                    <div class="char-latin">P</div>
+                    <div class="char-name">Pi</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌒</div>
+                    <div class="char-latin">Q</div>
+                    <div class="char-name">Qoph</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌓</div>
+                    <div class="char-latin">R</div>
+                    <div class="char-name">Rho</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌔</div>
+                    <div class="char-latin">S</div>
+                    <div class="char-name">Sigma</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌕</div>
+                    <div class="char-latin">T</div>
+                    <div class="char-name">Tau</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌖</div>
+                    <div class="char-latin">U/V</div>
+                    <div class="char-name">Upsilon</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌚</div>
+                    <div class="char-latin">W</div>
+                    <div class="char-name">Waw</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌗</div>
+                    <div class="char-latin">X</div>
+                    <div class="char-name">Xi</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌙</div>
+                    <div class="char-latin">Y</div>
+                    <div class="char-name">Psi</div>
+                </div>
+                <div class="character-card">
+                    <div class="glyph">𐌆</div>
+                    <div class="char-latin">Z</div>
+                    <div class="char-name">Zeta</div>
+                </div>
+            </div>
+
+            <div class="cipher-example">
+                <h4>Practice Phrase</h4>
+                <div class="cipher-row">
+                    <div class="cipher-label">Plaintext:</div>
+                    <div>ARCANA ARCANORUM</div>
+                </div>
+                <div class="cipher-row">
+                    <div class="cipher-label">Theban:</div>
+                    <div>𐌀𐌓𐌂𐌀𐌍𐌀 𐌀𐌓𐌂𐌀𐌍𐌎𐌓𐌖𐌌</div>
+                </div>
+                <div class="cipher-row">
+                    <div class="cipher-label">Usage:</div>
+                    <div style="font-style: italic; color: var(--ink-light);">Inscribe on ritual tools, title pages of grimoires, protective sigils</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEGANOGRAPHIC SIGILS -->
+        <section class="script-section">
+            <div class="script-header">
+                <div>
+                    <h2>Steganographic Spirit Sigils</h2>
+                    <p style="font-style: italic; color: var(--ink-light);">Angelic Cipher Keys from the Ars Steganographia</p>
+                </div>
+                <div class="script-meta">
+                    <div><strong>Origin:</strong> Trithemius, c. 1499–1500s</div>
+                    <div><strong>Sigils:</strong> 67+ distinct glyphs</div>
+                    <div><strong>Type:</strong> Cipher key identification system</div>
+                    <div><strong>Structure:</strong> Regional (32) + Wandering (11) + Temporal (24)</div>
+                </div>
+            </div>
+
+            <div class="context">
+                <h3>Cryptographic Theory</h3>
+                <p>Each sigil identifies a specific encryption protocol hidden within the spirit's conjuration. The "angel magic" layer is a steganographic cover — the real message is encoded in the Latin invocations using variable skip patterns, alternating word extraction, and positional ciphers. Trithemius stressed perfect sigil copying not for magical reasons but to preserve cipher key integrity. A corrupted sigil = a corrupted decryption method.</p>
+            </div>
+
+            <div class="usage-note">
+                <strong>Design Philosophy:</strong> Deliberately subtle glyphs meant to pass as medieval manuscript abbreviations or calligraphic flourishes to untrained eyes. Security through obscurity — the Inquisition wouldn't recognize these as magical unless they already knew what to look for.
+            </div>
+
+            <h3 style="margin: 2rem 0 1rem; color: var(--rust); font-size: 1.5rem;">Regional Spirits (Compass Points)</h3>
+            <p style="margin-bottom: 1.5rem; font-style: italic;">These spirits govern cardinal and ordinal directions. Each encodes a different substitution or transposition cipher.</p>
+
+            <div class="spirit-grid">
+                <div class="spirit-card">
+                    <div class="spirit-name">Pamersiel</div>
+                    <div class="spirit-direction">East</div>
+                    <div class="sigil-placeholder">Sigil 1</div>
+                    <div class="spirit-specialty">Troublesome spirits, not for beginners. Complex cipher system.</div>
+                </div>
+                <div class="spirit-card">
+                    <div class="spirit-name">Padiel</div>
+                    <div class="spirit-direction">East-Southeast</div>
+                    <div class="sigil-placeholder">Sigil 2</div>
+                    <div class="spirit-specialty">"Kind, quiet, tranquil" — alternating word cipher. Specializes in messages about detaining criminals.</div>
+                </div>
+                <div class="spirit-card">
+                    <div class="spirit-name">Camuel</div>
+                    <div class="spirit-direction">Southeast</div>
+                    <div class="sigil-placeholder">Sigil 3</div>
+                    <div class="spirit-specialty">Skip-pattern cipher with null headers.</div>
+                </div>
+                <div class="spirit-card">
+                    <div class="spirit-name">Aseliel</div>
+                    <div class="spirit-direction">South-Southeast</div>
+                    <div class="sigil-placeholder">Sigil 4</div>
+                    <div class="spirit-specialty">First-letter extraction method.</div>
+                </div>
+                <div class="spirit-card">
+                    <div class="spirit-name">Barmiel</div>
+                    <div class="spirit-direction">South</div>
+                    <div class="sigil-placeholder">Sigil 5</div>
+                    <div class="spirit-specialty">Positional substitution cipher.</div>
+                </div>
+                <div class="spirit-card">
+                    <div class="spirit-name">Gediel</div>
+                    <div class="spirit-direction">South-Southwest</div>
+                    <div class="sigil-placeholder">Sigil 6</div>
+                    <div class="spirit-specialty">Word-reversal with skip pattern.</div>
+                </div>
+            </div>
+
+            <div class="cipher-example">
+                <h4>Decryption Example: Padiel (East-Southeast)</h4>
+                <div class="cipher-row">
+                    <div class="cipher-label">Conjuration:</div>
+                    <div style="font-style: italic;">[Latin invocation text with embedded cipher instructions]</div>
+                </div>
+                <div class="cipher-row">
+                    <div class="cipher-label">Key:</div>
+                    <div>"Skip every other word, read alternating letters, first/last words are nulls"</div>
+                </div>
+                <div class="cipher-row">
+                    <div class="cipher-label">Plaintext:</div>
+                    <div style="font-style: italic;">[Pious Latin prayer about Christ's mercy]</div>
+                </div>
+                <div class="cipher-row">
+                    <div class="cipher-label">Hidden Text:</div>
+                    <div style="color: var(--rust); font-weight: 600;">[German message: "Detain the bearer until our arrival"]</div>
+                </div>
+            </div>
+
+            <h3 style="margin: 3rem 0 1rem; color: var(--rust); font-size: 1.5rem;">Wandering Dukes (Elemental/Terrestrial)</h3>
+            <p style="margin-bottom: 1.5rem; font-style: italic;">Non-directional spirits associated with elements, underworld regions, and terrestrial zones. 11 additional cipher protocols.</p>
+
+            <div class="integration-note">
+                <h3>Glyphkeeper Integration Challenge</h3>
+                <p>Unlike phonetic scripts, these sigils are <em>operational</em> — learning them means understanding the cipher protocol each represents. Recommended practice structure:</p>
+                <ul style="margin-top: 1rem; margin-left: 1.5rem; line-height: 1.8;">
+                    <li><strong>Phase 1:</strong> Visual recognition of sigil → spirit name/direction</li>
+                    <li><strong>Phase 2:</strong> Sigil → cipher protocol type (alternating, skip, positional, etc.)</li>
+                    <li><strong>Phase 3:</strong> Full encode/decode exercises using historical examples</li>
+                    <li><strong>Phase 4:</strong> Create original encrypted messages using period-appropriate Latin</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ALCHEMICAL CIPHER -->
+        <section class="script-section">
+            <div class="script-header">
+                <div>
+                    <h2>Polygraphic Alchemical Cipher</h2>
+                    <p style="font-style: italic; color: var(--ink-light);">Alchemical Symbols as Cryptographic Alphabet</p>
+                </div>
+                <div class="script-meta">
+                    <div><strong>Origin:</strong> Trithemius, Polygraphia (1518)</div>
+                    <div><strong>Symbols:</strong> ~30 core glyphs</div>
+                    <div><strong>Type:</strong> Substitution cipher using traditional alchemical notation</div>
+                    <div><strong>Cover:</strong> Appears as legitimate alchemical notes</div>
+                </div>
+            </div>
+
+            <div class="context">
+                <h3>Metaphysical Justification</h3>
+                <p>Trithemius argued that manipulating symbolic language — whether Hebrew divine names, Pythagorean numerology, or alchemical glyphs — was spiritually transformative. Encryption itself became a path to divine illumination: <em>"the soul can reach from earth to heaven"</em> through linguistic manipulation. This fusion of semiotics and ontology made cryptography a sacred art, not merely a practical technique.</p>
+            </div>
+
+            <div class="usage-note">
+                <strong>Historical Context:</strong> Created plausible deniability for political/military intelligence. An alchemical manuscript could conceal state secrets, military movements, or espionage reports while appearing to be harmless metallurgical research. If intercepted, it looked like gold-making delusions rather than treason.
+            </div>
+
+            <div class="alchemical-grid">
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">☉</div>
+                    <div class="alchemical-name">Sol</div>
+                    <div class="alchemical-meaning">Gold / Sun</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">☾</div>
+                    <div class="alchemical-name">Luna</div>
+                    <div class="alchemical-meaning">Silver / Moon</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">☿</div>
+                    <div class="alchemical-name">Mercurius</div>
+                    <div class="alchemical-meaning">Mercury / Quicksilver</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">♀</div>
+                    <div class="alchemical-name">Venus</div>
+                    <div class="alchemical-meaning">Copper</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">♂</div>
+                    <div class="alchemical-name">Mars</div>
+                    <div class="alchemical-meaning">Iron</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">♃</div>
+                    <div class="alchemical-name">Jupiter</div>
+                    <div class="alchemical-meaning">Tin</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">♄</div>
+                    <div class="alchemical-name">Saturn</div>
+                    <div class="alchemical-meaning">Lead</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">🜁</div>
+                    <div class="alchemical-name">Ignis</div>
+                    <div class="alchemical-meaning">Fire</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">🜂</div>
+                    <div class="alchemical-name">Aer</div>
+                    <div class="alchemical-meaning">Air</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">🜃</div>
+                    <div class="alchemical-name">Terra</div>
+                    <div class="alchemical-meaning">Earth</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">🜄</div>
+                    <div class="alchemical-name">Aqua</div>
+                    <div class="alchemical-meaning">Water</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">🜍</div>
+                    <div class="alchemical-name">Sal</div>
+                    <div class="alchemical-meaning">Salt</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">🜏</div>
+                    <div class="alchemical-name">Sulfur</div>
+                    <div class="alchemical-meaning">Sulfur / Soul</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">🜔</div>
+                    <div class="alchemical-name">Amalgam</div>
+                    <div class="alchemical-meaning">Mercury amalgam</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">🜕</div>
+                    <div class="alchemical-name">Vinegar</div>
+                    <div class="alchemical-meaning">Acidic solvent</div>
+                </div>
+                <div class="alchemical-card">
+                    <div class="alchemical-symbol">🜖</div>
+                    <div class="alchemical-name">Sublimate</div>
+                    <div class="alchemical-meaning">Purified substance</div>
+                </div>
+            </div>
+
+            <div class="cipher-example">
+                <h4>Encoding Strategy</h4>
+                <div class="cipher-row">
+                    <div class="cipher-label">Method 1:</div>
+                    <div>Direct symbol-to-letter substitution (☉=A, ☾=B, ☿=C, etc.)</div>
+                </div>
+                <div class="cipher-row">
+                    <div class="cipher-label">Method 2:</div>
+                    <div>Alchemical process notation concealing message (Calcination→C, Dissolution→D, etc.)</div>
+                </div>
+                <div class="cipher-row">
+                    <div class="cipher-label">Example:</div>
+                    <div style="font-style: italic;">Recipe for making gold = encoded troop movements</div>
+                </div>
+                <div class="cipher-row">
+                    <div class="cipher-label">Modern Use:</div>
+                    <div>Golden Dawn, Thelemic cryptography, chaos magic sigil work all trace lineage here</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DATA EXPORT -->
+        <section class="data-export">
+            <h3>Glyphkeeper JSON Schema (Import-Ready)</h3>
+            <pre>{
+  "scripts": [
+    {
+      "id": "theban",
+      "name": "Theban Alphabet",
+      "aka": ["Honorian Script", "Witches' Alphabet"],
+      "family": "Magical cipher alphabets",
+      "origin": "Trithemius, Polygraphia (1518)",
+      "type": "alphabetic",
+      "direction": "ltr",
+      "characterCount": 24,
+      "status": "active",
+      "description": "Latin substitution cipher popularized through Agrippa's Occult Philosophy. Foundational to Western ceremonial magic and contemporary Wicca.",
+      "learnStrategy": "One-to-one mapping ideal for beginners. Practice transcribing English → Theban, then historical grimoire passages."
+    },
+    {
+      "id": "steganographic-sigils",
+      "name": "Steganographic Spirit Sigils",
+      "family": "Cipher key systems",
+      "origin": "Trithemius, Ars Steganographia (c. 1499-1500s)",
+      "type": "operational-cipher",
+      "sigilCount": 67,
+      "structure": {
+        "regional": 32,
+        "wandering": 11,
+        "temporal": 24
+      },
+      "description": "Each sigil identifies an encryption protocol hidden in spirit conjurations. Angel magic is steganographic cover for variable skip patterns, alternating extraction, and positional ciphers.",
+      "learnStrategy": "Phase 1: Visual recognition → spirit name. Phase 2: Sigil → cipher type. Phase 3: Full encode/decode. Phase 4: Original encrypted messages."
+    },
+    {
+      "id": "alchemical-cipher",
+      "name": "Polygraphic Alchemical Cipher",
+      "family": "Alchemical notation systems",
+      "origin": "Trithemius, Polygraphia (1518)",
+      "type": "substitution-cipher",
+      "symbolCount": 30,
+      "description": "Traditional alchemical symbols repurposed as cryptographic alphabet. Provides plausible deniability — appears as metallurgical research, conceals intelligence.",
+      "metaphysics": "Trithemius argued symbolic manipulation was spiritually transformative. Encryption = path to divine illumination.",
+      "modernLineage": "Golden Dawn, Thelema, chaos magic sigil work"
+    }
+  ],
+  "characters": {
+    "theban": [
+      { "latin": "A", "theban": "𐌀", "name": "Alpha" },
+      { "latin": "B", "theban": "𐌁", "name": "Beth" },
+      { "latin": "C", "theban": "𐌂", "name": "Coph" }
+      // ... full 24-character set
+    ],
+    "steganographic": [
+      {
+        "spirit": "Padiel",
+        "direction": "East-Southeast",
+        "ministers": { "day": 10000, "night": 200000 },
+        "temperament": "kind, quiet, tranquil",
+        "specialty": "Secret messages about detaining criminals",
+        "cipherType": "alternating-word-skip",
+        "instruction": "Skip every other word, read alternating letters, first/last words nulls"
+      }
+      // ... 67 spirit entries
+    ],
+    "alchemical": [
+      { "symbol": "☉", "name": "Sol", "meaning": "Gold/Sun", "cipher": "A" },
+      { "symbol": "☾", "name": "Luna", "meaning": "Silver/Moon", "cipher": "B" }
+      // ... 30 symbol entries
+    ]
+  },
+  "metadata": {
+    "extracted": "2026-03-27",
+    "source": "Esoterica: How Angel Magic Became Cryptography - Trithemius",
+    "lecturer": "Dr. Justin Sledge",
+    "arxFoundation": true,
+    "glyphkeeperPhase": 2,
+    "integrationPriority": "high"
+  }
+}</pre>
+        </section>
+
+        <footer>
+            <p><strong>ARX Foundation</strong> • Glyphkeeper Extension Module</p>
+            <p style="margin-top: 0.5rem;">Extracted from Esoterica lecture, March 27, 2026</p>
+            <p style="margin-top: 0.5rem; font-style: italic;">Where cryptography, angel magic, and divine illumination converge</p>
+        </footer>
+    </div>
+</body>
+</html>

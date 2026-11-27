@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ᓀᐦᐃᔭᐍᐏᐣ — Learn Canadian Aboriginal Syllabics</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,600;0,700;1,400&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a1018;--bg-mid:#101820;--bg-card:#182430;--bg-card-hover:#1e2e3c;--teal:#3aaa9a;--teal-light:#5acab8;--teal-bright:#80e0d0;--teal-dim:#2a7a6a;--snow:#e8eef0;--snow-dim:#8a9aa0;--snow-faint:#4a5a60;--red:#c85a5a;--green:#5aaa6a;--gold:#c8a84c;--shadow:rgba(0,0,0,0.5);--border:rgba(255,255,255,0.06)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--snow);font-family:'Work Sans',sans-serif;min-height:100vh}
+.header{text-align:center;padding:2.5rem 1rem 1.5rem;border-bottom:1px solid var(--border)}
+.header-script{font-size:2rem;color:var(--teal-light);letter-spacing:0.25em;margin-bottom:0.3rem}
+.header h1{font-family:'Bitter',serif;font-size:1.5rem;color:var(--snow);letter-spacing:0.04em}
+.header h1 em{font-style:italic;color:var(--teal-light)}
+.header-sub{font-size:0.8rem;color:var(--snow-faint);margin-top:0.3rem;font-weight:300}
+.nav{display:flex;justify-content:center;background:var(--bg-mid);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-btn{background:none;border:none;color:var(--snow-faint);font-family:'Work Sans',sans-serif;font-size:0.85rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:1rem 1.5rem;cursor:pointer;transition:all 0.3s;position:relative}
+.nav-btn:hover{color:var(--snow)}.nav-btn.active{color:var(--teal-light)}
+.nav-btn.active::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:var(--teal);border-radius:1px}
+.section{display:none;padding:2rem 1rem;max-width:1000px;margin:0 auto}.section.active{display:block}
+.hc{max-width:650px;margin:0 auto}
+.hc h2{font-family:'Bitter',serif;font-size:1.5rem;color:var(--teal-light);margin-bottom:1rem}
+.hc p{font-size:0.95rem;line-height:1.8;color:var(--snow-dim);margin-bottom:1.1rem;font-weight:300}
+.hc strong{color:var(--snow);font-weight:500}
+.hc em{color:var(--teal-light);font-style:italic}
+.rot-demo{display:grid;grid-template-columns:repeat(4,1fr);gap:0.8rem;margin:1.5rem 0;max-width:400px}
+.rot-cell{background:var(--bg-card);border-radius:8px;padding:1rem 0.5rem;text-align:center;border-top:3px solid var(--teal)}
+.rot-cell .sym{font-size:2.5rem;color:var(--teal-bright);line-height:1}
+.rot-cell .lbl{font-size:0.7rem;color:var(--snow-faint);margin-top:0.3rem;text-transform:uppercase;letter-spacing:0.08em}
+.rot-cell .val{font-size:0.9rem;color:var(--snow);margin-top:0.1rem;font-weight:500}
+.chart-scroll{overflow-x:auto}
+.syl-table{width:100%;border-collapse:separate;border-spacing:4px}
+.syl-table th{font-size:0.7rem;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:0.1em;padding:0.5rem;text-align:center}
+.syl-table th.rh{text-align:right;padding-right:0.6rem;color:var(--snow-faint);min-width:40px}
+.syl-table td{background:var(--bg-card);border-radius:6px;text-align:center;padding:0.6rem 0.3rem;cursor:pointer;transition:all 0.2s;border:1px solid transparent}
+.syl-table td:hover{background:var(--bg-card-hover);border-color:rgba(58,170,154,0.25);transform:translateY(-1px)}
+.syl-table td .g{font-size:2rem;color:var(--teal-bright);line-height:1.1;display:block}
+.syl-table td .p{font-size:0.65rem;color:var(--snow-faint);display:block;margin-top:0.1rem}
+.syl-table td.empty{background:transparent;cursor:default;border:none}
+.detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+.detail-overlay.show{display:flex}
+.dc{background:var(--bg-mid);border:1px solid rgba(58,170,154,0.3);border-radius:12px;padding:2.5rem;text-align:center;max-width:300px;width:90%}
+.dc .bg{font-size:6rem;color:var(--teal-bright);line-height:1}
+.dc .dp{font-size:1.3rem;color:var(--snow);margin:0.5rem 0}
+.dc .dt{font-size:0.85rem;color:var(--snow-faint)}
+.dc-close{margin-top:1.5rem;background:rgba(58,170,154,0.15);border:1px solid rgba(58,170,154,0.3);color:var(--teal-light);padding:0.5rem 2rem;border-radius:6px;cursor:pointer;font-family:'Work Sans',sans-serif;transition:all 0.2s}
+.dc-close:hover{background:rgba(58,170,154,0.3)}
+.pw{max-width:480px;margin:0 auto;text-align:center}
+.ms{display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.mb{background:var(--bg-card);border:1px solid var(--border);color:var(--snow-dim);padding:0.5rem 1rem;border-radius:6px;cursor:pointer;font-family:'Work Sans',sans-serif;font-size:0.8rem;font-weight:500;transition:all 0.2s}
+.mb:hover{border-color:rgba(58,170,154,0.4);color:var(--snow)}.mb.active{background:rgba(58,170,154,0.15);border-color:var(--teal);color:var(--teal-light)}
+.fc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:3rem 2rem;margin-bottom:1.5rem;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s}
+.fc:hover{border-color:rgba(58,170,154,0.3)}.fc .pg{font-size:5rem;color:var(--teal-bright);line-height:1}
+.fc .pt{font-size:1.5rem;color:var(--snow);font-weight:300}.fc .hint{font-size:0.8rem;color:var(--snow-faint);margin-top:1rem}
+.fc .ans{display:none;margin-top:1rem}.fc.rev .ans{display:block}
+.fc .ar{font-size:1.8rem;color:var(--teal-light)}.fc .ag{font-size:4rem;color:var(--teal-bright)}
+.pc{display:flex;gap:0.8rem;justify-content:center;margin-bottom:1.5rem}
+.pb{background:var(--bg-card);border:1px solid rgba(58,170,154,0.3);color:var(--snow);padding:0.7rem 1.5rem;border-radius:8px;cursor:pointer;font-family:'Work Sans',sans-serif;font-size:0.9rem;font-weight:500;transition:all 0.2s}
+.pb:hover{background:rgba(58,170,154,0.15)}.pb.ok{background:rgba(90,170,106,0.2);border-color:var(--green);color:var(--green)}
+.pb.no{background:rgba(200,90,90,0.2);border-color:var(--red);color:var(--red)}
+.sb{display:flex;justify-content:center;gap:2rem;font-size:0.85rem;color:var(--snow-faint);margin-top:1rem}
+.sb span{font-weight:600}.sb .sc span{color:var(--green)}.sb .sw span{color:var(--red)}.sb .ss span{color:var(--teal-light)}
+.qo{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1.5rem}
+.qopt{background:var(--bg-card);border:2px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.2s;font-size:2.2rem;color:var(--teal-bright)}
+.qopt.ro{font-family:'Work Sans',sans-serif;font-size:1.1rem;color:var(--snow)}
+.qopt:hover{border-color:var(--teal);background:var(--bg-card-hover)}
+.qopt.cc2{border-color:var(--green)!important;background:rgba(90,170,106,0.15)!important}
+.qopt.cw{border-color:var(--red)!important;background:rgba(200,90,90,0.15)!important}
+.qopt.sc2{border-color:var(--green)!important;background:rgba(90,170,106,0.1)!important}
+.qopt.dis{pointer-events:none;opacity:0.7}
+.footer{text-align:center;padding:2rem 1rem;color:var(--snow-faint);font-size:0.75rem;border-top:1px solid var(--border);margin-top:2rem}
+.footer a{color:var(--teal);text-decoration:none}
+@media(max-width:600px){.syl-table td .g{font-size:1.6rem}.nav-btn{padding:0.8rem 0.9rem;font-size:0.72rem}.rot-demo{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="../index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+<div class="header">
+  <div class="header-script">ᐊ ᐃ ᐅ ᐁ</div>
+  <h1><em>ᓀᐦᐃᔭᐍᐏᐣ</em> — Canadian Aboriginal Syllabics</h1>
+  <div class="header-sub">Cree Syllabics · ~160 syllables · James Evans · 1840</div>
+</div>
+<nav class="nav"><button class="nav-btn active" data-tab="history">History</button><button class="nav-btn" data-tab="chart">Syllabary</button><button class="nav-btn" data-tab="practice">Practice</button></nav>
+
+<div id="history" class="section active"><div class="hc">
+  <h2>Geometry as Language</h2>
+  <p>In <strong>1840</strong>, Methodist missionary <strong>James Evans</strong> created a writing system for the <strong>Cree language</strong> that used a brilliant geometric principle: <em>the same base shape, rotated to indicate different vowels</em>.</p>
+  <p>Point the triangle right → <strong>e</strong>. Point it up → <strong>i</strong>. Point it left → <strong>o</strong>. Point it down → <strong>a</strong>. This rotation principle means that once you learn one consonant series, you already know how every other consonant behaves.</p>
+  <div class="rot-demo">
+    <div class="rot-cell"><div class="sym">ᐯ</div><div class="lbl">pointing right</div><div class="val">pe</div></div>
+    <div class="rot-cell"><div class="sym">ᐱ</div><div class="lbl">pointing up</div><div class="val">pi</div></div>
+    <div class="rot-cell"><div class="sym">ᐳ</div><div class="lbl">pointing left</div><div class="val">po</div></div>
+    <div class="rot-cell"><div class="sym">ᐸ</div><div class="lbl">pointing down</div><div class="val">pa</div></div>
+  </div>
+  <p>The system spread rapidly across Canada. It was adapted for <strong>Ojibwe, Inuktitut, Blackfoot, Athabaskan languages</strong>, and more. Today it's used officially in <strong>Nunavut</strong> and across First Nations communities. The syllabics appear on Canadian currency and public signage throughout the north.</p>
+  <p>A final consonant (with no following vowel) is written as a small superscript form of the character — called a <em>final</em>. For example, the standalone "p" final is written as a small ᑉ.</p>
+  <h2 style="margin-top:2rem">Why It Works So Well</h2>
+  <p>Evans' genius was making the system <strong>visually systematic</strong>. Unlike Cherokee or Bamum (where each syllable has an arbitrary shape), Canadian Syllabics encodes information in the <em>orientation</em> of each glyph. A learner who understands the rotation principle can read unfamiliar consonant series immediately. Literacy rates among Cree speakers surged after adoption — reportedly higher than literacy rates among English-speaking Canadians at the time.</p>
+</div></div>
+
+<div id="chart" class="section">
+  <p style="text-align:center;margin-bottom:1.5rem;color:var(--snow-dim);font-size:0.85rem">The rotation principle: same shape, different direction = different vowel. Click any cell.</p>
+  <div class="chart-scroll"><table class="syl-table" id="st"></table></div>
+</div>
+
+<div id="practice" class="section"><div class="pw">
+  <div class="ms"><button class="mb active" data-mode="flash-glyph">Glyph → Sound</button><button class="mb" data-mode="flash-sound">Sound → Glyph</button><button class="mb" data-mode="quiz">Quiz</button></div>
+  <div id="pa"></div>
+  <div class="sb"><div class="sc">Correct: <span id="xc">0</span></div><div class="sw">Missed: <span id="xw">0</span></div><div class="ss">Streak: <span id="xs">0</span></div></div>
+</div></div>
+
+<div class="detail-overlay" id="dov"><div class="dc">
+  <div class="bg" id="dg"></div><div class="dp" id="dp"></div><div class="dt" id="dt"></div>
+  <button class="dc-close" onclick="cd()">Close</button>
+</div></div>
+<div class="footer">Canadian Aboriginal Syllabics (Cree) · Part of <a href="../index.html">Glyphkeeper</a></div>
+
+<script>
+const VOWELS=['e','i','o','a'];
+const ROWS=[
+  {c:'(vowel)',e:'ᐁ',i:'ᐃ',o:'ᐅ',a:'ᐊ',final:''},
+  {c:'p',e:'ᐯ',i:'ᐱ',o:'ᐳ',a:'ᐸ',final:'ᑉ'},
+  {c:'t',e:'ᑌ',i:'ᑎ',o:'ᑐ',a:'ᑕ',final:'ᑦ'},
+  {c:'k',e:'ᑫ',i:'ᑭ',o:'ᑯ',a:'ᑲ',final:'ᒃ'},
+  {c:'c',e:'ᒉ',i:'ᒋ',o:'ᒍ',a:'ᒐ',final:'ᒡ'},
+  {c:'m',e:'ᒣ',i:'ᒥ',o:'ᒧ',a:'ᒪ',final:'ᒻ'},
+  {c:'n',e:'ᓀ',i:'ᓂ',o:'ᓄ',a:'ᓇ',final:'ᓐ'},
+  {c:'s',e:'ᓭ',i:'ᓯ',o:'ᓱ',a:'ᓴ',final:'ᔅ'},
+  {c:'y',e:'ᔦ',i:'ᔨ',o:'ᔪ',a:'ᔭ',final:'ᔾ'},
+  {c:'w',e:'ᐍ',i:'ᐏ',o:'ᐑ',a:'ᐘ',final:'ᐤ'},
+  {c:'l',e:'ᓓ',i:'ᓕ',o:'ᓗ',a:'ᓚ',final:'ᓪ'},
+  {c:'r',e:'ᕃ',i:'ᕆ',o:'ᕈ',a:'ᕋ',final:'ᕐ'},
+  {c:'h',e:'',i:'ᐦ',o:'',a:'',final:'ᐦ'},
+];
+
+// Flat list
+const ALL=[];
+ROWS.forEach(r=>{VOWELS.forEach(v=>{const g=r[v];if(g){ALL.push({glyph:g,rom:(r.c==='(vowel)'?'':r.c)+v,row:r.c})}});if(r.final&&r.c!=='(vowel)'&&r.c!=='h'){ALL.push({glyph:r.final,rom:r.c+' (final)',row:r.c+' final'})}});
+
+// Nav
+document.querySelectorAll('.nav-btn').forEach(b=>{b.addEventListener('click',()=>{
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');
+})});
+
+// Chart
+function buildChart(){
+  const t=document.getElementById('st');
+  let html='<thead><tr><th class="rh"></th>';
+  VOWELS.forEach(v=>html+=`<th>${v}</th>`);
+  html+='<th>Final</th></tr></thead><tbody>';
+  ROWS.forEach(r=>{
+    html+=`<tr><th class="rh">${r.c}</th>`;
+    VOWELS.forEach(v=>{
+      const g=r[v];
+      if(!g)html+='<td class="empty"></td>';
+      else{const rom=(r.c==='(vowel)'?'':r.c)+v;html+=`<td onclick="sd('${g}','${rom}','${r.c}')"><span class="g">${g}</span><span class="p">${rom}</span></td>`}
+    });
+    if(r.final&&r.c!=='(vowel)'){html+=`<td onclick="sd('${r.final}','${r.c} final','${r.c}')"><span class="g">${r.final}</span><span class="p">${r.c}</span></td>`}
+    else{html+='<td class="empty"></td>'}
+    html+='</tr>';
+  });
+  html+='</tbody>';t.innerHTML=html;
+}
+function sd(g,p,r){document.getElementById('dg').textContent=g;document.getElementById('dp').textContent=p;document.getElementById('dt').textContent=r+' series';document.getElementById('dov').classList.add('show')}
+function cd(){document.getElementById('dov').classList.remove('show')}
+document.getElementById('dov').addEventListener('click',e=>{if(e.target===e.currentTarget)cd()});
+
+// Practice
+let pMode='flash-glyph',cur=null,score={c:0,w:0,s:0};
+document.querySelectorAll('.mb').forEach(b=>{b.addEventListener('click',()=>{
+  document.querySelectorAll('.mb').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  pMode=b.dataset.mode;score={c:0,w:0,s:0};us();nxt();
+})});
+function rnd(ex){let c;do{c=ALL[Math.floor(Math.random()*ALL.length)]}while(c===ex);return c}
+function us(){document.getElementById('xc').textContent=score.c;document.getElementById('xw').textContent=score.w;document.getElementById('xs').textContent=score.s}
+function nxt(){
+  cur=rnd(cur);const a=document.getElementById('pa');
+  if(pMode==='flash-glyph'){a.innerHTML=`<div class="fc" id="fc" onclick="rv()"><div class="pg">${cur.glyph}</div><div class="hint">tap to reveal</div><div class="ans"><div class="ar">${cur.rom}</div><div style="font-size:0.8rem;color:var(--snow-faint);margin-top:0.3rem">${cur.row} series</div></div></div><div class="pc"><button class="pb ok" onclick="mk(1)">Got it ✓</button><button class="pb no" onclick="mk(0)">Missed ✗</button><button class="pb" onclick="nxt()">Skip →</button></div>`}
+  else if(pMode==='flash-sound'){a.innerHTML=`<div class="fc" id="fc" onclick="rv()"><div class="pt">${cur.rom}</div><div class="hint">tap to reveal</div><div class="ans"><div class="ag">${cur.glyph}</div></div></div><div class="pc"><button class="pb ok" onclick="mk(1)">Got it ✓</button><button class="pb no" onclick="mk(0)">Missed ✗</button><button class="pb" onclick="nxt()">Skip →</button></div>`}
+  else{bq()}
+}
+function rv(){document.getElementById('fc').classList.add('rev')}
+function mk(ok){if(ok){score.c++;score.s++}else{score.w++;score.s=0}us();nxt()}
+function bq(){
+  const a=document.getElementById('pa');const isG=Math.random()>0.5;const ci=Math.floor(Math.random()*4);const opts=[];const used=new Set([cur.glyph]);
+  for(let i=0;i<4;i++){if(i===ci){opts.push(cur)}else{let c;do{c=rnd()}while(used.has(c.glyph));used.add(c.glyph);opts.push(c)}}
+  if(isG){a.innerHTML=`<div class="fc" style="cursor:default"><div class="pg">${cur.glyph}</div><div class="hint">choose the correct sound</div></div><div class="qo" id="qo">${opts.map((o,i)=>`<div class="qopt ro" onclick="qa(${i},${ci})">${o.rom}</div>`).join('')}</div>`}
+  else{a.innerHTML=`<div class="fc" style="cursor:default"><div class="pt">${cur.rom}</div><div class="hint">choose the correct glyph</div></div><div class="qo" id="qo">${opts.map((o,i)=>`<div class="qopt" onclick="qa(${i},${ci})">${o.glyph}</div>`).join('')}</div>`}
+}
+function qa(ch,co){const os=document.querySelectorAll('#qo .qopt');os.forEach(o=>o.classList.add('dis'));os[co].classList.add('sc2');if(ch===co){os[ch].classList.add('cc2');score.c++;score.s++}else{os[ch].classList.add('cw');score.w++;score.s=0}us();setTimeout(nxt,1200)}
+buildChart();nxt();
+</script></body></html>

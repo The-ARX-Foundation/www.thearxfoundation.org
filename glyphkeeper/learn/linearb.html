@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>𐀀 Linear B — Learn the Mycenaean Syllabary</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0a08;--bg-mid:#161210;--bg-card:#201c18;--bg-card-hover:#2a2420;--clay:#c8a070;--clay-light:#e0b888;--clay-bright:#f0d0a0;--clay-dim:#8a7050;--aegean:#4a7aa8;--aegean-light:#6a9ac8;--cream:#e8e0d4;--cream-dim:#a09888;--cream-faint:#5a5448;--green:#5aaa6a;--red:#c85a4a;--shadow:rgba(0,0,0,0.5);--border:rgba(255,255,255,0.06)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--cream);font-family:'Inter',sans-serif;min-height:100vh}
+.header{text-align:center;padding:2.5rem 1rem 1.5rem;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(200,160,112,0.06) 0%,transparent 100%)}
+.header-script{font-size:1.8rem;color:var(--clay-light);letter-spacing:0.3em;margin-bottom:0.3rem}
+.header h1{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--cream)}
+.header h1 em{font-style:italic;color:var(--clay-light)}
+.header-sub{font-size:0.8rem;color:var(--cream-faint);margin-top:0.3rem;font-weight:300}
+.nav{display:flex;justify-content:center;background:var(--bg-mid);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-btn{background:none;border:none;color:var(--cream-faint);font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:1rem 1.5rem;cursor:pointer;transition:all 0.3s;position:relative}
+.nav-btn:hover{color:var(--cream)}.nav-btn.active{color:var(--clay-light)}
+.nav-btn.active::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:var(--clay);border-radius:1px}
+.section{display:none;padding:2rem 1rem;max-width:1000px;margin:0 auto}.section.active{display:block}
+.hc{max-width:650px;margin:0 auto}
+.hc h2{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--clay-light);margin-bottom:1rem}
+.hc p{font-size:0.95rem;line-height:1.8;color:var(--cream-dim);margin-bottom:1.1rem;font-weight:300}
+.hc strong{color:var(--cream);font-weight:500}
+.hc em{color:var(--aegean-light);font-style:italic;font-family:'Cormorant Garamond',serif}
+.chart-scroll{overflow-x:auto}
+.syl-table{width:100%;border-collapse:separate;border-spacing:4px}
+.syl-table th{font-size:0.7rem;font-weight:600;color:var(--clay);text-transform:uppercase;letter-spacing:0.1em;padding:0.5rem;text-align:center}
+.syl-table th.rh{text-align:right;padding-right:0.6rem;color:var(--cream-faint);min-width:40px}
+.syl-table td{background:var(--bg-card);border-radius:6px;text-align:center;padding:0.6rem 0.3rem;cursor:pointer;transition:all 0.2s;border:1px solid transparent}
+.syl-table td:hover{background:var(--bg-card-hover);border-color:rgba(200,160,112,0.25);transform:translateY(-1px)}
+.syl-table td .g{font-size:1.8rem;color:var(--clay-bright);line-height:1.1;display:block}
+.syl-table td .p{font-size:0.65rem;color:var(--cream-faint);display:block;margin-top:0.1rem}
+.syl-table td.empty{background:transparent;cursor:default;border:none}
+.detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+.detail-overlay.show{display:flex}
+.dc{background:var(--bg-mid);border:1px solid rgba(200,160,112,0.3);border-radius:12px;padding:2.5rem;text-align:center;max-width:300px;width:90%}
+.dc .bg{font-size:5rem;color:var(--clay-bright);line-height:1}
+.dc .dp{font-size:1.3rem;color:var(--cream);margin:0.5rem 0}
+.dc .dt{font-size:0.85rem;color:var(--cream-faint)}
+.dc .d-id{font-family:'Inter',monospace;font-size:0.7rem;color:var(--aegean-light);margin-top:0.3rem}
+.dc-close{margin-top:1.5rem;background:rgba(200,160,112,0.15);border:1px solid rgba(200,160,112,0.3);color:var(--clay-light);padding:0.5rem 2rem;border-radius:6px;cursor:pointer;transition:all 0.2s}
+.pw{max-width:480px;margin:0 auto;text-align:center}
+.ms{display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.mb{background:var(--bg-card);border:1px solid var(--border);color:var(--cream-dim);padding:0.5rem 1rem;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:500;transition:all 0.2s}
+.mb:hover{border-color:rgba(200,160,112,0.4);color:var(--cream)}.mb.active{background:rgba(200,160,112,0.15);border-color:var(--clay);color:var(--clay-light)}
+.fc{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:3rem 2rem;margin-bottom:1.5rem;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s}
+.fc:hover{border-color:rgba(200,160,112,0.3)}.fc .pg{font-size:5rem;color:var(--clay-bright);line-height:1}
+.fc .pt{font-size:1.5rem;color:var(--cream);font-weight:300}.fc .hint{font-size:0.8rem;color:var(--cream-faint);margin-top:1rem}
+.fc .ans{display:none;margin-top:1rem}.fc.rev .ans{display:block}
+.fc .ar{font-size:1.8rem;color:var(--clay-light)}.fc .ag{font-size:4rem;color:var(--clay-bright)}
+.pc{display:flex;gap:0.8rem;justify-content:center;margin-bottom:1.5rem}
+.pb{background:var(--bg-card);border:1px solid rgba(200,160,112,0.3);color:var(--cream);padding:0.7rem 1.5rem;border-radius:8px;cursor:pointer;font-size:0.9rem;font-weight:500;transition:all 0.2s}
+.pb:hover{background:rgba(200,160,112,0.15)}.pb.ok{background:rgba(90,170,106,0.2);border-color:var(--green);color:var(--green)}
+.pb.no{background:rgba(200,90,74,0.2);border-color:var(--red);color:var(--red)}
+.sb{display:flex;justify-content:center;gap:2rem;font-size:0.85rem;color:var(--cream-faint);margin-top:1rem}
+.sb span{font-weight:600}.sb .sc span{color:var(--green)}.sb .sw span{color:var(--red)}.sb .ss span{color:var(--clay-light)}
+.qo{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1.5rem}
+.qopt{background:var(--bg-card);border:2px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;transition:all 0.2s;font-size:2rem;color:var(--clay-bright)}
+.qopt.ro{font-family:'Inter',sans-serif;font-size:1.1rem;color:var(--cream)}
+.qopt:hover{border-color:var(--clay);background:var(--bg-card-hover)}
+.qopt.cc2{border-color:var(--green)!important;background:rgba(90,170,106,0.15)!important}
+.qopt.cw{border-color:var(--red)!important;background:rgba(200,90,74,0.15)!important}
+.qopt.sc2{border-color:var(--green)!important;background:rgba(90,170,106,0.1)!important}
+.qopt.dis{pointer-events:none;opacity:0.7}
+.footer{text-align:center;padding:2rem 1rem;color:var(--cream-faint);font-size:0.75rem;border-top:1px solid var(--border);margin-top:2rem}
+.footer a{color:var(--clay);text-decoration:none}
+</style></head><body><div style="font:13px/1.4 system-ui,sans-serif;padding:8px max(16px,env(safe-area-inset-left,0px));background:#1a2417;color:#e8dcc8;border-bottom:1px solid #8b6914"><a href="../index.html" style="color:#c9a876;text-decoration:none">← Glyphkeeper index</a></div>
+<div class="header">
+  <div class="header-script">𐀀 𐀁 𐀂 𐀃 𐀄</div>
+  <h1><em>Linear B</em> — The Oldest Greek Writing</h1>
+  <div class="header-sub">~87 syllabic signs · c. 1450 BCE · Deciphered 1952 by Michael Ventris</div>
+</div>
+<nav class="nav"><button class="nav-btn active" data-tab="history">History</button><button class="nav-btn" data-tab="chart">Syllabary</button><button class="nav-btn" data-tab="practice">Practice</button></nav>
+
+<div id="history" class="section active"><div class="hc">
+  <h2>3,400 Years Old — And Greek</h2>
+  <p>Linear B is a <strong>syllabic script</strong> used to write <strong>Mycenaean Greek</strong> — the oldest attested form of the Greek language. It was used from roughly <strong>1450 to 1200 BCE</strong>, primarily for palace administrative records: inventories of grain, oil, livestock, and personnel.</p>
+  <p>The script was adapted from the earlier <em>Linear A</em> (which remains undeciphered and was likely used for the Minoan language). When Mycenaean civilization collapsed during the Late Bronze Age, Linear B disappeared entirely. Greece entered a "Dark Age" with no writing until the adoption of the Phoenician alphabet centuries later.</p>
+  <h2 style="margin-top:2rem">The Decipherment</h2>
+  <p>In <strong>1952</strong>, <strong>Michael Ventris</strong> — an English architect and amateur linguist — cracked the code, building on years of statistical groundwork by <strong>Alice Kober</strong>. His key insight: the language was an early form of Greek. This was shocking — scholars had assumed Minoan, not Greek.</p>
+  <p>Ventris built his famous <em>grid</em>: consonants down the rows, vowels across the columns. By finding patterns in how signs alternated in word endings (like gender inflections), he could assign phonetic values. When he tested his values against place names on Cretan tablets — <strong>ko-no-so</strong> (Knossos), <strong>a-mi-ni-so</strong> (Amnisos) — everything clicked.</p>
+  <p>Tragically, Ventris died in a car crash in 1956, just four years after his breakthrough. He was 34.</p>
+  <h2 style="margin-top:2rem">How It Works</h2>
+  <p>Linear B is a <strong>CV (consonant-vowel) open syllabary</strong> — each sign represents one syllable. There are no signs for bare consonants or consonant clusters, so scribes had to use workarounds: "sperma" (seed) was written <strong>pe-ma</strong>, dropping the initial s-. The <strong>q-series</strong> represents labiovelar sounds (/kʷ/) that later disappeared from Greek.</p>
+</div></div>
+
+<div id="chart" class="section">
+  <p style="text-align:center;margin-bottom:1.5rem;color:var(--cream-dim);font-size:0.85rem">The Ventris-Chadwick grid. 5 vowel columns × consonant rows. Click any sign.</p>
+  <div class="chart-scroll"><table class="syl-table" id="st"></table></div>
+</div>
+
+<div id="practice" class="section"><div class="pw">
+  <div class="ms"><button class="mb active" data-mode="flash-glyph">Sign → Sound</button><button class="mb" data-mode="flash-sound">Sound → Sign</button><button class="mb" data-mode="quiz">Quiz</button></div>
+  <div id="pa"></div>
+  <div class="sb"><div class="sc">Correct: <span id="xc">0</span></div><div class="sw">Missed: <span id="xw">0</span></div><div class="ss">Streak: <span id="xs">0</span></div></div>
+</div></div>
+
+<div class="detail-overlay" id="dov"><div class="dc"><div class="bg" id="dg"></div><div class="dp" id="dp"></div><div class="dt" id="dt"></div><div class="d-id" id="did"></div><button class="dc-close" onclick="cd()">Close</button></div></div>
+<div class="footer">Linear B Syllabary · Unicode U+10000–1007F · Part of <a href="../index.html">Glyphkeeper</a></div>
+
+<script>
+const VOWELS=['a','e','i','o','u'];
+const ROWS=[
+  {c:'(vowel)',a:'𐀀',e:'𐀁',i:'𐀂',o:'𐀃',u:'𐀄'},
+  {c:'d',a:'𐀅',e:'𐀆',i:'𐀇',o:'𐀈',u:'𐀉'},
+  {c:'j',a:'𐀊',e:'𐀋',i:null,o:'𐀍',u:null},
+  {c:'k',a:'𐀏',e:'𐀐',i:'𐀑',o:'𐀒',u:'𐀓'},
+  {c:'m',a:'𐀔',e:'𐀕',i:'𐀖',o:'𐀗',u:'𐀘'},
+  {c:'n',a:'𐀙',e:'𐀚',i:'𐀛',o:'𐀜',u:'𐀝'},
+  {c:'p',a:'𐀞',e:'𐀟',i:'𐀠',o:null,u:'𐀢'},
+  {c:'q',a:'𐀣',e:'𐀤',i:'𐀥',o:'𐀦',u:null},
+  {c:'r',a:'𐀨',e:'𐀩',i:'𐀪',o:'𐀫',u:'𐀬'},
+  {c:'s',a:'𐀭',e:'𐀮',i:'𐀯',o:'𐀰',u:'𐀱'},
+  {c:'t',a:'𐀲',e:'𐀳',i:'𐀴',o:'𐀵',u:'𐀶'},
+  {c:'w',a:'𐀷',e:'𐀸',i:'𐀹',o:'𐀺',u:null},
+  {c:'z',a:'𐀼',e:'𐀽',o:'𐀿',i:null,u:null},
+];
+
+const ALL=[];
+ROWS.forEach(r=>{VOWELS.forEach(v=>{const g=r[v];if(g){const rom=(r.c==='(vowel)'?'':r.c)+v;ALL.push({glyph:g,rom:rom,row:r.c})}})});
+
+document.querySelectorAll('.nav-btn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active')})});
+
+function buildChart(){
+  const t=document.getElementById('st');
+  let html='<thead><tr><th class="rh"></th>';
+  VOWELS.forEach(v=>html+=`<th>${v}</th>`);
+  html+='</tr></thead><tbody>';
+  ROWS.forEach(r=>{
+    html+=`<tr><th class="rh">${r.c}</th>`;
+    VOWELS.forEach(v=>{
+      const g=r[v];
+      if(!g){html+='<td class="empty"></td>';return}
+      const rom=(r.c==='(vowel)'?'':r.c)+v;
+      html+=`<td onclick="sd('${g}','${rom}','${r.c}')"><span class="g">${g}</span><span class="p">${rom}</span></td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody>';t.innerHTML=html;
+}
+function sd(g,p,r){document.getElementById('dg').textContent=g;document.getElementById('dp').textContent=p;document.getElementById('dt').textContent=r+' series';document.getElementById('did').textContent='Mycenaean Greek · c. 1450 BCE';document.getElementById('dov').classList.add('show')}
+function cd(){document.getElementById('dov').classList.remove('show')}
+document.getElementById('dov').addEventListener('click',e=>{if(e.target===e.currentTarget)cd()});
+let pMode='flash-glyph',cur=null,score={c:0,w:0,s:0};
+document.querySelectorAll('.mb').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.mb').forEach(x=>x.classList.remove('active'));b.classList.add('active');pMode=b.dataset.mode;score={c:0,w:0,s:0};us();nxt()})});
+function rnd(ex){let c;do{c=ALL[Math.floor(Math.random()*ALL.length)]}while(c===ex);return c}
+function us(){document.getElementById('xc').textContent=score.c;document.getElementById('xw').textContent=score.w;document.getElementById('xs').textContent=score.s}
+function nxt(){cur=rnd(cur);const a=document.getElementById('pa');if(pMode==='flash-glyph'){a.innerHTML=`<div class="fc" id="fc" onclick="rv()"><div class="pg">${cur.glyph}</div><div class="hint">tap to reveal</div><div class="ans"><div class="ar">${cur.rom}</div><div style="font-size:0.8rem;color:var(--cream-faint);margin-top:0.3rem">${cur.row} series</div></div></div><div class="pc"><button class="pb ok" onclick="mk(1)">Got it ✓</button><button class="pb no" onclick="mk(0)">Missed ✗</button><button class="pb" onclick="nxt()">Skip →</button></div>`}else if(pMode==='flash-sound'){a.innerHTML=`<div class="fc" id="fc" onclick="rv()"><div class="pt">${cur.rom}</div><div class="hint">tap to reveal</div><div class="ans"><div class="ag">${cur.glyph}</div></div></div><div class="pc"><button class="pb ok" onclick="mk(1)">Got it ✓</button><button class="pb no" onclick="mk(0)">Missed ✗</button><button class="pb" onclick="nxt()">Skip →</button></div>`}else{bq()}}
+function rv(){document.getElementById('fc').classList.add('rev')}
+function mk(ok){if(ok){score.c++;score.s++}else{score.w++;score.s=0}us();nxt()}
+function bq(){const a=document.getElementById('pa');const isG=Math.random()>0.5;const ci=Math.floor(Math.random()*4);const opts=[];const used=new Set([cur.glyph]);for(let i=0;i<4;i++){if(i===ci){opts.push(cur)}else{let c;do{c=rnd()}while(used.has(c.glyph));used.add(c.glyph);opts.push(c)}}if(isG){a.innerHTML=`<div class="fc" style="cursor:default"><div class="pg">${cur.glyph}</div><div class="hint">choose the correct transcription</div></div><div class="qo" id="qo">${opts.map((o,i)=>`<div class="qopt ro" onclick="qa(${i},${ci})">${o.rom}</div>`).join('')}</div>`}else{a.innerHTML=`<div class="fc" style="cursor:default"><div class="pt">${cur.rom}</div><div class="hint">choose the correct sign</div></div><div class="qo" id="qo">${opts.map((o,i)=>`<div class="qopt" onclick="qa(${i},${ci})">${o.glyph}</div>`).join('')}</div>`}}
+function qa(ch,co){const os=document.querySelectorAll('#qo .qopt');os.forEach(o=>o.classList.add('dis'));os[co].classList.add('sc2');if(ch===co){os[ch].classList.add('cc2');score.c++;score.s++}else{os[ch].classList.add('cw');score.w++;score.s=0}us();setTimeout(nxt,1200)}
+buildChart();nxt();
+</script></body></html>
