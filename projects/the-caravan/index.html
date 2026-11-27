@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>The Caravan — A Mobile Civilization Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5EFE4;
+  --bg2: #EDE5D6;
+  --border: #C8BEA8;
+  --text: #2A1F14;
+  --text2: #5A4030;
+  --text3: #8A7060;
+  --rust: #7A3A1A;
+  --rust2: #9B4A22;
+  --gold: #8B6914;
+  --indigo: #2D2A5E;
+  --indigo2: #4A4690;
+  --serif: 'Crimson Pro', serif;
+  --display: 'IM Fell English', serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+body[data-theme="dark"] {
+  --bg: #1a2417;
+  --bg2: #2d3a31;
+  --border: #3d5640;
+  --text: #e8dcc8;
+  --text2: #b8a890;
+  --text3: #8b9e82;
+  --rust: #d4a574;
+  --rust2: #e8b88d;
+  --gold: #b8911c;
+  --indigo: #4a5e6d;
+  --indigo2: #6a8fb8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { 
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+  width: 100%; 
+  overflow-x: hidden; 
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: clamp(15px, 2.5vw, 17px);
+  line-height: 1.75;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+#progress { 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  height: 2px; 
+  background: var(--rust);
+  z-index: 101;
+  transition: width 0.1s linear;
+}
+
+.header {
+  background: var(--bg2);
+  border-bottom: 2px solid var(--rust);
+  padding: clamp(10px, 3vw, 14px) clamp(16px, 4vw, 20px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(122,58,26,0.08);
+  min-height: 52px;
+  width: 100%;
+  gap: 12px;
+  transition: all 0.15s ease;
+}
+
+.header.collapsed { 
+  padding: 6px clamp(12px, 3vw, 16px); 
+  min-height: 36px; 
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 2vw, 10px);
+  flex: 1;
+  min-width: 0;
+}
+
+.arx-logo {
+  width: clamp(24px, 4vw, 32px);
+  height: clamp(24px, 4vw, 32px);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--rust);
+  border-radius: 2px;
+  background: transparent;
+  transition: all 0.2s;
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.8vw, 14px);
+  letter-spacing: 0.5px;
+  color: var(--rust);
+  font-weight: 600;
+}
+
+.header:hover .arx-logo {
+  border-color: var(--gold);
+}
+
+.header-title {
+  font-family: var(--display);
+  font-size: clamp(13px, 3vw, 16px);
+  color: var(--text);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+  flex: 1;
+  min-width: 0;
+}
+
+.header.collapsed .header-title { 
+  opacity: 0; 
+  width: 0; 
+  flex: 0; 
+}
+
+.header-right {
+  font-family: var(--mono);
+  font-size: clamp(7px, 1.5vw, 8px);
+  color: var(--text3);
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 3px 7px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: clamp(7px, 1.5vw, 8px);
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.theme-toggle:hover {
+  border-color: var(--rust);
+  color: var(--rust);
+}
+
+.tabs {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  position: sticky;
+  top: 52px;
+  z-index: 99;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.header.collapsed ~ .tabs {
+  top: 36px;
+}
+
+.tab {
+  font-family: var(--mono);
+  font-size: clamp(8px, 1.6vw, 10px);
+  padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 16px);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  color: var(--text2);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.tab:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.tab.active {
+  border-bottom-color: var(--rust);
+  background: var(--bg);
+  color: var(--rust);
+  font-weight: 500;
+}
+
+.panels {
+  position: relative;
+  width: 100%;
+}
+
+.panel {
+  display: none;
+  padding: clamp(20px, 5vw, 40px) clamp(16px, 4vw, 20px);
+  max-width: 900px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease;
+}
+
+.panel.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(6px, 2vw, 10px);
+  margin: clamp(24px, 5vw, 32px) 0 clamp(8px, 2vw, 12px) 0;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+
+.sec-num {
+  font-family: var(--mono);
+  font-size: clamp(8px, 1.6vw, 10px);
+  color: var(--text3);
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.sec-title {
+  font-family: var(--display);
+  font-size: clamp(16px, 3.2vw, 20px);
+  color: var(--rust);
+  font-style: italic;
+}
+
+.body-text {
+  margin-top: clamp(8px, 2vw, 12px);
+}
+
+.body-text p {
+  margin-bottom: clamp(10px, 2.5vw, 14px);
+}
+
+.body-text strong {
+  color: var(--rust);
+  font-weight: 600;
+}
+
+.body-text em {
+  color: var(--gold);
+  font-style: italic;
+}
+
+.body-text ul, .body-text ol {
+  margin: clamp(10px, 2.5vw, 14px) 0 clamp(10px, 2.5vw, 14px) clamp(20px, 4vw, 28px);
+}
+
+.body-text li {
+  margin-bottom: clamp(6px, 1.5vw, 8px);
+}
+
+.callout {
+  background: var(--bg2);
+  border-left: 3px solid var(--rust);
+  padding: clamp(12px, 3vw, 16px);
+  margin: clamp(16px, 4vw, 24px) 0;
+  font-style: italic;
+  color: var(--text2);
+}
+
+.protocol-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: clamp(14px, 3.5vw, 18px);
+  margin: clamp(16px, 4vw, 20px) 0;
+  border-radius: 2px;
+}
+
+.protocol-box h4 {
+  font-family: var(--mono);
+  font-size: clamp(9px, 1.8vw, 11px);
+  color: var(--rust);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.protocol-box p {
+  margin-bottom: 8px;
+  font-size: clamp(14px, 2.2vw, 16px);
+}
+
+.protocol-box ul {
+  margin: 8px 0 0 20px;
+}
+
+.protocol-box li {
+  margin-bottom: 4px;
+}
+
+.sem-footer {
+  margin-top: clamp(24px, 6vw, 40px);
+  padding-top: clamp(16px, 4vw, 24px);
+  border-top: 1px solid var(--border);
+}
+
+.sem-footer-label {
+  font-family: var(--mono);
+  font-size: clamp(8px, 1.6vw, 9px);
+  color: var(--text3);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.sem-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sem-chip {
+  font-family: var(--mono);
+  font-size: clamp(7px, 1.4vw, 8px);
+  padding: 3px 8px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text2);
+  letter-spacing: 0.3px;
+}
+
+.nav-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: clamp(24px, 6vw, 40px);
+  gap: 10px;
+}
+
+.nav-btn {
+  font-family: var(--mono);
+  font-size: clamp(8px, 1.6vw, 9px);
+  padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 14px);
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+}
+
+.nav-btn:hover {
+  border-color: var(--rust);
+  color: var(--rust);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: clamp(13px, 2.2vw, 15px);
+  background: var(--bg2);
+  padding: 2px 6px;
+  border-radius: 2px;
+  color: var(--indigo);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: clamp(16px, 4vw, 20px) 0;
+  font-size: clamp(13px, 2.2vw, 15px);
+}
+
+th, td {
+  border: 1px solid var(--border);
+  padding: clamp(6px, 1.5vw, 10px);
+  text-align: left;
+}
+
+th {
+  background: var(--bg2);
+  font-family: var(--mono);
+  font-size: clamp(9px, 1.8vw, 10px);
+  color: var(--rust);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Shelved</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Paused, not dead. Open to collaborators or funding.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=The%20Caravan%20—%20A%20Mobile%20Civilization%20Architecture" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div id="progress"></div>
+
+<div class="header" id="main-header">
+  <div class="header-left">
+    <div class="arx-logo">⟐</div>
+    <div class="header-title">The Caravan — Mobile Civilization Architecture</div>
+  </div>
+  <div class="header-right">
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
+    <span>ARX.SPEC.2026</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('tab1')">PREMISE</div>
+  <div class="tab" onclick="switchTab('tab2')">INFRASTRUCTURE</div>
+  <div class="tab" onclick="switchTab('tab3')">PROTOCOLS</div>
+  <div class="tab" onclick="switchTab('tab4')">NEEDS MESH</div>
+  <div class="tab" onclick="switchTab('tab5')">IMPLICATIONS</div>
+</div>
+
+<div class="panels">
+
+<!-- TAB 1: PREMISE -->
+<div class="panel active" id="panel-tab1">
+  <div class="sec-head"><span class="sec-num">§ 01</span><span class="sec-title">The Caravan Hypothesis</span></div>
+  <div class="body-text">
+    <p><strong>Core assertion:</strong> Current civilization is not "car-centric" — it's <em>home-centric</em> architecture where cars function as mobile home extensions, not transportation. The suburbs are a low-density distributed housing model where each unit happens to move.</p>
+    
+    <p>What if we accept this? What if we stop pretending cars are for <em>going places</em> and acknowledge they're sovereign, climate-controlled private capsules that people pilot between stationary life-support modules (house → office → store)?</p>
+    
+    <p><strong>The Caravan</strong> is a civilization redesign that makes mobility the <em>primary</em> architectural assumption. Not "people who sometimes move" — people who are <em>always</em> moving, always in formation, always reconfiguring.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 01.1</span><span class="sec-title">What Changes</span></div>
+  <div class="body-text">
+    <p>If we design for mobility-as-default rather than residence-as-default:</p>
+    <ul>
+      <li><strong>No property ownership.</strong> Territory is temporary. Parking becomes "anchorage" — negotiated access to power/water/data, not real estate.</li>
+      <li><strong>Decentralized services.</strong> No centralized water/sewage/power grids. Every unit is semi-autonomous (solar, battery, water reclamation). Infrastructure is peer-to-peer.</li>
+      <li><strong>Dynamic social graphs.</strong> Your neighbors change weekly. Relationships form around <em>proximity duration</em> and <em>need compatibility</em>, not geographic permanence.</li>
+      <li><strong>Needs become tradeable signals.</strong> "I need a shower" becomes a broadcast. "I have extra water capacity" becomes an offer. Value flows through the mesh.</li>
+    </ul>
+  </div>
+
+  <div class="callout">The Caravan treats <strong>geographic stasis</strong> as the anomaly, not movement. Stability comes from protocol, not position.</div>
+
+  <div class="nav-footer">
+    <span></span>
+    <button class="nav-btn" onclick="switchTab('tab2')">Next →</button>
+  </div>
+</div>
+
+<!-- TAB 2: INFRASTRUCTURE -->
+<div class="panel" id="panel-tab2">
+  <div class="sec-head"><span class="sec-num">§ 02</span><span class="sec-title">Mobile Unit Spec</span></div>
+  <div class="body-text">
+    <p>Every Caravan unit is a self-contained life-support module with the following baseline:</p>
+  </div>
+
+  <div class="protocol-box">
+    <h4>Autonomy Stack</h4>
+    <ul>
+      <li><strong>Power:</strong> 800W+ solar, 300Ah+ LiFePO4, shore power adapter (universal plug standard)</li>
+      <li><strong>Water:</strong> 40gal freshwater, 30gal greywater, portable black tank exchange system</li>
+      <li><strong>Climate:</strong> 12V roof AC, diesel/propane heater, insulation rated to -10°C / 40°C exterior</li>
+      <li><strong>Data:</strong> Starlink or equivalent (500Mbps min), mesh radio (LoRa/Meshtastic backup layer), local NAS</li>
+      <li><strong>Propulsion:</strong> 300+ mile range, 4WD/AWD for dirt roads, <25ft length for maneuverability</li>
+    </ul>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 02.1</span><span class="sec-title">Shared Infrastructure Nodes</span></div>
+  <div class="body-text">
+    <p>Permanent infrastructure exists, but it's <em>service-oriented</em>, not residence-oriented. Think truck stops, not suburbs.</p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Node Type</th>
+          <th>Services Provided</th>
+          <th>Capacity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Anchorage Hub</strong></td>
+          <td>50A shore power, potable water fill, blackwater dump, laundry, showers</td>
+          <td>50-200 units</td>
+        </tr>
+        <tr>
+          <td><strong>Maker Space</strong></td>
+          <td>CNC, 3D printing, welding, electronics bench, tool library</td>
+          <td>10-30 concurrent</td>
+        </tr>
+        <tr>
+          <td><strong>Health Clinic</strong></td>
+          <td>General practice, dental, pharmacy, telemedicine relay</td>
+          <td>Mobile, 5-10/day</td>
+        </tr>
+        <tr>
+          <td><strong>Provisioning Depot</strong></td>
+          <td>Bulk food (co-op model), propane, diesel, repair parts</td>
+          <td>100+ units/day</td>
+        </tr>
+        <tr>
+          <td><strong>Knowledge Exchange</strong></td>
+          <td>Library, skill workshops, server rack (data backup/sync)</td>
+          <td>20-50 concurrent</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>These nodes are spaced 50-150 miles apart along major routes. No one <em>lives</em> at a node — they're visited, used, and departed.</p>
+  </div>
+
+  <div class="callout">Infrastructure serves <strong>flow</strong>, not fixity. The goal is friction-free access to services, not attachment to place.</div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab1')">← Previous</button>
+    <button class="nav-btn" onclick="switchTab('tab3')">Next →</button>
+  </div>
+</div>
+
+<!-- TAB 3: PROTOCOLS -->
+<div class="panel" id="panel-tab3">
+  <div class="sec-head"><span class="sec-num">§ 03</span><span class="sec-title">Coordination Protocols</span></div>
+  <div class="body-text">
+    <p>Without fixed addresses, fixed neighbors, or fixed schedules, <strong>protocol becomes the only stable substrate</strong>. These are the social/technical agreements that make Caravan life viable.</p>
+  </div>
+
+  <div class="protocol-box">
+    <h4>Mesh Broadcast Standard (MBS)</h4>
+    <p>Every unit runs a low-power LoRa transceiver that broadcasts:</p>
+    <ul>
+      <li><strong>Position:</strong> GPS coords updated every 5 min (opt-in for privacy, but most broadcast)</li>
+      <li><strong>Needs:</strong> Current resource state (water: 60%, power: 80%, propane: 40%)</li>
+      <li><strong>Offers:</strong> Surplus capacity available for trade/gift</li>
+      <li><strong>Skills:</strong> What you can do (mechanic, medic, chef, welder, teacher)</li>
+      <li><strong>Availability:</strong> Open to visitors, working (DND), emergency</li>
+    </ul>
+    <p><em>Range: ~10 miles in open terrain. Forms ad-hoc mesh when 3+ units are in range.</em></p>
+  </div>
+
+  <div class="protocol-box">
+    <h4>Caravan Formation Rules</h4>
+    <p>When multiple units travel together ("a caravan"), coordination defaults:</p>
+    <ul>
+      <li><strong>Lead rotation:</strong> Every 2 hours, leadership rotates (prevents burnout, distributes navigation labor)</li>
+      <li><strong>Spacing:</strong> 100-200ft between units (safety + radio mesh integrity)</li>
+      <li><strong>Break sync:</strong> Majority vote for fuel/food/rest stops (broadcast via mesh)</li>
+      <li><strong>Emergency protocol:</strong> Any unit flashes hazards 3x = full stop, render aid</li>
+      <li><strong>Departure opt-out:</strong> If you're not ready when caravan moves, you split off (no guilt, no penalty)</li>
+    </ul>
+  </div>
+
+  <div class="protocol-box">
+    <h4>Needs Routing Algorithm</h4>
+    <p>Units broadcast needs. Other units auto-respond if they can fulfill. Example:</p>
+    <ul>
+      <li><strong>Unit A broadcasts:</strong> <code>NEED: shower, range=5mi, willing_to_pay=true</code></li>
+      <li><strong>Unit B responds:</strong> <code>OFFER: shower, fee=10min_labor OR $5, available_now=true</code></li>
+      <li><strong>Unit A accepts:</strong> <code>ACCEPT: labor, arrive_15min</code></li>
+      <li><strong>Exchange occurs.</strong> Both units log transaction (reputation system).</li>
+    </ul>
+    <p><em>Payment can be: cash, labor, barter, gift. Protocol is agnostic. Reputation is the true currency.</em></p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 03.1</span><span class="sec-title">Dispute Resolution</span></div>
+  <div class="body-text">
+    <p>No police. No courts. Conflicts resolved through:</p>
+    <ul>
+      <li><strong>Mesh arbitration:</strong> Nearby units volunteer as mediators. Majority vote binds both parties.</li>
+      <li><strong>Reputation downvote:</strong> Bad actors get flagged. After 3 flags, most caravans refuse formation with you.</li>
+      <li><strong>Physical distance:</strong> If mediation fails, parties separate. No one is forced to stay near anyone.</li>
+    </ul>
+    <p>Violence = immediate mesh-wide ban. Permanent exile from protocol networks.</p>
+  </div>
+
+  <div class="callout">Governance is <strong>emergent, not hierarchical</strong>. Authority comes from proximity + participation, not titles or territory.</div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab2')">← Previous</button>
+    <button class="nav-btn" onclick="switchTab('tab4')">Next →</button>
+  </div>
+</div>
+
+<!-- TAB 4: NEEDS MESH -->
+<div class="panel" id="panel-tab4">
+  <div class="sec-head"><span class="sec-num">§ 04</span><span class="sec-title">Decentralized Needs Allocation</span></div>
+  <div class="body-text">
+    <p>In a static society, needs are met through <em>stores</em> (centralized inventory) and <em>jobs</em> (centralized labor). In The Caravan, needs are met through <strong>peer-to-peer matching</strong> — a living, breathing market of surplus and deficit.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 04.1</span><span class="sec-title">Resource Categories</span></div>
+  <div class="body-text">
+    <p><strong>Consumables:</strong> Water, food, fuel, propane. Metered, traded, gifted. Units with surplus broadcast availability. Units in need request.</p>
+    
+    <p><strong>Services:</strong> Repair, medical, teaching, child care, cooking. Skill-holders broadcast hours available. Requesters broadcast need + proposed compensation.</p>
+    
+    <p><strong>Space:</strong> Shelter (guest bed), storage (use my cargo box), workspace (borrow my desk). Temporary access, not ownership.</p>
+    
+    <p><strong>Knowledge:</strong> Tutorials, troubleshooting, emotional support. Freely given, reputation-tracked.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 04.2</span><span class="sec-title">Example: Water Reallocation</span></div>
+  <div class="body-text">
+    <p>Unit A is at 15% freshwater. Unit B is at 85% and anchored near a stream with filtration gear.</p>
+    
+    <ol>
+      <li><strong>A broadcasts:</strong> <code>NEED: water, 20gal, urgency=medium, location=GPS</code></li>
+      <li><strong>B auto-responds:</strong> <code>OFFER: water, 20gal, fee=none, note="refilling_at_stream"</code></li>
+      <li><strong>A accepts, drives to B.</strong> B fills A's tank. A offers to split propane costs for B's water pump. B accepts.</li>
+      <li><strong>Both log positive interaction.</strong> Reputation +1 for both parties.</li>
+    </ol>
+    
+    <p><em>Alternative:</em> If no nearby units have surplus, A's request escalates to "urgency=high" and broadcasts to wider mesh. Someone 20 miles away might drive water to A for a fee.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 04.3</span><span class="sec-title">Example: Skill Bartering</span></div>
+  <div class="body-text">
+    <p>Unit C's refrigerator dies. Unit D is a refrigeration tech but needs help with child care.</p>
+    
+    <ol>
+      <li><strong>C broadcasts:</strong> <code>NEED: fridge_repair, skills_available=[cooking, guitar], payment=[labor OR $50]</code></li>
+      <li><strong>D responds:</strong> <code>OFFER: fridge_repair, fee=4hrs_childcare, arrive_tonight=true</code></li>
+      <li><strong>C accepts.</strong> D fixes fridge (~2 hrs work). C watches D's kids for 4 hrs the next day.</li>
+      <li><strong>Exchange complete.</strong> Both parties satisfied. Reputation +1.</li>
+    </ol>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 04.4</span><span class="sec-title">Reputation as Currency</span></div>
+  <div class="body-text">
+    <p>Cash still exists, but <strong>reputation is the real wealth</strong>. High-reputation units get:</p>
+    <ul>
+      <li>Priority responses to needs broadcasts</li>
+      <li>Invitations to exclusive caravans (skilled travelers only)</li>
+      <li>Discounts or free services from grateful past recipients</li>
+      <li>Dispute mediation weighted in their favor</li>
+    </ul>
+    
+    <p>Low-reputation units (flags for theft, violence, scamming) get frozen out. No one wants to form caravans with them. No one responds to their needs. <em>Social death precedes physical isolation.</em></p>
+  </div>
+
+  <div class="callout">The Needs Mesh is <strong>self-healing</strong> — as units move, new pairings form. Scarcity in one location gets rebalanced by units arriving from elsewhere. The system breathes.</div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab3')">← Previous</button>
+    <button class="nav-btn" onclick="switchTab('tab5')">Next →</button>
+  </div>
+</div>
+
+<!-- TAB 5: IMPLICATIONS -->
+<div class="panel" id="panel-tab5">
+  <div class="sec-head"><span class="sec-num">§ 05</span><span class="sec-title">What Breaks, What Emerges</span></div>
+  <div class="body-text">
+    <p><strong>What dies:</strong></p>
+    <ul>
+      <li>Property tax (no property). Sales tax (peer trades bypass retail). Income tax (labor is barter).</li>
+      <li>Zoning laws. Building codes. HOAs. All premised on fixed structures.</li>
+      <li>Public schools (replaced by itinerant tutors + mesh knowledge bases).</li>
+      <li>Hospitals (replaced by mobile clinics + telemedicine).</li>
+      <li>Mortgages, landlords, rent. The entire real estate extraction economy.</li>
+      <li>Commuting (you live where you work, which is wherever you park).</li>
+    </ul>
+    
+    <p><strong>What emerges:</strong></p>
+    <ul>
+      <li><strong>Skill economy:</strong> People become valuable for what they <em>know</em> and <em>do</em>, not what they <em>own</em>.</li>
+      <li><strong>Ephemeral community:</strong> Deep, intense friendships formed over weeks, then dissolved as people move. Relationships valued for their duration, not permanence.</li>
+      <li><strong>Ecological flexibility:</strong> People migrate seasonally (follow good weather, avoid disasters). Climate change becomes a navigation problem, not a property destruction problem.</li>
+      <li><strong>Information commons:</strong> Every unit syncs knowledge bases at hubs. Wikis, repair manuals, maps, cultural archives — all open, all replicated.</li>
+      <li><strong>Children raised collectively:</strong> Rotating caregivers. Kids grow up knowing 200 adults intimately instead of 5. Abuse harder to hide (too many eyes).</li>
+    </ul>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 05.1</span><span class="sec-title">Who This Serves, Who It Doesn't</span></div>
+  <div class="body-text">
+    <p><strong>Thrives:</strong> Builders, fixers, teachers, artists, caregivers. People who produce value through labor/skill. Introverts (you can always drive away). Neurodivergent folks (design your own routine, no boss).</p>
+    
+    <p><strong>Struggles:</strong> People who need intensive medical infrastructure (dialysis, chemotherapy). Elderly with limited mobility. People psychologically dependent on geographic permanence. Capitalists (can't extract rent when everyone's mobile).</p>
+    
+    <p><em>Note: Medical pods (mobile ICU units) could address chronic care. Elderly-only caravans form naturally. But The Caravan is not a utopia — it optimizes for different values (mobility, autonomy, direct reciprocity) and some people won't fit.</em></p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 05.2</span><span class="sec-title">Threat Models</span></div>
+  <div class="body-text">
+    <p><strong>State violence:</strong> Governments that rely on property tax + captive labor pools will resist. Expect laws criminalizing van dwelling, mesh networks, unlicensed education. Caravan members become <em>de facto</em> outlaws.</p>
+    
+    <p><strong>Bandit caravans:</strong> Armed groups could raid isolated units. Defense: travel in numbers, mesh early warning systems, avoid low-trust zones.</p>
+    
+    <p><strong>Resource hoarding:</strong> Units stockpiling water/fuel instead of sharing. Mitigation: reputation system makes hoarders pariahs. Generosity is survival strategy.</p>
+    
+    <p><strong>Mesh breakdown:</strong> If radios fail, protocol collapses. Backup: visual signals (flags), analog maps, pre-agreed meeting points.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 05.3</span><span class="sec-title">Bootstrapping the Caravan</span></div>
+  <div class="body-text">
+    <p>You can't force a civilization redesign. But you <em>can</em> prototype:</p>
+    <ol>
+      <li><strong>Build the mesh.</strong> Open-source LoRa firmware. Get 100 units running it.</li>
+      <li><strong>Establish first hubs.</strong> Negotiate with truck stops, BLM land, cooperative farms. 5-10 anchor points along a 500-mile corridor.</li>
+      <li><strong>Document everything.</strong> What worked. What broke. What hurt. Make the knowledge replicable.</li>
+      <li><strong>Invite the desperate.</strong> Van lifers. Homeless. Refugees. People already mobile by necessity. Give them protocol, tools, community.</li>
+      <li><strong>Let it evolve.</strong> Don't force the design. Watch what emerges. Codify the patterns that survive.</li>
+    </ol>
+  </div>
+
+  <div class="callout">The Caravan isn't a blueprint. It's a <strong>design space</strong> — a set of constraints (mobility, decentralization, peer reciprocity) that generates emergent order. We don't know what it looks like at scale. We build it to find out.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Core Primitives</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">Mesh Broadcast Protocol</span>
+      <span class="sem-chip">Needs Routing</span>
+      <span class="sem-chip">Reputation System</span>
+      <span class="sem-chip">Autonomous Units</span>
+      <span class="sem-chip">Service Nodes</span>
+      <span class="sem-chip">Skill Economy</span>
+      <span class="sem-chip">Ephemeral Community</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab4')">← Previous</button>
+  </div>
+</div>
+
+</div><!-- /panels -->
+
+<script>
+const TAB_ORDER = ['tab1', 'tab2', 'tab3', 'tab4', 'tab5'];
+let isDarkMode = localStorage.getItem('caravan-theme') === 'dark' || false;
+const mainHeader = document.getElementById('main-header');
+const themeBtn = document.getElementById('theme-btn');
+
+if (isDarkMode) {
+  document.body.setAttribute('data-theme', 'dark');
+  themeBtn.textContent = '☀ Light';
+}
+
+function toggleTheme() {
+  isDarkMode = !isDarkMode;
+  document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+  themeBtn.textContent = isDarkMode ? '☀ Light' : '🌙 Dark';
+  localStorage.setItem('caravan-theme', isDarkMode ? 'dark' : 'light');
+}
+
+let isCollapsed = false;
+window.addEventListener('scroll', () => {
+  const should = window.scrollY > 40;
+  if (should !== isCollapsed) {
+    isCollapsed = should;
+    mainHeader.classList.toggle('collapsed', isCollapsed);
+  }
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  if (total > 0) {
+    const percentage = (window.scrollY / total) * 100;
+    document.getElementById('progress').style.width = percentage + '%';
+  }
+}, { passive: true });
+
+function switchTab(tab) {
+  const tabEl = document.querySelector(`[onclick="switchTab('${tab}')"]`);
+  const panelEl = document.getElementById(`panel-${tab}`);
+  if (!tabEl || !panelEl) return;
+  
+  panelEl.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => {
+    if (p !== panelEl) p.classList.remove('active');
+  });
+  tabEl.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+document.querySelectorAll('.tab')[0].classList.add('active');
+document.getElementById('panel-tab1').classList.add('active');
+</script>
+
+</body>
+</html>

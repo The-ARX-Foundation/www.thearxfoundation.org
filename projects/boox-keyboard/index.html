@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ARX Keyboard — Unexpected Keyboard + Mandarin + LLM for Boox</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5EFE4;
+  --bg2: #EDE5D6;
+  --border: #C8BEA8;
+  --text: #2A1F14;
+  --text2: #5A4030;
+  --text3: #8A7060;
+  --rust: #7A3A1A;
+  --rust2: #9B4A22;
+  --gold: #8B6914;
+  --indigo: #2D2A5E;
+}
+
+body[data-theme="dark"] {
+  --bg: #1a2417;
+  --bg2: #2d3a31;
+  --border: #3d5640;
+  --text: #e8dcc8;
+  --text2: #b8a890;
+  --text3: #8b9e82;
+  --rust: #d4a574;
+  --rust2: #e8b88d;
+  --gold: #b8911c;
+  --indigo: #4a5e6d;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 100px; width: 100%; overflow-x: hidden; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'EB Garamond', serif;
+  font-size: 16px;
+  line-height: 1.75;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+#progress { position: fixed; top: 0; left: 0; height: 2px; background: var(--rust); z-index: 101; transition: width 0.2s ease; }
+
+.header {
+  background: var(--bg2);
+  border-bottom: 2px solid var(--rust);
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(122,58,26,0.08);
+  min-height: 52px;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.header.collapsed { padding: 6px 16px; min-height: 36px; }
+
+.header-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+.header-icon { font-size: 16px; flex-shrink: 0; }
+.header-title { font-size: 16px; color: var(--text); font-style: italic; white-space: nowrap; opacity: 1; transition: opacity 0.15s ease; }
+.header.collapsed .header-title { opacity: 0; width: 0; flex: 0; }
+
+.header-right { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+.lang-toggle {
+  padding: 4px 8px;
+  border: 1px solid var(--rust);
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  cursor: pointer;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+  user-select: none;
+  margin-right: 8px;
+}
+
+.lang-toggle:hover, .lang-toggle.active { background: var(--rust); color: var(--bg); }
+
+.theme-toggle {
+  padding: 4px 8px;
+  border: 1px solid var(--rust);
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  cursor: pointer;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.theme-toggle:hover { background: var(--bg2); border-color: var(--gold); }
+
+.tab-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  position: sticky;
+  top: 52px;
+  z-index: 99;
+  width: 100%;
+}
+
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab {
+  padding: 10px 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.tab:hover { color: var(--rust2); }
+.tab.active { color: var(--rust); border-bottom-color: var(--rust); }
+
+.panels { position: relative; z-index: 1; padding: 24px 20px 120px; max-width: 900px; margin: 0 auto; width: 100%; }
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  margin-top: 40px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sec-head:first-child { margin-top: 0; }
+.sec-num { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--rust); letter-spacing: 2px; flex-shrink: 0; }
+.sec-title { font-size: 22px; color: var(--text); }
+
+.body-text { font-size: 16px; color: var(--text2); line-height: 1.85; max-width: 720px; }
+.body-text p { margin-bottom: 16px; }
+.body-text strong { color: var(--text); font-weight: 600; }
+.body-text em { color: var(--indigo); font-style: italic; }
+.body-text ul { margin-left: 20px; margin-bottom: 16px; }
+.body-text li { margin-bottom: 8px; }
+
+.callout {
+  background: var(--bg2);
+  border-left: 3px solid var(--rust);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 1.75;
+  font-style: italic;
+  max-width: 720px;
+  border-radius: 2px;
+}
+
+.doc-panel {
+  background: var(--bg2);
+  border-left: 3px solid var(--gold);
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 2px;
+}
+
+.doc-panel h3 {
+  color: var(--gold);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  margin-top: 0;
+}
+
+.doc-panel p { font-size: 14px; line-height: 1.7; color: var(--text2); margin-bottom: 10px; }
+.doc-panel code { background: var(--bg); padding: 2px 6px; border-radius: 2px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+
+.path-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 20px;
+  margin-bottom: 24px;
+  border-radius: 2px;
+}
+
+.path-card h4 {
+  color: var(--rust);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  margin-top: 0;
+}
+
+.path-card .pros, .path-card .cons {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.path-card .pros strong { color: #4a7c59; }
+.path-card .cons strong { color: var(--rust); }
+
+.checklist {
+  background: var(--bg2);
+  border: 2px solid var(--rust);
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 2px;
+}
+
+.checklist h3 {
+  color: var(--rust);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  margin-top: 0;
+}
+
+.check-section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+.check-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.check-section h4 {
+  color: var(--gold);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.check-item { display: flex; gap: 10px; margin-bottom: 8px; font-size: 14px; color: var(--text2); line-height: 1.6; }
+.check-box { flex-shrink: 0; color: var(--gold); font-weight: bold; }
+
+.footer { 
+  display: flex;
+  gap: 12px;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.footer-label { color: var(--text3); font-weight: 600; }
+.footer-value { color: var(--text2); }
+
+.code-block {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 16px;
+  margin-bottom: 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+  overflow-x: auto;
+  border-radius: 2px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+@media (max-width: 768px) {
+  .header { padding: 10px 16px; }
+  .sec-title { font-size: 16px; }
+  .panels { padding: 16px 14px 100px; }
+  .body-text { font-size: 14px; max-width: 100%; }
+}
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Shelved</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Paused, not dead. Open to collaborators or funding.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=ARX%20Keyboard%20—%20Unexpected%20Keyboard%20+%20Mandarin%20+%20LLM%20for%20Boox" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div id="progress"></div>
+
+<div id="main-header" class="header">
+  <div class="header-left">
+    <span class="header-icon">⌨</span>
+    <div class="header-title" id="header-title">ARX Keyboard Project</div>
+  </div>
+  <div class="header-right">
+    <button class="lang-toggle active" onclick="switchLang('en')" id="btn-en">EN</button>
+    <button class="lang-toggle" onclick="switchLang('zh')" id="btn-zh">中文</button>
+    <button id="theme-btn" class="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('tab1')" id="tab1-label">Overview</div>
+  <div class="tab" onclick="switchTab('tab2')" id="tab2-label">Architecture</div>
+  <div class="tab" onclick="switchTab('tab3')" id="tab3-label">Constraints</div>
+  <div class="tab" onclick="switchTab('tab4')" id="tab4-label">Implementation</div>
+  <div class="tab" onclick="switchTab('tab5')" id="tab5-label">Checklist</div>
+</div>
+
+<div class="panels">
+
+<!-- TAB 1: OVERVIEW -->
+<div class="panel active" id="panel-tab1">
+  <div class="sec-head"><span class="sec-num">§ 01</span><span class="sec-title" id="t1-title">Project Overview</span></div>
+  
+  <div class="doc-panel">
+    <h3 id="t1-intro">⌨ Unexpected Keyboard + Mandarin</h3>
+    <p id="t1-intro-text">Fork Unexpected Keyboard → add Pinyin input + sentence-level autocorrect → optimize for Onyx Boox daily driver. Local-first, 100% offline, ARX open-source ethos.</p>
+  </div>
+
+  <div class="body-text">
+    <p id="t1-desc1"><strong>Quick start.</strong> Unexpected Keyboard already excels at corner-swipe efficiency. We're adding: (1) Pinyin layout with tone marks in corners, (2) hanzi candidate selection, (3) local LLM inference for sentence-level correction, (4) e-ink optimization for Boox grayscale display.</p>
+    <p id="t1-desc2">Status: Architecture documented. Phase 1 (fork + Pinyin layout) ready to begin. Daemon integration (Phase 2) depends on Hetzner cloud deployment.</p>
+  </div>
+
+  <div class="callout" id="t1-callout">
+    <strong>Core mission:</strong> Input method that respects privacy, supports non-Latin scripts natively, and works offline. No cloud typing surveillance.
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 1.1</span><span class="sec-title" id="t1-facts">Key Facts</span></div>
+  <div class="body-text">
+    <p id="t1-facts-text"><strong>Base:</strong> Unexpected Keyboard (Kotlin, F-Droid)<br>
+    <strong>Language:</strong> Mandarin (Pinyin input method)<br>
+    <strong>Target Device:</strong> Onyx Boox 7"/10" (e-ink, Wacom digitizer)<br>
+    <strong>Autocorrect:</strong> TinyLlama-1.1B (on-device) or Mistral-7B (daemon-assisted)<br>
+    <strong>Status:</strong> Active design phase<br>
+    <strong>Repository:</strong> github.com/ARX-Foundation/unexpected-keyboard-mandarin</p>
+  </div>
+
+  <div class="footer">
+    <span class="footer-label" id="t1-tags-label">Tags:</span>
+    <span class="footer-value">input-method, mandarin, boox, open-source, llm, privacy</span>
+  </div>
+</div>
+
+<!-- TAB 2: ARCHITECTURE -->
+<div class="panel" id="panel-tab2">
+  <div class="sec-head"><span class="sec-num">§ 02</span><span class="sec-title" id="t2-title">Architecture & Paths</span></div>
+  
+  <div class="body-text" id="t2-intro">
+    <p>Two implementation paths. Path B (daemon-assisted) recommended initially—leverages existing ARXd/Hetzner infrastructure. Path A (on-device) available as fallback for latency-critical sessions.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 2.1</span><span class="sec-title" id="t2-path-a">Path A: On-Device LLM</span></div>
+  <div class="path-card">
+    <h4 id="t2-path-a-label">Local-Only Inference</h4>
+    <div class="code-block" id="t2-path-a-arch">Boox device:
+  ├── Unexpected Keyboard (modified)
+  │   └── Sends typed text → /tmp/kbd_inference.sock
+  ├── Termux background service
+  │   └── TinyLlama-1.1B-q4 (~500MB)
+  └── Keyboard renders correction → update e-ink once</div>
+    <div class="pros" id="t2-path-a-pros">
+      <strong>Pros:</strong>
+      <ul>
+        <li>Zero network dependency</li>
+        <li>Works completely offline</li>
+        <li>No server operations</li>
+      </ul>
+    </div>
+    <div class="cons" id="t2-path-a-cons">
+      <strong>Cons:</strong>
+      <ul>
+        <li>Slow inference (1-3s per sentence on Snapdragon 680)</li>
+        <li>Battery drain from background LLM</li>
+        <li>Model quality limited (1.1B &lt; 7B)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 2.2</span><span class="sec-title" id="t2-path-b">Path B: Daemon-Assisted (Recommended)</span></div>
+  <div class="path-card">
+    <h4 id="t2-path-b-label">Cloud-Accelerated via Hetzner</h4>
+    <div class="code-block" id="t2-path-b-arch">Boox device:
+  └── Unexpected Keyboard (modified)
+      └── Sends typed text → Hetzner MCP daemon (SSH over Tailscale)
+
+Hetzner VPS:
+  ├── MCP server (Python/Node)
+  │   └── "correct_mandarin_sentence" tool
+  ├── Ollama or vLLM
+  │   └── Mistral-7B (better Mandarin)
+  └── Returns single corrected sentence
+
+Keyboard renders → e-ink update once</div>
+    <div class="pros" id="t2-path-b-pros">
+      <strong>Pros:</strong>
+      <ul>
+        <li>Faster inference (GPU acceleration)</li>
+        <li>Better model quality (7B)</li>
+        <li>Leverages existing infra</li>
+        <li>Shareable daemon across devices</li>
+      </ul>
+    </div>
+    <div class="cons" id="t2-path-b-cons">
+      <strong>Cons:</strong>
+      <ul>
+        <li>Network dependency (Tailscale mesh mitigates)</li>
+        <li>Adds server operations</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 2.3</span><span class="sec-title" id="t2-data-flow">Data Flow</span></div>
+  <div class="code-block" id="t2-data-flow-text">User types: "我喜欢吃苹果。" (I like to eat apples)
+  ↓
+Keyboard detects sentence terminal (。)
+  ↓
+Sends to daemon: {pinyin: "wo3 xi3huan5 chi1 ping2guo3"}
+  ↓
+MCP tool: correct_mandarin_sentence(pinyin)
+  ↓
+LLM checks tone/typos → returns corrected hanzi
+  ↓
+Keyboard receives: "我喜欢吃苹果。"
+  ↓
+Update e-ink once (A2 mode, 150ms refresh)
+  ↓
+User sees correction with visual cue (corner flash + haptic)</div>
+
+  <div class="footer">
+    <span class="footer-label" id="t2-rec-label">Recommendation:</span>
+    <span class="footer-value" id="t2-rec-text">Path B initially, with Path A as e-ink-optimized fallback.</span>
+  </div>
+</div>
+
+<!-- TAB 3: CONSTRAINTS -->
+<div class="panel" id="panel-tab3">
+  <div class="sec-head"><span class="sec-num">§ 03</span><span class="sec-title" id="t3-title">Constraints & Design Decisions</span></div>
+  
+  <div class="sec-head"><span class="sec-num">§ 3.1</span><span class="sec-title" id="t3-eink">E-Ink Specific</span></div>
+  <div class="body-text" id="t3-eink-text">
+    <p><strong>Refresh lag:</strong> Rapid updates cause ghosting. LLM streaming suggestions = visual garbage on e-ink.</p>
+    <p><strong>Touch latency:</strong> Wacom digitizer adds 50-200ms. Compound redraws with lag.</p>
+    <p><strong>Color:</strong> Most Boox are grayscale/6-color. Typography matters more than fancy UI.</p>
+    <p><strong>Performance:</strong> Boox typically Snapdragon 680+ (adequate for quantized LLM).</p>
+    <p><strong>Solution:</strong> Single-fire suggestions (compute once, render once) instead of streaming.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 3.2</span><span class="sec-title" id="t3-mandarin">Mandarin Input UX</span></div>
+  <div class="body-text" id="t3-mandarin-text">
+    <p><strong>Pinyin swipe:</strong> Compatible with corner-swipe model. Swipe northeast/southeast corners for tone marks (1-4, neutral).</p>
+    <p><strong>Hanzi selection:</strong> After typing pinyin, tap/swipe candidate bar to select character.</p>
+    <p><strong>No existing solution:</strong> No FOSS keyboard has sentence-level Pinyin + character autocorrect. We're building something net-new.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 3.3</span><span class="sec-title" id="t3-ios">iOS Parity</span></div>
+  <div class="body-text" id="t3-ios-text">
+    <p><strong>akifkeyboard:</strong> Unmaintained.</p>
+    <p><strong>KeyboardKit:</strong> Modern framework, but Apple sandbox is strict (no IPC outside app, limited text rewriting).</p>
+    <p><strong>Status:</strong> iOS mirror possible but limited feedback vs Android. Defer until iOS MCP equivalent exists.</p>
+  </div>
+
+  <div class="footer">
+    <span class="footer-label" id="t3-priority-label">Priority:</span>
+    <span class="footer-value" id="t3-priority-text">Android first (Boox daily driver). iOS deferred.</span>
+  </div>
+</div>
+
+<!-- TAB 4: IMPLEMENTATION -->
+<div class="panel" id="panel-tab4">
+  <div class="sec-head"><span class="sec-num">§ 04</span><span class="sec-title" id="t4-title">Implementation Roadmap</span></div>
+  
+  <div class="sec-head"><span class="sec-num">§ 4.1</span><span class="sec-title" id="t4-phase1">Phase 1: Foundation (2 weeks)</span></div>
+  <div class="body-text" id="t4-phase1-text">
+    <p><strong>Deliverables:</strong></p>
+    <ul>
+      <li>Fork Unexpected Keyboard to github.com/ARX-Foundation/unexpected-keyboard-mandarin</li>
+      <li>Add Pinyin layout (corner swipes for tones)</li>
+      <li>Add hanzi candidate bar (tap/swipe selection)</li>
+      <li>Test on Boox 7" device</li>
+    </ul>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 4.2</span><span class="sec-title" id="t4-phase2">Phase 2: Autocorrect Daemon (3 weeks)</span></div>
+  <div class="body-text" id="t4-phase2-text">
+    <p><strong>Deliverables:</strong></p>
+    <ul>
+      <li>MCP server (Python + anthropic SDK or local Ollama)</li>
+      <li>Tool: correct_mandarin_sentence(pinyin) → hanzi</li>
+      <li>Deploy on Hetzner (existing VPS)</li>
+      <li>Keyboard client: Send to daemon, render correction once</li>
+    </ul>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 4.3</span><span class="sec-title" id="t4-phase3">Phase 3: On-Device Fallback (2 weeks)</span></div>
+  <div class="body-text" id="t4-phase3-text">
+    <p><strong>Deliverables:</strong></p>
+    <ul>
+      <li>Bundle TinyLlama-1.1B-q4 ONNX model</li>
+      <li>Implement Termux socket listener</li>
+      <li>Fallback logic: Daemon timeout → local inference</li>
+    </ul>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 4.4</span><span class="sec-title" id="t4-phase4">Phase 4: iOS (Defer)</span></div>
+  <div class="body-text" id="t4-phase4-text">
+    <p><strong>When iOS MCP path clears:</strong></p>
+    <ul>
+      <li>KeyboardKit base</li>
+      <li>Same Pinyin input + corner swipes</li>
+      <li>Connect to Hetzner daemon (limited feedback due to sandbox)</li>
+    </ul>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 4.5</span><span class="sec-title" id="t4-stack">Technical Stack</span></div>
+  <div class="body-text" id="t4-stack-text">
+    <p><strong>Android:</strong> Kotlin, ONNX Runtime / TensorFlow Lite, MCP client, Unix socket IPC</p>
+    <p><strong>Hetzner:</strong> Python (anthropic-sdk) or Node (MCP), Ollama/vLLM backend, Mistral-7B</p>
+    <p><strong>Model:</strong> TinyLlama-1.1B (device fallback), Mistral-7B (daemon primary)</p>
+  </div>
+
+  <div class="footer">
+    <span class="footer-label" id="t4-duration-label">Total Duration:</span>
+    <span class="footer-value" id="t4-duration-text">~7 weeks (phases 1-3)</span>
+  </div>
+</div>
+
+<!-- TAB 5: CHECKLIST -->
+<div class="panel" id="panel-tab5">
+  <div class="checklist">
+    <h3 id="t5-title">✓ Project Checklist</h3>
+
+    <div class="check-section">
+      <h4 id="t5-prereq-title">Prerequisites</h4>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-prereq-1">Identify mystery keyboard (dooe logo, right-hand, circle cap) and analyze UX</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-prereq-2">Confirm Boox model + refresh modes + Wacom latency specs</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-prereq-3">Decide Pinyin vs Zhuyin (mainland vs Taiwan preference)</span></div>
+    </div>
+
+    <div class="check-section">
+      <h4 id="t5-phase1-title">Phase 1: Foundation</h4>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-p1-1">Fork Unexpected Keyboard</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-p1-2">Add Pinyin layout with corner-swipe tones</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-p1-3">Implement hanzi candidate selection UI</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-p1-4">Build + test on Boox device</span></div>
+    </div>
+
+    <div class="check-section">
+      <h4 id="t5-phase2-title">Phase 2: Daemon</h4>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-p2-1">Build MCP server (Python/Node)</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-p2-2">Deploy Mistral-7B on Hetzner</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-p2-3">Integrate Tailscale mesh auth</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-p2-4">Connect keyboard client → test latency</span></div>
+    </div>
+
+    <div class="check-section">
+      <h4 id="t5-phase3-title">Phase 3: Fallback</h4>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-p3-1">Bundle TinyLlama ONNX model</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-p3-2">Implement Termux listener</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-p3-3">Test daemon timeout → fallback flow</span></div>
+    </div>
+
+    <div class="check-section">
+      <h4 id="t5-success-title">Success Criteria</h4>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-success-1">Fork compiles + installs on Boox</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-success-2">Pinyin input + corner tones work smoothly</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-success-3">Hanzi selection UI clear on grayscale</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-success-4">Daemon latency &lt;2s from typing to correction</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-success-5">Mandarin correction accuracy &gt;85%</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-success-6">E-ink flicker acceptable (&lt;200ms total)</span></div>
+      <div class="check-item"><span class="check-box">☐</span><span id="t5-success-7">Battery impact negligible (&lt;2% drain)</span></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="footer-label" id="t5-version-label">Version:</span>
+    <span class="footer-value" id="t5-version-text">1.0 · March 2026 · ARX Foundation</span>
+  </div>
+</div>
+
+</div>
+
+<script>
+let currentLang = 'en';
+let isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const storedTheme = localStorage.getItem('arx-kbd-theme');
+if (storedTheme) isDarkMode = storedTheme === 'dark';
+
+const translations = {
+  en: {
+    'header-title': 'ARX Keyboard Project',
+    'tab1-label': 'Overview',
+    'tab2-label': 'Architecture',
+    'tab3-label': 'Constraints',
+    'tab4-label': 'Implementation',
+    'tab5-label': 'Checklist',
+    't1-title': 'Project Overview',
+    't1-intro': '⌨ Unexpected Keyboard + Mandarin',
+    't1-intro-text': 'Fork Unexpected Keyboard → add Pinyin input + sentence-level autocorrect → optimize for Onyx Boox daily driver. Local-first, 100% offline, ARX open-source ethos.',
+    't1-desc1': '<strong>Quick start.</strong> Unexpected Keyboard already excels at corner-swipe efficiency. We\'re adding: (1) Pinyin layout with tone marks in corners, (2) hanzi candidate selection, (3) local LLM inference for sentence-level correction, (4) e-ink optimization for Boox grayscale display.',
+    't1-desc2': 'Status: Architecture documented. Phase 1 (fork + Pinyin layout) ready to begin. Daemon integration (Phase 2) depends on Hetzner cloud deployment.',
+    't1-callout': '<strong>Core mission:</strong> Input method that respects privacy, supports non-Latin scripts natively, and works offline. No cloud typing surveillance.',
+    't1-facts': 'Key Facts',
+    't1-facts-text': '<strong>Base:</strong> Unexpected Keyboard (Kotlin, F-Droid)<br><strong>Language:</strong> Mandarin (Pinyin input method)<br><strong>Target Device:</strong> Onyx Boox 7"/10" (e-ink, Wacom digitizer)<br><strong>Autocorrect:</strong> TinyLlama-1.1B (on-device) or Mistral-7B (daemon-assisted)<br><strong>Status:</strong> Active design phase<br><strong>Repository:</strong> github.com/ARX-Foundation/unexpected-keyboard-mandarin',
+    't1-tags-label': 'Tags:',
+    't2-title': 'Architecture & Paths',
+    't2-intro': '<p>Two implementation paths. Path B (daemon-assisted) recommended initially—leverages existing ARXd/Hetzner infrastructure. Path A (on-device) available as fallback for latency-critical sessions.</p>',
+    't2-path-a': 'Path A: On-Device LLM',
+    't2-path-a-label': 'Local-Only Inference',
+    't2-path-a-arch': 'Boox device:\n  ├── Unexpected Keyboard (modified)\n  │   └── Sends typed text → /tmp/kbd_inference.sock\n  ├── Termux background service\n  │   └── TinyLlama-1.1B-q4 (~500MB)\n  └── Keyboard renders correction → update e-ink once',
+    't2-path-a-pros': '<strong>Pros:</strong>\n      <ul>\n        <li>Zero network dependency</li>\n        <li>Works completely offline</li>\n        <li>No server operations</li>\n      </ul>',
+    't2-path-a-cons': '<strong>Cons:</strong>\n      <ul>\n        <li>Slow inference (1-3s per sentence on Snapdragon 680)</li>\n        <li>Battery drain from background LLM</li>\n        <li>Model quality limited (1.1B < 7B)</li>\n      </ul>',
+    't2-path-b': 'Path B: Daemon-Assisted (Recommended)',
+    't2-path-b-label': 'Cloud-Accelerated via Hetzner',
+    't2-path-b-arch': 'Boox device:\n  └── Unexpected Keyboard (modified)\n      └── Sends typed text → Hetzner MCP daemon (SSH over Tailscale)\n\nHetzner VPS:\n  ├── MCP server (Python/Node)\n  │   └── "correct_mandarin_sentence" tool\n  ├── Ollama or vLLM\n  │   └── Mistral-7B (better Mandarin)\n  └── Returns single corrected sentence\n\nKeyboard renders → e-ink update once',
+    't2-path-b-pros': '<strong>Pros:</strong>\n      <ul>\n        <li>Faster inference (GPU acceleration)</li>\n        <li>Better model quality (7B)</li>\n        <li>Leverages existing infra</li>\n        <li>Shareable daemon across devices</li>\n      </ul>',
+    't2-path-b-cons': '<strong>Cons:</strong>\n      <ul>\n        <li>Network dependency (Tailscale mesh mitigates)</li>\n        <li>Adds server operations</li>\n      </ul>',
+    't2-data-flow': 'User types: "我喜欢吃苹果。" (I like to eat apples)\n  ↓\nKeyboard detects sentence terminal (。)\n  ↓\nSends to daemon: {pinyin: "wo3 xi3huan5 chi1 ping2guo3"}\n  ↓\nMCP tool: correct_mandarin_sentence(pinyin)\n  ↓\nLLM checks tone/typos → returns corrected hanzi\n  ↓\nKeyboard receives: "我喜欢吃苹果。"\n  ↓\nUpdate e-ink once (A2 mode, 150ms refresh)\n  ↓\nUser sees correction with visual cue (corner flash + haptic)',
+    't2-rec-label': 'Recommendation:',
+    't2-rec-text': 'Path B initially, with Path A as e-ink-optimized fallback.',
+    't3-title': 'Constraints & Design Decisions',
+    't3-eink': 'E-Ink Specific',
+    't3-eink-text': '<p><strong>Refresh lag:</strong> Rapid updates cause ghosting. LLM streaming suggestions = visual garbage on e-ink.</p>\n    <p><strong>Touch latency:</strong> Wacom digitizer adds 50-200ms. Compound redraws with lag.</p>\n    <p><strong>Color:</strong> Most Boox are grayscale/6-color. Typography matters more than fancy UI.</p>\n    <p><strong>Performance:</strong> Boox typically Snapdragon 680+ (adequate for quantized LLM).</p>\n    <p><strong>Solution:</strong> Single-fire suggestions (compute once, render once) instead of streaming.</p>',
+    't3-mandarin': 'Mandarin Input UX',
+    't3-mandarin-text': '<p><strong>Pinyin swipe:</strong> Compatible with corner-swipe model. Swipe northeast/southeast corners for tone marks (1-4, neutral).</p>\n    <p><strong>Hanzi selection:</strong> After typing pinyin, tap/swipe candidate bar to select character.</p>\n    <p><strong>No existing solution:</strong> No FOSS keyboard has sentence-level Pinyin + character autocorrect. We\'re building something net-new.</p>',
+    't3-ios': 'iOS Parity',
+    't3-ios-text': '<p><strong>akifkeyboard:</strong> Unmaintained.</p>\n    <p><strong>KeyboardKit:</strong> Modern framework, but Apple sandbox is strict (no IPC outside app, limited text rewriting).</p>\n    <p><strong>Status:</strong> iOS mirror possible but limited feedback vs Android. Defer until iOS MCP equivalent exists.</p>',
+    't3-priority-label': 'Priority:',
+    't3-priority-text': 'Android first (Boox daily driver). iOS deferred.',
+    't4-title': 'Implementation Roadmap',
+    't4-phase1': 'Phase 1: Foundation (2 weeks)',
+    't4-phase1-text': '<p><strong>Deliverables:</strong></p>\n    <ul>\n      <li>Fork Unexpected Keyboard to github.com/ARX-Foundation/unexpected-keyboard-mandarin</li>\n      <li>Add Pinyin layout (corner swipes for tones)</li>\n      <li>Add hanzi candidate bar (tap/swipe selection)</li>\n      <li>Test on Boox 7" device</li>\n    </ul>',
+    't4-phase2': 'Phase 2: Autocorrect Daemon (3 weeks)',
+    't4-phase2-text': '<p><strong>Deliverables:</strong></p>\n    <ul>\n      <li>MCP server (Python + anthropic SDK or local Ollama)</li>\n      <li>Tool: correct_mandarin_sentence(pinyin) → hanzi</li>\n      <li>Deploy on Hetzner (existing VPS)</li>\n      <li>Keyboard client: Send to daemon, render correction once</li>\n    </ul>',
+    't4-phase3': 'Phase 3: On-Device Fallback (2 weeks)',
+    't4-phase3-text': '<p><strong>Deliverables:</strong></p>\n    <ul>\n      <li>Bundle TinyLlama-1.1B-q4 ONNX model</li>\n      <li>Implement Termux socket listener</li>\n      <li>Fallback logic: Daemon timeout → local inference</li>\n    </ul>',
+    't4-phase4': 'Phase 4: iOS (Defer)',
+    't4-phase4-text': '<p><strong>When iOS MCP path clears:</strong></p>\n    <ul>\n      <li>KeyboardKit base</li>\n      <li>Same Pinyin input + corner swipes</li>\n      <li>Connect to Hetzner daemon (limited feedback due to sandbox)</li>\n    </ul>',
+    't4-stack': 'Technical Stack',
+    't4-stack-text': '<p><strong>Android:</strong> Kotlin, ONNX Runtime / TensorFlow Lite, MCP client, Unix socket IPC</p>\n    <p><strong>Hetzner:</strong> Python (anthropic-sdk) or Node (MCP), Ollama/vLLM backend, Mistral-7B</p>\n    <p><strong>Model:</strong> TinyLlama-1.1B (device fallback), Mistral-7B (daemon primary)</p>',
+    't4-duration-label': 'Total Duration:',
+    't4-duration-text': '~7 weeks (phases 1-3)',
+    't5-title': '✓ Project Checklist',
+    't5-prereq-title': 'Prerequisites',
+    't5-prereq-1': 'Identify mystery keyboard (dooe logo, right-hand, circle cap) and analyze UX',
+    't5-prereq-2': 'Confirm Boox model + refresh modes + Wacom latency specs',
+    't5-prereq-3': 'Decide Pinyin vs Zhuyin (mainland vs Taiwan preference)',
+    't5-phase1-title': 'Phase 1: Foundation',
+    't5-p1-1': 'Fork Unexpected Keyboard',
+    't5-p1-2': 'Add Pinyin layout with corner-swipe tones',
+    't5-p1-3': 'Implement hanzi candidate selection UI',
+    't5-p1-4': 'Build + test on Boox device',
+    't5-phase2-title': 'Phase 2: Daemon',
+    't5-p2-1': 'Build MCP server (Python/Node)',
+    't5-p2-2': 'Deploy Mistral-7B on Hetzner',
+    't5-p2-3': 'Integrate Tailscale mesh auth',
+    't5-p2-4': 'Connect keyboard client → test latency',
+    't5-phase3-title': 'Phase 3: Fallback',
+    't5-p3-1': 'Bundle TinyLlama ONNX model',
+    't5-p3-2': 'Implement Termux listener',
+    't5-p3-3': 'Test daemon timeout → fallback flow',
+    't5-success-title': 'Success Criteria',
+    't5-success-1': 'Fork compiles + installs on Boox',
+    't5-success-2': 'Pinyin input + corner tones work smoothly',
+    't5-success-3': 'Hanzi selection UI clear on grayscale',
+    't5-success-4': 'Daemon latency <2s from typing to correction',
+    't5-success-5': 'Mandarin correction accuracy >85%',
+    't5-success-6': 'E-ink flicker acceptable (<200ms total)',
+    't5-success-7': 'Battery impact negligible (<2% drain)',
+    't5-version-label': 'Version:',
+    't5-version-text': '1.0 · March 2026 · ARX Foundation',
+  },
+  zh: {
+    'header-title': 'ARX 键盘项目',
+    'tab1-label': '概览',
+    'tab2-label': '架构',
+    'tab3-label': '约束',
+    'tab4-label': '实现',
+    'tab5-label': '清单',
+    't1-title': '项目概览',
+    't1-intro': '⌨ Unexpected Keyboard + 汉语拼音',
+    't1-intro-text': '基于 Unexpected Keyboard → 添加拼音输入 + 句级自动纠正 → 针对Onyx Boox电子墨水屏优化。本地优先，100% 离线，ARX开源精神。',
+    't1-desc1': '<strong>快速开始。</strong>Unexpected Keyboard已在角落滑动输入上表现卓越。我们添加：(1) 拼音布局+角落声调标记，(2) 汉字候选选择，(3) 句级LLM本地推理纠正，(4) 电子墨水屏灰度显示优化。',
+    't1-desc2': '状态：架构已文档化。第一阶段（Fork + 拼音布局）准备开始。守护进程集成（第二阶段）取决于Hetzner云部署。',
+    't1-callout': '<strong>核心使命：</strong>尊重隐私的输入法，原生支持非拉丁字符，100% 离线工作。无云端打字监视。',
+    't1-facts': '关键事实',
+    't1-facts-text': '<strong>基础：</strong>Unexpected Keyboard (Kotlin, F-Droid)<br><strong>语言：</strong>汉语拼音输入法<br><strong>目标设备：</strong>Onyx Boox 7"/10" (电子墨水屏，Wacom数字化板)<br><strong>自动纠正：</strong>TinyLlama-1.1B（设备端）或 Mistral-7B（守护进程辅助）<br><strong>状态：</strong>主动设计阶段<br><strong>仓库：</strong>github.com/ARX-Foundation/unexpected-keyboard-mandarin',
+    't1-tags-label': '标签：',
+    't2-title': '架构与选项',
+    't2-intro': '<p>两条实现路径。路径B（守护进程辅助）初期推荐——利用现有ARXd/Hetzner基础设施。路径A（设备端）可作为延迟关键会话的备选方案。</p>',
+    't2-path-a': '路径 A：设备端LLM',
+    't2-path-a-label': '仅本地推理',
+    't2-path-a-arch': 'Boox设备:\n  ├── Unexpected Keyboard（修改版）\n  │   └── 发送输入文本 → /tmp/kbd_inference.sock\n  ├── Termux后台服务\n  │   └── TinyLlama-1.1B-q4 (~500MB)\n  └── 键盘渲染纠正 → 更新电子墨水屏一次',
+    't2-path-a-pros': '<strong>优势：</strong>\n      <ul>\n        <li>零网络依赖</li>\n        <li>完全离线工作</li>\n        <li>无服务器运维</li>\n      </ul>',
+    't2-path-a-cons': '<strong>缺点：</strong>\n      <ul>\n        <li>推理速度慢（Snapdragon 680上每句1-3秒）</li>\n        <li>后台LLM耗电量大</li>\n        <li>模型质量受限（1.1B < 7B）</li>\n      </ul>',
+    't2-path-b': '路径 B：守护进程辅助（推荐）',
+    't2-path-b-label': '通过Hetzner云加速',
+    't2-path-b-arch': 'Boox设备:\n  └── Unexpected Keyboard（修改版）\n      └── 发送输入文本 → Hetzner MCP守护进程（SSH over Tailscale）\n\nHetzner VPS:\n  ├── MCP服务器（Python/Node）\n  │   └── "correct_mandarin_sentence" 工具\n  ├── Ollama 或 vLLM\n  │   └── Mistral-7B（更好的汉语支持）\n  └── 返回单一纠正句子\n\n键盘渲染 → 电子墨水屏更新一次',
+    't2-path-b-pros': '<strong>优势：</strong>\n      <ul>\n        <li>推理速度快（GPU加速）</li>\n        <li>模型质量更好（7B）</li>\n        <li>利用现有基础设施</li>\n        <li>守护进程可跨设备共享</li>\n      </ul>',
+    't2-path-b-cons': '<strong>缺点：</strong>\n      <ul>\n        <li>网络依赖（Tailscale网格缓解）</li>\n        <li>增加服务器运维</li>\n      </ul>',
+    't2-data-flow': '用户输入："我喜欢吃苹果。"\n  ↓\n键盘检测句号终止符（。）\n  ↓\n发送到守护进程：{pinyin: "wo3 xi3huan5 chi1 ping2guo3"}\n  ↓\nMCP工具：correct_mandarin_sentence(pinyin)\n  ↓\nLLM检查声调/打字错误 → 返回纠正的汉字\n  ↓\n键盘接收："我喜欢吃苹果。"\n  ↓\n更新电子墨水屏一次（A2模式，150ms刷新）\n  ↓\n用户看到纠正提示（角落闪烁+振动反馈）',
+    't2-rec-label': '推荐：',
+    't2-rec-text': '初期使用路径B，电子墨水屏优化的备选为路径A。',
+    't3-title': '约束与设计决策',
+    't3-eink': '电子墨水屏特定考虑',
+    't3-eink-text': '<p><strong>刷新延迟：</strong>快速更新导致重影。LLM流式建议 = 电子墨水屏上的视觉垃圾。</p>\n    <p><strong>触摸延迟：</strong>Wacom数字化板增加50-200ms延迟。复合重绘与延迟。</p>\n    <p><strong>色彩：</strong>大多数Boox为灰度/6色。排版比花哨UI更重要。</p>\n    <p><strong>性能：</strong>Boox通常搭载Snapdragon 680+（足以运行量化LLM）。</p>\n    <p><strong>解决方案：</strong>单次纠正建议（计算一次，渲染一次），而不是流式输出。</p>',
+    't3-mandarin': '汉语拼音输入UX',
+    't3-mandarin-text': '<p><strong>拼音滑动：</strong>兼容角落滑动模型。东北/东南角落滑动标记声调（1-4，轻声）。</p>\n    <p><strong>汉字选择：</strong>输入拼音后，点击/滑动候选栏选择字符。</p>\n    <p><strong>无现有解决方案：</strong>没有FOSS键盘具备句级拼音+汉字自动纠正。我们在构建全新方案。</p>',
+    't3-ios': 'iOS平台兼容性',
+    't3-ios-text': '<p><strong>akifkeyboard：</strong>维护停止。</p>\n    <p><strong>KeyboardKit：</strong>现代框架，但Apple沙箱严格（无应用外IPC，文本重写受限）。</p>\n    <p><strong>状态：</strong>iOS镜像可行但反馈有限。延迟至iOS MCP方案完成。</p>',
+    't3-priority-label': '优先级：',
+    't3-priority-text': 'Android优先（Boox日常驱动）。iOS延迟。',
+    't4-title': '实现路线图',
+    't4-phase1': '第一阶段：基础（2周）',
+    't4-phase1-text': '<p><strong>交付件：</strong></p>\n    <ul>\n      <li>Fork Unexpected Keyboard至 github.com/ARX-Foundation/unexpected-keyboard-mandarin</li>\n      <li>添加拼音布局（角落滑动声调）</li>\n      <li>实现汉字候选栏（点击/滑动选择）</li>\n      <li>在Boox 7"上构建+测试</li>\n    </ul>',
+    't4-phase2': '第二阶段：守护进程（3周）',
+    't4-phase2-text': '<p><strong>交付件：</strong></p>\n    <ul>\n      <li>MCP服务器（Python + anthropic SDK或本地Ollama）</li>\n      <li>工具：correct_mandarin_sentence(pinyin) → hanzi</li>\n      <li>部署在Hetzner（现有VPS）</li>\n      <li>键盘客户端集成：发送到守护进程，渲染一次纠正</li>\n    </ul>',
+    't4-phase3': '第三阶段：设备端备选（2周）',
+    't4-phase3-text': '<p><strong>交付件：</strong></p>\n    <ul>\n      <li>捆绑TinyLlama-1.1B-q4 ONNX模型</li>\n      <li>实现Termux套接字监听器</li>\n      <li>备选逻辑：守护进程超时 → 本地推理</li>\n    </ul>',
+    't4-phase4': '第四阶段：iOS（延迟）',
+    't4-phase4-text': '<p><strong>iOS MCP方案完成时：</strong></p>\n    <ul>\n      <li>KeyboardKit基础</li>\n      <li>同样的拼音输入+角落滑动</li>\n      <li>连接到Hetzner守护进程（沙箱限制反馈）</li>\n    </ul>',
+    't4-stack': '技术栈',
+    't4-stack-text': '<p><strong>Android：</strong>Kotlin、ONNX Runtime / TensorFlow Lite、MCP客户端、Unix套接字IPC</p>\n    <p><strong>Hetzner：</strong>Python (anthropic-sdk) 或 Node (MCP)、Ollama/vLLM后端、Mistral-7B</p>\n    <p><strong>模型：</strong>TinyLlama-1.1B（设备端备选），Mistral-7B（守护进程主要）</p>',
+    't4-duration-label': '总时间：',
+    't4-duration-text': '~7周（第1-3阶段）',
+    't5-title': '✓ 项目清单',
+    't5-prereq-title': '前置条件',
+    't5-prereq-1': '识别神秘键盘（dooe标志，右手，圆形大写键）并分析UX',
+    't5-prereq-2': '确认Boox型号+刷新模式+Wacom延迟规格',
+    't5-prereq-3': '决定拼音vs注音（大陆vs台湾偏好）',
+    't5-phase1-title': '第一阶段：基础',
+    't5-p1-1': 'Fork Unexpected Keyboard',
+    't5-p1-2': '添加拼音布局+角落滑动声调',
+    't5-p1-3': '实现汉字候选选择UI',
+    't5-p1-4': '在Boox设备上构建+测试',
+    't5-phase2-title': '第二阶段：守护进程',
+    't5-p2-1': '构建MCP服务器（Python/Node）',
+    't5-p2-2': '在Hetzner部署Mistral-7B',
+    't5-p2-3': '集成Tailscale网格认证',
+    't5-p2-4': '连接键盘客户端 → 测试延迟',
+    't5-phase3-title': '第三阶段：备选方案',
+    't5-p3-1': '捆绑TinyLlama ONNX模型',
+    't5-p3-2': '实现Termux监听器',
+    't5-p3-3': '测试守护进程超时 → 备选流程',
+    't5-success-title': '成功标准',
+    't5-success-1': 'Fork编译+在Boox上安装',
+    't5-success-2': '拼音输入+角落声调工作流畅',
+    't5-success-3': '汉字选择UI在灰度上清晰',
+    't5-success-4': '守护进程延迟 <2秒（输入到纠正）',
+    't5-success-5': '汉语纠正准确率 >85%',
+    't5-success-6': '电子墨水屏闪烁可接受 (<200ms总计)',
+    't5-success-7': '电池影响可忽略 (<2% 耗电增加)',
+    't5-version-label': '版本：',
+    't5-version-text': '1.0 · 2026年3月 · ARX基金会',
+  }
+};
+
+const mainHeader = document.getElementById('main-header');
+const themeBtn = document.getElementById('theme-btn');
+
+if (isDarkMode) {
+  document.body.setAttribute('data-theme', 'dark');
+  themeBtn.textContent = '☀ Light';
+}
+
+function toggleTheme() {
+  isDarkMode = !isDarkMode;
+  document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+  themeBtn.textContent = isDarkMode ? '☀ Light' : '🌙 Dark';
+  localStorage.setItem('arx-kbd-theme', isDarkMode ? 'dark' : 'light');
+}
+
+function switchLang(lang) {
+  currentLang = lang;
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+  
+  const t = translations[lang];
+  for (const [key, value] of Object.entries(t)) {
+    const elem = document.getElementById(key);
+    if (elem) elem.innerHTML = value;
+  }
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+  document.getElementById(`panel-${tab}`).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+window.addEventListener('scroll', () => {
+  const should = window.scrollY > 40;
+  mainHeader.classList.toggle('collapsed', should);
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  if (total > 0) document.getElementById('progress').style.width = (window.scrollY / total * 100) + '%';
+}, { passive: true });
+
+// Initialize language
+document.getElementById('btn-en').classList.add('active');
+switchLang('en');
+</script>
+
+</body>
+</html>

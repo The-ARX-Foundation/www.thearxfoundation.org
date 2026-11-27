@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARX Waystone — Project Specification</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5EFE4;
+    --bg2: #EDE6D8;
+    --bg3: #E3DACB;
+    --rust: #7A3A1A;
+    --rust-light: #A0522D;
+    --rust-faint: rgba(122, 58, 26, 0.08);
+    --ink: #2C2417;
+    --ink2: #5C4F3D;
+    --ink3: #8A7D6B;
+    --green: #3A6B3A;
+    --green-faint: rgba(58, 107, 58, 0.08);
+    --blue: #2A4A6B;
+    --blue-faint: rgba(42, 74, 107, 0.08);
+    --amber: #B8860B;
+    --amber-faint: rgba(184, 134, 11, 0.08);
+    --red: #8B2500;
+    --border: rgba(44, 36, 23, 0.12);
+    --border-strong: rgba(44, 36, 23, 0.25);
+    --serif: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+    --noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image: var(--noise);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 60px 40px 120px;
+  }
+
+  /* ─── Header ─── */
+  .doc-header {
+    border-bottom: 2px solid var(--rust);
+    padding-bottom: 32px;
+    margin-bottom: 48px;
+  }
+
+  .doc-header .foundation {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 8px;
+  }
+
+  .doc-header h1 {
+    font-family: var(--serif);
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+
+  .doc-header .subtitle {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-style: italic;
+    color: var(--ink2);
+    margin-bottom: 16px;
+  }
+
+  .doc-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink3);
+  }
+
+  .doc-meta span { white-space: nowrap; }
+  .doc-meta .label { color: var(--rust); font-weight: 500; }
+
+  /* ─── TOC ─── */
+  .toc {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--rust);
+    padding: 24px 28px;
+    margin-bottom: 48px;
+  }
+
+  .toc-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 12px;
+  }
+
+  .toc a {
+    display: block;
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--ink2);
+    text-decoration: none;
+    padding: 3px 0;
+    transition: color 0.2s;
+  }
+
+  .toc a:hover { color: var(--rust); }
+  .toc a .num { font-family: var(--mono); font-size: 12px; color: var(--rust); margin-right: 8px; }
+
+  /* ─── Sections ─── */
+  .section {
+    margin-bottom: 48px;
+    page-break-inside: avoid;
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: var(--rust);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.25;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 28px;
+    margin-bottom: 10px;
+  }
+
+  p { margin-bottom: 14px; }
+
+  /* ─── Callouts ─── */
+  .callout {
+    padding: 20px 24px;
+    margin: 20px 0;
+    border-left: 3px solid var(--rust);
+    background: var(--rust-faint);
+  }
+
+  .callout.green { border-left-color: var(--green); background: var(--green-faint); }
+  .callout.blue { border-left-color: var(--blue); background: var(--blue-faint); }
+  .callout.amber { border-left-color: var(--amber); background: var(--amber-faint); }
+
+  .callout .callout-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .callout .callout-label.rust { color: var(--rust); }
+  .callout .callout-label.green { color: var(--green); }
+  .callout .callout-label.blue { color: var(--blue); }
+  .callout .callout-label.amber { color: var(--amber); }
+
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* ─── Code / mono blocks ─── */
+  code {
+    font-family: var(--mono);
+    font-size: 14px;
+    background: var(--bg2);
+    padding: 2px 6px;
+    border-radius: 2px;
+    color: var(--rust);
+  }
+
+  pre {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    background: var(--ink);
+    color: #E8E0D4;
+    padding: 20px 24px;
+    margin: 16px 0;
+    overflow-x: auto;
+    border-radius: 2px;
+  }
+
+  pre .comment { color: #8A7D6B; }
+  pre .key { color: #D4A574; }
+  pre .val { color: #A0C4A0; }
+  pre .punct { color: #8A7D6B; }
+
+  /* ─── Tables ─── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+
+  th {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--rust);
+    text-align: left;
+    padding: 10px 14px;
+    background: var(--bg2);
+    border-bottom: 2px solid var(--border-strong);
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink2);
+    vertical-align: top;
+  }
+
+  td:first-child { color: var(--ink); font-weight: 500; }
+
+  /* ─── Diagram container ─── */
+  .arch-diagram {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 32px;
+    margin: 24px 0;
+    text-align: center;
+  }
+
+  .arch-diagram svg { max-width: 100%; height: auto; }
+
+  .layer-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+  }
+
+  .layer-box {
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 10px 16px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg);
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .layer-box.rust-bg { background: var(--rust); color: var(--bg); border-color: var(--rust); }
+  .layer-box.green-bg { background: var(--green); color: var(--bg); border-color: var(--green); }
+  .layer-box.blue-bg { background: var(--blue); color: var(--bg); border-color: var(--blue); }
+  .layer-box.amber-bg { background: var(--amber); color: var(--bg); border-color: var(--amber); }
+
+  .layer-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin: 14px 0 6px;
+    text-align: center;
+  }
+
+  .arrow-down {
+    text-align: center;
+    font-size: 18px;
+    color: var(--ink3);
+    margin: 4px 0;
+  }
+
+  /* ─── Phase timeline ─── */
+  .phase {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 24px;
+  }
+
+  .phase::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: -24px;
+    width: 1px;
+    background: var(--border-strong);
+  }
+
+  .phase:last-child::before { display: none; }
+
+  .phase .dot {
+    position: absolute;
+    left: 2px;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--rust);
+    background: var(--bg);
+  }
+
+  .phase.active .dot { background: var(--rust); }
+
+  .phase .phase-title {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--rust);
+    margin-bottom: 4px;
+  }
+
+  .phase .phase-time {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink3);
+    margin-bottom: 6px;
+  }
+
+  /* ─── Tags ─── */
+  .tag-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 10px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--ink3);
+    white-space: nowrap;
+  }
+
+  .tag.rust { color: var(--rust); border-color: var(--rust); background: var(--rust-faint); }
+  .tag.green { color: var(--green); border-color: var(--green); background: var(--green-faint); }
+
+  /* ─── Footer ─── */
+  .doc-footer {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink3);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 640px) {
+    .page { padding: 32px 20px 80px; }
+    .doc-header h1 { font-size: 30px; }
+    h2 { font-size: 22px; }
+    .doc-meta { flex-direction: column; gap: 6px; }
+    .layer-row { flex-direction: column; align-items: center; }
+    .layer-box { min-width: 200px; }
+  }
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Shelved</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Paused, not dead. Open to collaborators or funding.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=ARX%20Waystone%20—%20Project%20Specification" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+<div class="page">
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="doc-header">
+    <div class="foundation">ARX Foundation · Project Specification</div>
+    <h1>Waystone</h1>
+    <div class="subtitle">Sovereign Public Lands Intelligence Platform</div>
+    <div class="doc-meta">
+      <span><span class="label">STATUS:</span> RFC</span>
+      <span><span class="label">AUTHOR:</span> Elryan</span>
+      <span><span class="label">DATE:</span> 23 Mar 2026</span>
+      <span><span class="label">TIER:</span> L1 Forgejo · L2 GitHub</span>
+    </div>
+  </div>
+
+  <!-- ════════════ TOC ════════════ -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#problem"><span class="num">01</span> Problem Statement</a>
+    <a href="#thesis"><span class="num">02</span> Thesis & Positioning</a>
+    <a href="#data"><span class="num">03</span> Data Architecture</a>
+    <a href="#stack"><span class="num">04</span> Technical Stack</a>
+    <a href="#arch"><span class="num">05</span> System Architecture</a>
+    <a href="#features"><span class="num">06</span> Feature Map</a>
+    <a href="#roadmap"><span class="num">07</span> Phased Roadmap</a>
+    <a href="#prior"><span class="num">08</span> Prior Art & Differentiation</a>
+    <a href="#governance"><span class="num">09</span> Governance & Licensing</a>
+  </div>
+
+  <!-- ════════════ § 01 PROBLEM ════════════ -->
+  <div class="section" id="problem">
+    <div class="section-num">§ 01</div>
+    <h2>Problem Statement</h2>
+
+    <p>Every van lifer, overlander, and dispersed camper currently relies on a fragmented stack of proprietary apps to answer one question: <em>Can I safely and legally be here?</em></p>
+
+    <p>iOverlander went subscription in 2024 ($60–100/year), broke trust with the community that built its database, and still doesn't carry the data that matters most: USFS closure orders, BLM shooting restrictions, fire prevention orders, dispersed camping legality boundaries, and real-time hazard information. You can find a campsite, but you can't find out that the campsite is inside an active firearms restriction zone until someone's shooting next to your tent.</p>
+
+    <div class="callout">
+      <div class="callout-label rust">Origin Event</div>
+      <p>March 23, 2026 — Ward Canyon Road, Salt Lake Ranger District. Active firearms discharge by multiple groups in a zone covered by a standing USFS prohibition order (36 CFR 261.58(m)). No app, no signage, no enforcement. The regulatory data exists. It's published. It's just not in any tool that people actually use in the field.</p>
+    </div>
+
+    <p>The core failure is architectural: campsite apps treat public lands as a consumer product (find a spot, rate it, move on) rather than as a regulatory environment with rules that change by jurisdiction, season, and active order. The data exists — USFS publishes forest orders, BLM publishes geospatial data in GeoJSON/KML/Shapefile, state agencies publish fire restrictions — but nobody aggregates it into a field-usable interface.</p>
+  </div>
+
+  <!-- ════════════ § 02 THESIS ════════════ -->
+  <div class="section" id="thesis">
+    <div class="section-num">§ 02</div>
+    <h2>Thesis & Positioning</h2>
+
+    <p>Waystone is a sovereign, self-hosted public lands intelligence platform. Not a campsite finder — a <em>field operations layer</em> for anyone who lives, travels, or recreates on public land.</p>
+
+    <h3>Three Data Tiers</h3>
+    <table>
+      <tr>
+        <th>Tier</th>
+        <th>Source</th>
+        <th>Examples</th>
+      </tr>
+      <tr>
+        <td>Official / Authoritative</td>
+        <td>USFS, BLM, NPS, state agencies</td>
+        <td>Forest orders, fire restrictions, shooting closures, land ownership boundaries, dispersed camping rules, seasonal road closures</td>
+      </tr>
+      <tr>
+        <td>Crowdsourced / Community</td>
+        <td>User submissions, OSM imports</td>
+        <td>Campsites, water sources, cell coverage, road conditions, hazard reports, noise levels, safety notes</td>
+      </tr>
+      <tr>
+        <td>Derived / Computed</td>
+        <td>Waystone engine</td>
+        <td>Legality scores per-coordinate, seasonal access windows, "can I shoot here?" / "can I camp here?" boolean layers, distance-to-service calculations</td>
+      </tr>
+    </table>
+
+    <div class="callout green">
+      <div class="callout-label green">Core Differentiator</div>
+      <p>Waystone is the only platform that answers regulatory questions ("is this legal?") alongside practical questions ("is this a good spot?"). The official data tier is not a nice-to-have — it's the entire reason this project exists.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ § 03 DATA ════════════ -->
+  <div class="section" id="data">
+    <div class="section-num">§ 03</div>
+    <h2>Data Architecture</h2>
+
+    <h3>Official Data Sources</h3>
+    <table>
+      <tr>
+        <th>Source</th>
+        <th>Format</th>
+        <th>Coverage</th>
+      </tr>
+      <tr>
+        <td>BLM Geospatial Hub</td>
+        <td>GeoJSON, KML, Shapefile, GeoServices REST</td>
+        <td>Surface management agency boundaries, public land access data, recreation areas, mineral withdrawals. 245M acres.</td>
+      </tr>
+      <tr>
+        <td>USFS FSGeodata</td>
+        <td>Shapefile, GeoJSON, ArcGIS REST</td>
+        <td>National forest boundaries, ranger districts, administrative units, trail data, recreation sites.</td>
+      </tr>
+      <tr>
+        <td>USFS Forest Orders</td>
+        <td>HTML/PDF (requires scraping)</td>
+        <td>Closure orders, fire restrictions, firearms restrictions, seasonal road closures. Per-forest, per-district. Updated irregularly.</td>
+      </tr>
+      <tr>
+        <td>NPS API</td>
+        <td>REST JSON</td>
+        <td>Park boundaries, alerts, campground status, visitor center info. Well-documented public API.</td>
+      </tr>
+      <tr>
+        <td>PAD-US (USGS)</td>
+        <td>GeoPackage, Shapefile</td>
+        <td>Protected Areas Database — national inventory of public open space. Conservation status codes.</td>
+      </tr>
+      <tr>
+        <td>NIFC / InciWeb</td>
+        <td>GeoJSON, KML</td>
+        <td>Active wildfire perimeters, prescribed burns, fire weather zones.</td>
+      </tr>
+      <tr>
+        <td>OpenStreetMap</td>
+        <td>PBF, GeoJSON via Overpass</td>
+        <td>Campsite nodes (tourism=camp_site), water sources, trail data, road surfaces. Global coverage.</td>
+      </tr>
+    </table>
+
+    <h3>The Scraping Problem</h3>
+    <p>USFS forest orders — the most critical data for regulatory awareness — are published as HTML pages and PDF documents on per-forest websites. There is no unified API. Each national forest publishes orders in a different format, at a different URL structure, with different update cadences. This is the hardest data pipeline in the system and the one that creates the most value.</p>
+
+    <div class="callout amber">
+      <div class="callout-label amber">Architecture Decision</div>
+      <p>Forest order ingestion requires a scraper fleet (one per national forest) that monitors USFS alert pages, extracts order text + geospatial boundaries, normalizes into a unified schema, and flags changes. This is a <strong>cron job + LLM extraction</strong> pipeline: scrape HTML → Claude API extracts structured data (order type, CFR reference, affected area description, effective dates) → geocode area descriptions → store as GeoJSON features with metadata.</p>
+    </div>
+
+    <h3>POI Schema</h3>
+    <pre><span class="punct">{</span>
+  <span class="key">"id"</span><span class="punct">:</span> <span class="val">"uuid"</span><span class="punct">,</span>
+  <span class="key">"type"</span><span class="punct">:</span> <span class="val">"campsite | water | hazard | restriction | trailhead | service"</span><span class="punct">,</span>
+  <span class="key">"geometry"</span><span class="punct">:</span> <span class="val">GeoJSON Point | Polygon</span><span class="punct">,</span>
+  <span class="key">"source_tier"</span><span class="punct">:</span> <span class="val">"official | community | derived"</span><span class="punct">,</span>
+  <span class="key">"source_ref"</span><span class="punct">:</span> <span class="val">"URL or citation"</span><span class="punct">,</span>
+  <span class="key">"properties"</span><span class="punct">: {</span>
+    <span class="key">"name"</span><span class="punct">,</span> <span class="key">"description"</span><span class="punct">,</span>
+    <span class="key">"legal_status"</span><span class="punct">:</span> <span class="val">"permitted | restricted | prohibited | seasonal | unknown"</span><span class="punct">,</span>
+    <span class="key">"cfr_reference"</span><span class="punct">:</span> <span class="val">"36 CFR 261.58(m)"</span><span class="punct">,</span>
+    <span class="key">"effective_date"</span><span class="punct">,</span> <span class="key">"expiration_date"</span><span class="punct">,</span>
+    <span class="key">"managing_agency"</span><span class="punct">:</span> <span class="val">"USFS | BLM | NPS | state"</span><span class="punct">,</span>
+    <span class="key">"district"</span><span class="punct">,</span> <span class="key">"forest"</span><span class="punct">,</span>
+    <span class="key">"tags"</span><span class="punct">:</span> <span class="val">["firearms", "fire", "camping", "road-closure"]</span><span class="punct">,</span>
+    <span class="key">"cell_coverage"</span><span class="punct">,</span> <span class="key">"elevation"</span><span class="punct">,</span> <span class="key">"road_surface"</span>
+  <span class="punct">},</span>
+  <span class="key">"reviews"</span><span class="punct">:</span> <span class="val">[{ user, rating, text, date, photos }]</span><span class="punct">,</span>
+  <span class="key">"verification"</span><span class="punct">: {</span>
+    <span class="key">"last_confirmed"</span><span class="punct">,</span> <span class="key">"confidence_score"</span><span class="punct">,</span> <span class="key">"report_count"</span>
+  <span class="punct">}</span>
+<span class="punct">}</span></pre>
+  </div>
+
+  <!-- ════════════ § 04 STACK ════════════ -->
+  <div class="section" id="stack">
+    <div class="section-num">§ 04</div>
+    <h2>Technical Stack</h2>
+
+    <table>
+      <tr><th>Layer</th><th>Technology</th><th>Rationale</th></tr>
+      <tr>
+        <td>Tile Server</td>
+        <td>Protomaps (PMTiles)</td>
+        <td>Single-file tile archive served via HTTP range requests. No tile server process needed. Planet file on Hetzner VPS, served by nginx. Offline capable — download regional extracts to device.</td>
+      </tr>
+      <tr>
+        <td>Map Renderer</td>
+        <td>MapLibre GL JS</td>
+        <td>FOSS fork of Mapbox GL. WebGL vector rendering. Custom styles. Works with Protomaps tiles natively.</td>
+      </tr>
+      <tr>
+        <td>Backend API</td>
+        <td>NestJS (TypeScript)</td>
+        <td>Same stack as Twenty CRM — shared knowledge, shared patterns. GraphQL + REST. Modular architecture for plugin system.</td>
+      </tr>
+      <tr>
+        <td>Database</td>
+        <td>PostgreSQL + PostGIS</td>
+        <td>Spatial queries (ST_Contains, ST_DWithin, ST_Intersects) for "what regulations apply at this coordinate?" The only correct answer for geospatial data.</td>
+      </tr>
+      <tr>
+        <td>Frontend</td>
+        <td>React (PWA)</td>
+        <td>Service worker for offline-first. Cache POI data + regional tiles locally. Queue mutations when offline, sync on reconnect. Same pattern as Twenty CRM mobile strategy.</td>
+      </tr>
+      <tr>
+        <td>Data Pipeline</td>
+        <td>Python (scrapy + Claude API)</td>
+        <td>Scraper fleet for USFS/BLM pages. LLM extraction for unstructured forest orders → structured GeoJSON. Cron-scheduled on Hetzner.</td>
+      </tr>
+      <tr>
+        <td>Auth</td>
+        <td>OIDC (self-hosted)</td>
+        <td>Tailscale for private instance. Optional public instance with OIDC for community contributions.</td>
+      </tr>
+      <tr>
+        <td>Hosting</td>
+        <td>Docker Compose on Hetzner VPS</td>
+        <td>Alongside existing stack (Forgejo, Twenty CRM, OpenClaw, Redis, Syncthing, Infisical). Tailscale mesh for private access.</td>
+      </tr>
+    </table>
+
+    <div class="tag-row">
+      <span class="tag rust">FOSS-ONLY</span>
+      <span class="tag rust">SELF-HOSTED</span>
+      <span class="tag rust">OFFLINE-FIRST</span>
+      <span class="tag green">NO GOOGLE DEPS</span>
+      <span class="tag green">NO MAPBOX DEPS</span>
+    </div>
+  </div>
+
+  <!-- ════════════ § 05 ARCHITECTURE ════════════ -->
+  <div class="section" id="arch">
+    <div class="section-num">§ 05</div>
+    <h2>System Architecture</h2>
+
+    <div class="arch-diagram">
+      <div class="layer-label">Client Layer</div>
+      <div class="layer-row">
+        <div class="layer-box">PWA (IronFox)</div>
+        <div class="layer-box">Desktop (Zen)</div>
+        <div class="layer-box">Capacitor (F-Droid)</div>
+      </div>
+
+      <div class="arrow-down">↕ Service Worker · Offline Cache · Sync Queue</div>
+
+      <div class="layer-label">Application Layer (Hetzner VPS)</div>
+      <div class="layer-row">
+        <div class="layer-box rust-bg">Waystone API<br><small>NestJS · GraphQL</small></div>
+        <div class="layer-box green-bg">MCP Server<br><small>Claude · ARXd</small></div>
+      </div>
+
+      <div class="arrow-down">↕ PostGIS Spatial Queries</div>
+
+      <div class="layer-label">Data Layer</div>
+      <div class="layer-row">
+        <div class="layer-box blue-bg">PostgreSQL<br><small>+ PostGIS</small></div>
+        <div class="layer-box">PMTiles<br><small>Protomaps</small></div>
+        <div class="layer-box">Redis<br><small>Cache · Queue</small></div>
+      </div>
+
+      <div class="arrow-down">↑ Ingestion Pipeline (Cron)</div>
+
+      <div class="layer-label">Source Layer</div>
+      <div class="layer-row">
+        <div class="layer-box amber-bg">USFS Orders<br><small>Scraper Fleet</small></div>
+        <div class="layer-box amber-bg">BLM GIS Hub<br><small>GeoJSON API</small></div>
+        <div class="layer-box amber-bg">NPS API<br><small>REST</small></div>
+        <div class="layer-box">OSM Overpass<br><small>Campsite nodes</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ § 06 FEATURES ════════════ -->
+  <div class="section" id="features">
+    <div class="section-num">§ 06</div>
+    <h2>Feature Map</h2>
+
+    <h3>"Can I…?" Query Engine</h3>
+    <p>The killer feature. Tap any point on the map and Waystone resolves: managing agency, active restrictions, dispersed camping legality, firearms discharge rules, fire order status, seasonal access windows, and nearest services. All from the official data tier, supplemented by community reports.</p>
+
+    <h3>Restriction Overlay</h3>
+    <p>Toggle-able polygon layers showing active forest orders, fire restrictions, and closure areas. Color-coded by type (red = firearms prohibition, orange = fire restriction, yellow = seasonal closure). Updated by the scraper pipeline. Each polygon links to the source order document.</p>
+
+    <h3>Offline Regional Packs</h3>
+    <p>Download a region (state, national forest, BLM field office) as a single offline bundle: tile extract + POI database + active restriction polygons. Service worker serves from local cache. Sync delta updates on reconnect. Critical for areas without cell coverage — which is most of public land.</p>
+
+    <h3>Community POI Layer</h3>
+    <p>iOverlander-style crowdsourced data: campsites, water sources, dump stations, road conditions, cell coverage reports. But with a key difference — every community POI is spatially intersected against the official layer, so submissions are automatically tagged with applicable restrictions.</p>
+
+    <h3>MCP Integration</h3>
+    <p>Waystone MCP server exposes tools for Claude / ARXd: <code>query_restrictions(lat, lng)</code>, <code>find_campsites(bbox, filters)</code>, <code>check_legality(lat, lng, activity)</code>, <code>get_active_orders(forest, district)</code>. Enables natural language queries like "can I camp and shoot near Ward Canyon Road?"</p>
+
+    <h3>Report-to-Authority Pipeline</h3>
+    <p>See a violation? Tap to report. Waystone auto-populates the managing agency, applicable order/CFR reference, your GPS coordinates, and a draft complaint. One-tap email to the relevant ranger district. The Ward Canyon workflow, productized.</p>
+  </div>
+
+  <!-- ════════════ § 07 ROADMAP ════════════ -->
+  <div class="section" id="roadmap">
+    <div class="section-num">§ 07</div>
+    <h2>Phased Roadmap</h2>
+
+    <div class="phase active">
+      <div class="dot"></div>
+      <div class="phase-title">Phase 0 — Foundation</div>
+      <div class="phase-time">Prerequisite: Hetzner VPS deployed</div>
+      <p>Docker Compose service definition. PostgreSQL + PostGIS container. Protomaps tile file (US extract, ~30GB). Basic NestJS API scaffold. MapLibre frontend rendering tiles from local PMTiles. Proof of concept: render BLM SMA boundaries on the map alongside OSM base tiles.</p>
+    </div>
+
+    <div class="phase">
+      <div class="dot"></div>
+      <div class="phase-title">Phase 1 — Official Data Ingestion</div>
+      <div class="phase-time">2–4 weeks after Phase 0</div>
+      <p>BLM GIS Hub data download + PostGIS import (surface management, public land access, recreation areas). PAD-US import. NPS API integration. First USFS scraper targeting Uinta-Wasatch-Cache National Forest (home turf, known data structure). "Can I…?" query for a single coordinate returning land ownership + managing agency.</p>
+    </div>
+
+    <div class="phase">
+      <div class="dot"></div>
+      <div class="phase-title">Phase 2 — Forest Order Pipeline</div>
+      <div class="phase-time">2–4 weeks after Phase 1</div>
+      <p>USFS forest order scraper generalized to multiple forests (start with UT/CA forests for van life route coverage). Claude API extraction pipeline: HTML → structured order data → GeoJSON polygons with metadata. Restriction overlay rendering on map. Daily cron refresh. Backfill historical orders for the target forests.</p>
+    </div>
+
+    <div class="phase">
+      <div class="dot"></div>
+      <div class="phase-title">Phase 3 — PWA + Offline</div>
+      <div class="phase-time">2–4 weeks after Phase 2</div>
+      <p>Service worker implementation. Regional offline pack generation (per-forest tile extracts + POI bundles). Cache-first rendering. Sync queue for offline-created POIs. Installable PWA on GrapheneOS via IronFox. Field test on FL→UT Sprinter drive.</p>
+    </div>
+
+    <div class="phase">
+      <div class="dot"></div>
+      <div class="phase-title">Phase 4 — Community Layer</div>
+      <div class="phase-time">Post-initial field testing</div>
+      <p>User accounts (OIDC). Community POI submission with photo upload. Auto-intersection against official data on submit. Rating/verification system. OSM campsite import pipeline. iOverlander GPX data import (historical community data, GPLv3 conversion tool exists). MCP server for Claude/ARXd integration.</p>
+    </div>
+
+    <div class="phase">
+      <div class="dot"></div>
+      <div class="phase-title">Phase 5 — Report Pipeline + Scale</div>
+      <div class="phase-time">Ongoing</div>
+      <p>Report-to-authority one-tap workflow. NIFC wildfire data integration. Expand scraper fleet to all 154 national forests. Public instance option (separate from private Tailscale instance). Capacitor packaging for F-Droid distribution. API for third-party integrations.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ § 08 PRIOR ART ════════════ -->
+  <div class="section" id="prior">
+    <div class="section-num">§ 08</div>
+    <h2>Prior Art & Differentiation</h2>
+
+    <table>
+      <tr><th>App</th><th>Strengths</th><th>Fatal Gap</th></tr>
+      <tr>
+        <td>iOverlander</td>
+        <td>Largest crowdsourced database. International coverage.</td>
+        <td>Proprietary. $60–100/year subscription. No official data. No regulatory layer. Broken 2024 rebuild alienated community.</td>
+      </tr>
+      <tr>
+        <td>Dispersed</td>
+        <td>Official USFS/BLM campsite data. Half the price.</td>
+        <td>Proprietary. Campsite-only — no restriction data, no shooting/fire orders. No community layer.</td>
+      </tr>
+      <tr>
+        <td>The Dyrt</td>
+        <td>BLM/USFS boundary overlays. Good reviews.</td>
+        <td>Proprietary. Free camping filters paywalled. No active order/restriction data.</td>
+      </tr>
+      <tr>
+        <td>Gaia GPS</td>
+        <td>Powerful mapping. Topo + public land layers.</td>
+        <td>Proprietary. Mapping tool, not POI platform. No campsite database. No regulatory intelligence.</td>
+      </tr>
+      <tr>
+        <td>FreeRoam</td>
+        <td>Community-focused. Free.</td>
+        <td>Small database. No official data layer. No offline support.</td>
+      </tr>
+      <tr>
+        <td>OpenCampingMap</td>
+        <td>FOSS. OSM data. Self-hostable.</td>
+        <td>Campsite-only. No restriction data. No community features. Minimal UI.</td>
+      </tr>
+      <tr>
+        <td>TRIP</td>
+        <td>FOSS. Self-hostable. Docker. Clean.</td>
+        <td>Generic POI tracker. No public lands data. No regulatory layer. Good bones though — possible component.</td>
+      </tr>
+    </table>
+
+    <div class="callout blue">
+      <div class="callout-label blue">Positioning</div>
+      <p>Waystone is not competing with iOverlander on campsite count. It's competing on a dimension none of them occupy: <em>regulatory intelligence</em>. "Is this legal?" is a question no existing app answers reliably. Waystone answers it from authoritative sources, offline, for free, self-hosted.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ § 09 GOVERNANCE ════════════ -->
+  <div class="section" id="governance">
+    <div class="section-num">§ 09</div>
+    <h2>Governance & Licensing</h2>
+
+    <p>Waystone is an ARX Foundation project. AGPL-3.0 license (copyleft ensures forks stay open; AGPL covers the server-side component that iOverlander-style companies would otherwise close-source).</p>
+
+    <h3>Repo Tiering</h3>
+    <table>
+      <tr><th>Layer</th><th>Content</th></tr>
+      <tr><td>L1 — Forgejo</td><td>Source of truth. All development happens here. Scraper fleet configs, API keys (via Infisical), deployment manifests.</td></tr>
+      <tr><td>L2 — GitHub</td><td>Public mirror. Community contributions, issues, PRs. CI/CD triggers. Documentation site.</td></tr>
+      <tr><td>L3 — Radicle</td><td>P2P sovereign backup. Survives platform deplatforming.</td></tr>
+    </table>
+
+    <h3>Data Licensing</h3>
+    <p>Official government data (BLM, USFS, NPS) is public domain — no licensing restrictions. OSM data is ODbL (attribution + share-alike for derivative databases). Community-submitted POIs are CC BY-SA 4.0, ensuring the community database can never be enclosed by a proprietary fork.</p>
+
+    <h3>Sustainability Model</h3>
+    <p>ARX Foundation 501(c)(3) nonprofit. No subscription fees. No ads. Revenue paths: grants (NSF, recreation/conservation foundations), donations, and optional managed hosting for organizations (ranger districts, outdoor education nonprofits, SAR teams) who want Waystone without running their own server.</p>
+  </div>
+
+  <!-- ════════════ FOOTER ════════════ -->
+  <div class="doc-footer">
+    <span>ARX Foundation · Waystone v0.1 RFC</span>
+    <span>AGPL-3.0 · Sovereign by default</span>
+  </div>
+
+</div>
+</body>
+</html>

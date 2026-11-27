@@ -10,6 +10,8 @@ Usage:
   projects are dropped.
 - Private page: every project, with all fields, plus --blurbs (plain-English blurb +
   suggested 90-day signal) and a relative link to each project's collected copy. Write it OUTSIDE this repo.
+With --pages (projects/pages.json from build_project_pages.py), public cards get their
+write-up link, stage and one-line pitch. Glyphkeeper links its own app at /glyphkeeper/.
 Stdlib only. Missing board values fall back to catalog suggestions, and the page
 marks them as suggested.
 """
@@ -19,6 +21,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PLACEHOLDER = re.compile(r"\[(PORTFOLIO TITLE|CUSTOMIZE|Custom|PROJECT NAME)|\{title\}|项目")
 DECISION_PRIORITY = {"forge": "P0", "next": "P2", "archive": "P3", "drop": "P4"}
 DECISION_HORIZON = {"forge": "<3mo", "next": "3-12mo", "archive": "3y+"}
+DECISION_STAGE = {"forge": "Active", "next": "Up next", "archive": "Shelved"}
+EXTRA_PAGES = {"arx-094": {"url": "/glyphkeeper/", "stage": "Active", "label": "Open Glyphkeeper",
+               "blurb": "Study pages, flashcards and spaced repetition for the world's writing systems."}}
 PUBLIC_DROP = {"money", "private_markers", "note", "chat", "chat_links", "local", "path",
                "ip_flag_insightally", "visibility", "sug_visibility", "all_versions", "todos",
                "legal_ip", "links", "conversations", "kind", "blurb", "sug_signal",
@@ -106,7 +111,8 @@ def merge(c, b, links, blurbs=None):
 
 def public_view(rows):
     # Public = confirmed public AND ARX scope (non-ARX work/volunteering/personal never ships).
-    keep = {r["id"] for r in rows if r["confirmed_public"] and not r["placeholder"] and r["scope"] == "ARX"}
+    keep = {r["id"] for r in rows if r["confirmed_public"] and not r["placeholder"] and r["scope"] == "ARX"
+            and r["id"] not in HOLDS}
     out = []
     for r in rows:
         if r["id"] not in keep:
@@ -122,6 +128,7 @@ def public_view(rows):
 
 
 SITE = json.load(open(os.path.join(HERE, "site.json"), encoding="utf-8"))
+HOLDS = {k for k in json.load(open(os.path.join(HERE, "holds.json"), encoding="utf-8")) if not k.startswith("_")}
 CONTACT = {"email": SITE["contact_email"], "discussions": SITE["discussions_url"]}
 
 
@@ -151,6 +158,7 @@ def main():
     ap.add_argument("--catalog", required=True); ap.add_argument("--board", required=True)
     ap.add_argument("--links", required=True)
     ap.add_argument("--blurbs", help="blurbs.json: {arx-id: {b: blurb, s: suggested 90-day signal}} (private only)")
+    ap.add_argument("--pages", help="projects/pages.json from build_project_pages.py")
     ap.add_argument("--public-out", required=True); ap.add_argument("--private-out", required=True)
     a = ap.parse_args()
     repo = os.path.dirname(HERE)
@@ -162,6 +170,13 @@ def main():
     links = json.load(open(a.links, encoding="utf-8")).get("links", {})
     blurbs = json.load(open(a.blurbs, encoding="utf-8")) if a.blurbs else {}
     rows = [merge(c, board.get(c["id"], {}), links, blurbs) for c in cat]
+    pages = dict(EXTRA_PAGES, **(json.load(open(a.pages, encoding="utf-8")) if a.pages else {}))
+    for r in rows:
+        pg = pages.get(r["id"]) or {}
+        r["stage"] = pg.get("stage") or DECISION_STAGE.get(r["decision"] or "", "Idea")
+        r["page"] = pg.get("url") or None
+        r["page_label"] = pg.get("label") or None
+        r["pitch"] = pg.get("blurb") or None
     titles = {r["id"]: r["title"] for r in rows}
     for r in rows:
         r["titles"] = {i: titles.get(i, i) for i in set(r["related"] + r["depends_on"] + r["blocks"])}

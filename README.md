@@ -33,3 +33,16 @@ The Worker is connected to this repo through **Workers Builds** in the Cloudflar
 - Custom domains on the Worker: `www.thearxfoundation.org`, `thearxfoundation.org`, `lander.thearxfoundation.org`.
 - `.assetsignore` keeps `tools/`, `.github/`, `.git*` and `README.md` from being served.
 - Email for the domain runs on Cloudflare Email Routing (MX/SPF/DKIM in DNS); leave those records alone.
+
+## Project write-ups (`/projects/<slug>/`)
+
+Each board card marked public gets its original write-up published at `/projects/<slug>/`. The documents session stages the pages and a `manifest.json` in `ARX Projects/Collections/_public/`. Then:
+
+```sh
+P="…/ARX Projects/Collections/_public"
+python3 tools/build_project_pages.py --manifest "$P/manifest.json" --pages "$P/pages" --out projects
+python3 tools/build_projects.py --catalog … --board <board snapshot> --links … \
+  --pages projects/pages.json --public-out projects/index.html --private-out <outside repo>
+```
+
+`build_project_pages.py` copies each page unchanged and adds only a slim top bar (all projects, stage, contact). It compiles `.jsx` pages once with esbuild, skips truncated pages, and removes write-ups that are no longer in the manifest. `tools/holds.json` keeps listed projects off the public site entirely, even when they're public on the board.

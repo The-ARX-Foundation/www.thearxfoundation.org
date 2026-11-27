@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>FuelMesh — Decentralized Fuel Intelligence · ARX Foundation</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ========================================
+   FUELMESH — ARX FOUNDATION
+   
+   Built on Atlas Research Group Template v2.2
+   Aesthetic: Philosophical Brutalism · Industrial Intelligence
+   
+   Born from a $61.19 B-20 fill that shouldn't have happened.
+   
+   COLOR PHILOSOPHY:
+   Near-white marble base with dark gold fuel-tone accents.
+   Diesel amber (#B8860B) as system accent — the color of the
+   problem and the solution.
+   ======================================== */
+
+:root {
+  --theme: light;
+  --bg: #FAFAFA;
+  --bg2: #F2F2F2;
+  --bg3: #E8E8E8;
+  --border: #D8D8D8;
+  --border-light: #ECECEC;
+  --text: #1A1A1A;
+  --text2: #4A4A4A;
+  --text3: #8A8A8A;
+  --accent: #1A1A1A;
+  --accent2: #2D2D2D;
+  --gold: #B8860B;
+  --gold2: #9A7209;
+  --gold-glow: rgba(184, 134, 11, 0.08);
+  --danger: #B85C1F;
+  --safe: #4A7A3A;
+
+  --serif: 'EB Garamond', serif;
+  --sans: 'Manrope', sans-serif;
+  --mono: 'Space Mono', monospace;
+}
+
+body[data-theme="dark"] {
+  --bg: #0D0D0D;
+  --bg2: #161616;
+  --bg3: #1E1E1E;
+  --border: #2A2A2A;
+  --border-light: #1F1F1F;
+  --text: #EBEBEB;
+  --text2: #B0B0B0;
+  --text3: #707070;
+  --accent: #E8E8E8;
+  --accent2: #C0C0C0;
+  --gold: #D4AF37;
+  --gold2: #E8C547;
+  --gold-glow: rgba(212, 175, 55, 0.06);
+  --danger: #E8823A;
+  --safe: #6BA352;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: clamp(14px, 2.2vw, 15px);
+  line-height: 1.85;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.018'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+#progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--gold);
+  z-index: 101;
+  transition: width 0.1s linear;
+}
+
+.header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: clamp(28px, 5vw, 40px) clamp(20px, 5%, 60px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.header.collapsed {
+  padding: clamp(10px, 2vw, 16px) clamp(20px, 5%, 60px);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header-left { flex: 1; min-width: 0; }
+
+.header-title {
+  font-family: var(--serif);
+  font-size: clamp(22px, 5vw, 40px);
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  transition: font-size 0.3s ease;
+}
+
+.header.collapsed .header-title {
+  font-size: clamp(14px, 3vw, 18px);
+  margin-bottom: 0;
+}
+
+.header-subtitle {
+  font-family: var(--sans);
+  font-size: clamp(10px, 1.8vw, 12px);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.header.collapsed .header-subtitle {
+  opacity: 0; height: 0; margin: 0; overflow: hidden;
+}
+
+.systems-viz {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.header.collapsed .systems-viz {
+  opacity: 0; height: 0; overflow: hidden;
+}
+
+.node {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.node:nth-child(2) { animation-delay: 0.5s; }
+.node:nth-child(3) { animation-delay: 1s; }
+.node:nth-child(4) { animation-delay: 1.5s; }
+.node:nth-child(5) { animation-delay: 2s; }
+.node-divider { font-size: 10px; color: var(--border); }
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.scroll-pct {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 1px;
+  min-width: 32px;
+  text-align: right;
+}
+
+.theme-toggle {
+  padding: clamp(5px, 1.5vw, 8px) clamp(8px, 2vw, 12px);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: clamp(9px, 1.5vw, 11px);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 0;
+  transition: all 0.2s;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.theme-toggle:hover { border-color: var(--accent); background: var(--bg2); }
+
+.tab-bar {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 clamp(20px, 5%, 60px);
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  width: 100%;
+  scroll-behavior: smooth;
+}
+
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab {
+  padding: clamp(12px, 2.5vw, 16px) clamp(14px, 3vw, 20px);
+  font-family: var(--sans);
+  font-size: clamp(9px, 1.8vw, 11px);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  user-select: none;
+  flex-shrink: 0;
+  touch-action: manipulation;
+  font-weight: 500;
+}
+
+.tab:hover { color: var(--text2); }
+.tab.active { color: var(--accent); border-bottom-color: var(--gold); }
+
+.panels {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: clamp(40px, 6vw, 60px) clamp(20px, 5%, 60px) clamp(80px, 20vw, 120px);
+  position: relative;
+  z-index: 1;
+  min-height: 60vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.panel { display: none; opacity: 0; }
+.panel.active { display: block; animation: fadeIn 0.4s ease forwards; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tag {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.6vw, 11px);
+  letter-spacing: 2px;
+  color: var(--gold);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.section-header {
+  font-family: var(--serif);
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: clamp(28px, 5vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -0.3px;
+}
+
+.body-text { margin-bottom: clamp(16px, 3vw, 24px); }
+.body-text p { margin-bottom: clamp(14px, 2vw, 20px); }
+.body-text p:last-child { margin-bottom: 0; }
+.body-text strong, .highlight { color: var(--accent); font-weight: 600; }
+
+.philosophical-block {
+  background: var(--bg2);
+  border-left: 3px solid var(--gold);
+  padding: clamp(16px, 3vw, 24px);
+  margin: clamp(24px, 4vw, 36px) 0;
+  font-family: var(--serif);
+  font-size: clamp(15px, 2.5vw, 17px);
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.85;
+}
+
+.subsection {
+  margin-top: clamp(32px, 5vw, 48px);
+  margin-bottom: clamp(28px, 4vw, 40px);
+}
+
+.subsection-title {
+  font-family: var(--sans);
+  font-size: clamp(10px, 1.6vw, 12px);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: clamp(12px, 2vw, 16px);
+  padding-bottom: clamp(10px, 2vw, 12px);
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.list-item {
+  margin-bottom: clamp(12px, 2vw, 16px);
+  padding-left: 20px;
+  position: relative;
+  font-size: clamp(13px, 2vw, 14px);
+  line-height: 1.85;
+  color: var(--text2);
+}
+
+.list-item::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.dot-separator { display: inline-block; margin: 0 8px; color: var(--text3); }
+
+.project-card {
+  margin-bottom: clamp(20px, 3vw, 28px);
+  padding: clamp(18px, 3vw, 24px);
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  transition: border-color 0.2s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+
+.project-title {
+  font-family: var(--serif);
+  font-size: clamp(17px, 3vw, 20px);
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.project-status {
+  font-family: var(--sans);
+  font-size: clamp(9px, 1.5vw, 11px);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: clamp(8px, 1.5vw, 12px);
+  font-weight: 500;
+}
+
+.project-desc {
+  font-size: clamp(13px, 2vw, 14px);
+  line-height: 1.85;
+  color: var(--text2);
+}
+
+.project-meta {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.5vw, 11px);
+  color: var(--text3);
+  letter-spacing: 0.5px;
+  margin-top: clamp(8px, 1.5vw, 12px);
+}
+
+.sem-footer {
+  margin-top: clamp(28px, 4vw, 36px);
+  padding-top: clamp(16px, 2vw, 20px);
+  border-top: 1px solid var(--border);
+}
+
+.sem-footer-label {
+  font-family: var(--sans);
+  font-size: clamp(9px, 1.5vw, 10px);
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: clamp(8px, 1.5vw, 10px);
+  font-weight: 600;
+}
+
+.sem-cloud { display: flex; flex-wrap: wrap; gap: clamp(6px, 1.5vw, 8px); }
+
+.sem-chip {
+  background: var(--gold-glow);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: clamp(4px, 1vw, 5px) clamp(8px, 1.5vw, 12px);
+  font-family: var(--sans);
+  font-size: clamp(9px, 1.4vw, 10px);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  font-weight: 500;
+}
+
+.sem-chip:hover { border-color: var(--accent); color: var(--accent); }
+
+body[data-theme="dark"] .sem-chip {
+  background: rgba(212, 175, 55, 0.06);
+  border-color: var(--border);
+}
+
+/* Schema table */
+.schema-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.6vw, 12px);
+  margin: clamp(16px, 3vw, 24px) 0;
+}
+
+.schema-table th {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--accent);
+  font-size: clamp(9px, 1.4vw, 10px);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.schema-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text2);
+  vertical-align: top;
+}
+
+.schema-table tr:hover td {
+  background: var(--gold-glow);
+}
+
+/* Code blocks */
+.code-block {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: clamp(12px, 2vw, 16px);
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.6vw, 12px);
+  line-height: 1.7;
+  color: var(--text2);
+  overflow-x: auto;
+  margin: clamp(16px, 3vw, 24px) 0;
+  white-space: pre;
+}
+
+/* Phase cards */
+.phase-card {
+  margin-bottom: clamp(20px, 3vw, 28px);
+  padding: clamp(18px, 3vw, 24px);
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+}
+
+.phase-label {
+  font-family: var(--mono);
+  font-size: clamp(9px, 1.4vw, 10px);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.phase-title {
+  font-family: var(--serif);
+  font-size: clamp(17px, 3vw, 20px);
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.phase-desc {
+  font-size: clamp(13px, 2vw, 14px);
+  line-height: 1.85;
+  color: var(--text2);
+}
+
+/* Warning callout */
+.warning-block {
+  background: rgba(184, 92, 31, 0.06);
+  border-left: 3px solid var(--danger);
+  padding: clamp(12px, 2vw, 16px);
+  margin: clamp(16px, 3vw, 24px) 0;
+  font-size: clamp(12px, 2vw, 13px);
+  color: var(--text2);
+  line-height: 1.7;
+}
+
+.warning-block strong { color: var(--danger); }
+
+.nav-footer {
+  display: flex;
+  gap: clamp(12px, 3vw, 16px);
+  justify-content: space-between;
+  margin-top: clamp(48px, 6vw, 64px);
+  padding-top: clamp(24px, 3vw, 32px);
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  flex: 1;
+  min-width: 140px;
+  padding: clamp(10px, 2vw, 12px) clamp(14px, 2.5vw, 16px);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: clamp(10px, 1.8vw, 11px);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  touch-action: manipulation;
+  font-weight: 500;
+}
+
+.nav-btn:hover { border-color: var(--accent); background: var(--bg2); color: var(--accent); }
+.nav-btn:active { transform: translateY(1px); }
+
+.site-footer {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: clamp(28px, 5vw, 40px) clamp(20px, 5%, 60px);
+  text-align: center;
+  font-family: var(--sans);
+  font-size: clamp(10px, 1.6vw, 12px);
+  color: var(--text3);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+.site-footer .footer-sub {
+  margin-top: 10px;
+  font-size: clamp(9px, 1.4vw, 10px);
+  letter-spacing: 1px;
+  color: var(--text3);
+  opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+  .header-right { gap: 8px; }
+  .header-content { flex-direction: column; gap: 8px; }
+  .header-right { align-self: flex-end; }
+  .nav-footer { flex-direction: column; gap: 8px; }
+  .nav-btn { width: 100%; min-width: auto; }
+}
+
+@media (max-width: 768px) {
+  .panels { padding: clamp(24px, 4vw, 32px) clamp(16px, 4vw, 24px) 80px; min-height: 300px; }
+}
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Shelved</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Paused, not dead. Open to collaborators or funding.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=FuelMesh%20—%20Decentralized%20Fuel%20Intelligence" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div id="progress"></div>
+
+<div id="main-header" class="header">
+  <div class="header-content">
+    <div class="header-left">
+      <div class="header-title">FuelMesh</div>
+      <div class="header-subtitle">Decentralized Fuel Intelligence · ARX Foundation</div>
+      <div class="systems-viz">
+        <div class="node"></div>
+        <span class="node-divider">·</span>
+        <div class="node"></div>
+        <span class="node-divider">·</span>
+        <div class="node"></div>
+        <span class="node-divider">·</span>
+        <div class="node"></div>
+        <span class="node-divider">·</span>
+        <div class="node"></div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="scroll-pct" id="scroll-pct">0%</span>
+      <button id="theme-btn" class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab" data-panel="tab1">Thesis</div>
+  <div class="tab" data-panel="tab2">Architecture</div>
+  <div class="tab" data-panel="tab3">Data Model</div>
+  <div class="tab" data-panel="tab4">Roadmap</div>
+  <div class="tab" data-panel="tab5">Manifesto</div>
+</div>
+
+<div class="panels">
+
+<!-- TAB 1: THESIS -->
+<div class="panel" id="tab1">
+  <div class="tag">[ § 01 ]</div>
+  <h2 class="section-header">The Fuel Intelligence Gap</h2>
+
+  <div class="body-text">
+    <p>Every diesel driver in the United States operates blind. They know price — maybe, if GasBuddy's crowd-sourced number is recent. They do not know <strong>what is in the fuel</strong>. Not the biodiesel blend percentage. Not the additive package. Not whether the pump they're standing at is feeding their high-pressure common rail engine a chemistry that will quietly destroy it from the inside.</p>
+    <p>The 2019 Mercedes Sprinter VS30 — and every modern HPCR diesel — operates with injector tolerances measured in microns, at pressures exceeding 30,000 PSI. A B-20 biodiesel fill that Mercedes explicitly warns against can accelerate injector deposit formation, dilute engine oil, clog fuel filters, and reduce engine output. But the only way to know you're pumping B-20 is to read a sticker on the pump face. No app tracks this. No service reports it. The information exists — printed on a 2×3 inch label — and dies there.</p>
+  </div>
+
+  <div class="philosophical-block">The most critical data about what enters your engine is the least digitized data in the entire fuel supply chain. FuelMesh exists to close that gap — not by asking corporations for API access, but by building a decentralized observation network that reads the world directly.</div>
+
+  <div class="body-text">
+    <p>FuelMesh is an open-source, crowd-sourced fuel intelligence protocol. It combines mobile OCR capture (pump photos), passive dashcam sign reading, GPS-tagged chemistry logging, and mesh synchronization to build the first fuel database that tracks not just <em>price</em> but <em>composition</em> — the actual molecular profile of what's going into your engine, at every station, in real time.</p>
+  </div>
+
+  <div class="warning-block">
+    <strong>Origin incident — April 8, 2026:</strong> A fuel stop in The Colony, TX. AI-sourced price data hallucinated $3.09/gal. Actual pump price: $5.499/gal. Pump labeled B-20 biodiesel — a blend Mercedes recommends against for regular use. 11.128 gallons entered the tank before the chemistry was identified. Total cost: $61.19 for fuel the engine shouldn't be running on. FuelMesh was born from this failure.
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">What's Broken</div>
+    <div class="list-item"><span class="highlight">Price data is centralized and stale.</span> GasBuddy, Google, AAA — all depend on corporate data feeds or delayed crowd-sourcing with no verification layer. Diesel prices are especially volatile and underreported.</div>
+    <div class="list-item"><span class="highlight">Fuel chemistry is invisible.</span> No consumer-facing service tracks biodiesel blend ratios, additive packages, or ULSD compliance at the station level. This data exists on pump labels and is never digitized.</div>
+    <div class="list-item"><span class="highlight">Engine-specific risk is unmodeled.</span> A B-20 fill is fine for an old mechanical diesel. It's a maintenance liability for a 2019 HPCR Sprinter. No service correlates fuel chemistry with engine compatibility.</div>
+    <div class="list-item"><span class="highlight">Verification is impossible.</span> When a service says diesel is $3.09 and you arrive to $5.49, there is no recourse, no correction mechanism, no accountability loop.</div>
+  </div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Core Domains</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">Decentralized Data</span>
+      <span class="sem-chip">Computer Vision</span>
+      <span class="sem-chip">Fuel Chemistry</span>
+      <span class="sem-chip">Vehicle Telemetry</span>
+      <span class="sem-chip">Open Protocol</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab2')">Next: Architecture →</button>
+  </div>
+</div>
+
+<!-- TAB 2: ARCHITECTURE -->
+<div class="panel" id="tab2">
+  <div class="tag">[ § 02 ]</div>
+  <h2 class="section-header">System Architecture</h2>
+
+  <div class="body-text">
+    <p>FuelMesh operates on two data ingestion layers — active capture (user-initiated pump photos) and passive capture (dashcam OCR on roadside price signs) — feeding into a shared mesh that synchronizes via delay-tolerant networking. No central server required for core operation. The network functions offline-first, syncing when connectivity is available.</p>
+  </div>
+
+  <div class="philosophical-block">No APIs. No corporate permission. No rate limits. The observation network reads the physical world directly — the same way a human would, but at scale.</div>
+
+  <div class="project-card">
+    <div class="project-title">Active Capture Layer</div>
+    <div class="project-status">Primary Data Source</div>
+    <div class="project-desc">User photographs fuel pump at fill-up. Mobile OCR pipeline extracts: price per gallon (from display), fuel type/blend (from pump label sticker — B-5, B-20, ULSD, R99, etc.), station identity (from pump branding or GPS lookup), and total gallons/cost (from receipt display). GPS coordinates and timestamp are embedded automatically. One photo per fill generates a complete fuel intelligence record.</div>
+    <div class="project-meta">PIPELINE: Camera → On-device OCR (Tesseract/PaddleOCR) → Schema validation → Local DB → Mesh sync</div>
+  </div>
+
+  <div class="project-card">
+    <div class="project-title">Passive Capture Layer</div>
+    <div class="project-status">Ambient Intelligence</div>
+    <div class="project-desc">Dashcam-mounted continuous OCR reads roadside fuel price signs while driving. Character recognition on high-contrast price displays (large numerals, standardized formats) is a significantly easier target than license plate reading — which is already a solved problem at highway speed. A Raspberry Pi Zero 2W + camera module running PaddleOCR can process frames in real-time, logging GPS-stamped price observations without user interaction.</div>
+    <div class="project-meta">HARDWARE: RPi Zero 2W + Camera Module 3 (~$35) · INFERENCE: PaddleOCR-lite · STORAGE: SQLite → Mesh sync via Tailscale/BLE</div>
+  </div>
+
+  <div class="project-card">
+    <div class="project-title">Mesh Synchronization</div>
+    <div class="project-status">Core Protocol</div>
+    <div class="project-desc">FuelMesh nodes sync via delay-tolerant networking — the same paradigm as iOverlander, Briar, or Scuttlebutt. Nodes that encounter each other (BLE proximity, shared WiFi, Tailscale mesh) exchange observations using CRDTs (Conflict-free Replicated Data Types) to merge without coordination. Internet connectivity enables wider sync through lightweight relay servers, but is never required for local mesh operation.</div>
+    <div class="project-meta">SYNC: CRDTs (Automerge/Yjs) · TRANSPORT: BLE mesh + Tailscale + optional relay · CONFLICT: Last-write-wins per station-timestamp pair</div>
+  </div>
+
+  <div class="project-card">
+    <div class="project-title">Verification Engine</div>
+    <div class="project-status">Trust Layer</div>
+    <div class="project-desc">Multi-observation convergence scoring. A single user's price report has low confidence. Three independent observations within 24 hours at the same station GPS cluster converge to high confidence. Photo evidence (raw OCR source image) is retained as proof-of-observation, hashed and timestamped. Sybil resistance through spatial uniqueness — hard to fake GPS + OCR + photo + timestamp coherence.</div>
+    <div class="project-meta">TRUST: Convergence scoring · PROOF: SHA-256 hashed source images · SYBIL: GPS + temporal + OCR coherence check</div>
+  </div>
+
+  <div class="project-card">
+    <div class="project-title">Station Node Hardware</div>
+    <div class="project-status">Physical Infrastructure</div>
+    <div class="project-desc">Open-hardware physical feedback nodes deployed at fuel stations — inspired by FeedbackNow's smiley-button form factor (Forrester/Nasdaq: FORR, 200K+ daily interactions across 500+ orgs) but decentralized and open-data. Three-button interface for amenity rating (restroom, pump condition, overall). Optional digital display reader for real-time price capture. Fuel chemistry set once per delivery batch by station staff (in exchange for foot traffic data from the mesh). Battery-powered, BLE beacon — syncs to any FuelMesh device that drives past. No WiFi, no cloud dependency. The anti-FeedbackNow: data goes to the public mesh, not a corporate SaaS silo.</div>
+    <div class="project-meta">HARDWARE: ESP32-S3 + BLE 5.0 + e-ink display (~$12 BOM) · POWER: CR123A lithium (2+ year life) · SYNC: BLE passive broadcast</div>
+  </div>
+
+  <div class="project-card">
+    <div class="project-title">OpenStreetMap Integration</div>
+    <div class="project-status">Upstream Contribution</div>
+    <div class="project-desc">FuelMesh observations map directly onto OSM's existing <code>amenity=fuel</code> schema with extended tags: <code>fuel:biodiesel_blend=B20</code>, <code>fuel:diesel:price=5.499</code>, <code>fuel:diesel:price:date=2026-04-08</code>, <code>restroom=yes</code>, <code>restroom:fee=no</code>, <code>restroom:cleanliness=good|fair|poor</code>, <code>fuel:diesel:chemistry_verified=yes</code>. OSM already has the station nodes — it just has no chemistry layer and no amenity freshness. FuelMesh fills that gap and contributes upstream. Every observation enriches the commons.</div>
+    <div class="project-meta">FORMAT: OSM XML/PBF changeset export · TAGS: Extended fuel:* + amenity:* namespace · LICENSE: ODbL (OSM-compatible)</div>
+  </div>
+
+  <div class="project-card">
+    <div class="project-title">Distributed Verification</div>
+    <div class="project-status">Trust Without Extraction</div>
+    <div class="project-desc">Verification is built into the contribution protocol itself — every user who confirms an existing observation at the same station is performing verification work. No separate labor marketplace needed. The iOverlander model proves this: users ARE the verifiers. For OCR ground-truth training data (bootstrapping the model), ethical micro-task platforms like Hive or Toloka can supplement — but never Amazon MTurk. The labor market for FuelMesh verification must match the ethics of the protocol: transparent pay, no data extraction, contributors own their work product.</div>
+    <div class="project-meta">MODEL: User-as-verifier (primary) · BOOTSTRAP: Ethical micro-task (Hive/Toloka) for OCR training · NEVER: Amazon MTurk</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Technology Stack</div>
+    <div class="body-text">
+      Mobile OCR <span class="dot-separator">·</span> PaddleOCR / Tesseract <span class="dot-separator">·</span> Raspberry Pi <span class="dot-separator">·</span> ESP32-S3 <span class="dot-separator">·</span> SQLite <span class="dot-separator">·</span> CRDTs (Automerge) <span class="dot-separator">·</span> BLE Mesh <span class="dot-separator">·</span> Tailscale <span class="dot-separator">·</span> GrapheneOS / Android <span class="dot-separator">·</span> PWA <span class="dot-separator">·</span> MapLibre + Protomaps <span class="dot-separator">·</span> PostGIS <span class="dot-separator">·</span> OpenStreetMap <span class="dot-separator">·</span> AGPL-3.0
+    </div>
+  </div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Architecture Components</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">OCR Pipeline</span>
+      <span class="sem-chip">CRDT Sync</span>
+      <span class="sem-chip">BLE Mesh</span>
+      <span class="sem-chip">Edge Compute</span>
+      <span class="sem-chip">Offline-First</span>
+      <span class="sem-chip">Proof-of-Observation</span>
+      <span class="sem-chip">Station Nodes</span>
+      <span class="sem-chip">OSM Upstream</span>
+      <span class="sem-chip">Ethical Verification</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab1')">← Thesis</button>
+    <button class="nav-btn" onclick="switchTab('tab3')">Next: Data Model →</button>
+  </div>
+</div>
+
+<!-- TAB 3: DATA MODEL -->
+<div class="panel" id="tab3">
+  <div class="tag">[ § 03 ]</div>
+  <h2 class="section-header">Data Schema & Chemistry Model</h2>
+
+  <div class="body-text">
+    <p>FuelMesh's core innovation is the chemistry layer. Existing fuel databases model stations as price points. FuelMesh models stations as <strong>chemistry sources</strong> — each pump is a distinct fuel composition that can be cross-referenced against engine compatibility profiles.</p>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Observation Record Schema</div>
+    <table class="schema-table">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Source</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>obs_id</td><td>UUID</td><td>Generated</td><td>Unique observation identifier</td></tr>
+        <tr><td>timestamp</td><td>ISO 8601</td><td>Device</td><td>UTC time of observation</td></tr>
+        <tr><td>lat / lng</td><td>Float</td><td>GPS</td><td>Station coordinates (±10m)</td></tr>
+        <tr><td>station_id</td><td>String</td><td>GPS cluster</td><td>Derived from coordinate clustering</td></tr>
+        <tr><td>station_name</td><td>String</td><td>OCR / user</td><td>Brand name from pump or manual entry</td></tr>
+        <tr><td>fuel_type</td><td>Enum</td><td>OCR (pump label)</td><td>ULSD, B5, B10, B20, B100, R99, Premium, Unknown</td></tr>
+        <tr><td>price_per_gal</td><td>Float</td><td>OCR (display)</td><td>$/gallon at time of observation</td></tr>
+        <tr><td>gallons</td><td>Float</td><td>OCR (receipt)</td><td>Volume purchased (if fill event)</td></tr>
+        <tr><td>total_cost</td><td>Float</td><td>OCR / derived</td><td>Transaction total</td></tr>
+        <tr><td>pump_number</td><td>Int</td><td>OCR / user</td><td>Physical pump identifier</td></tr>
+        <tr><td>additive</td><td>String</td><td>User input</td><td>Aftermarket additive used, if any</td></tr>
+        <tr><td>additive_oz</td><td>Float</td><td>User input</td><td>Additive quantity in fluid ounces</td></tr>
+        <tr><td>odometer</td><td>Int</td><td>User input</td><td>Vehicle mileage at fill</td></tr>
+        <tr><td>source_image</td><td>SHA-256</td><td>Camera</td><td>Hash of raw pump photo (proof-of-observation)</td></tr>
+        <tr><td>confidence</td><td>Float</td><td>Derived</td><td>OCR confidence score (0.0–1.0)</td></tr>
+        <tr><td>capture_mode</td><td>Enum</td><td>System</td><td>ACTIVE (pump photo) or PASSIVE (dashcam)</td></tr>
+        <tr><td>observer_id</td><td>PubKey</td><td>Device</td><td>Pseudonymous contributor identity</td></tr>
+        <tr><td>restroom</td><td>Enum</td><td>User input</td><td>Available: yes/no/unknown</td></tr>
+        <tr><td>restroom_clean</td><td>Enum</td><td>User input</td><td>Cleanliness: good / fair / poor</td></tr>
+        <tr><td>restroom_fee</td><td>Bool</td><td>User input</td><td>Whether restroom requires purchase or fee</td></tr>
+        <tr><td>amenity_air</td><td>Bool</td><td>User input</td><td>Air pump available (free/paid/none)</td></tr>
+        <tr><td>amenity_water</td><td>Bool</td><td>User input</td><td>Potable water fill available</td></tr>
+        <tr><td>amenity_def</td><td>Bool</td><td>User input</td><td>DEF (diesel exhaust fluid) at pump</td></tr>
+        <tr><td>amenity_dump</td><td>Bool</td><td>User input</td><td>RV/van dump station available</td></tr>
+        <tr><td>truck_parking</td><td>Enum</td><td>User input</td><td>Truck/van parking: yes / limited / no</td></tr>
+        <tr><td>osm_node_id</td><td>Int</td><td>Derived</td><td>Linked OpenStreetMap amenity=fuel node ID</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Engine Compatibility Matrix</div>
+    <div class="body-text">
+      <p>The second dimension of FuelMesh's data model — cross-referencing observed fuel chemistry against known engine tolerances. Users register their vehicle profile once; the system flags incompatible stations automatically.</p>
+    </div>
+    <table class="schema-table">
+      <thead>
+        <tr>
+          <th>Engine Family</th>
+          <th>HPCR</th>
+          <th>Max Bio</th>
+          <th>Min Cetane</th>
+          <th>Risk Profile</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>OM654 / OM642 (Sprinter VS30)</td><td>Yes</td><td>B5</td><td>40</td><td>Injector deposits, DPF loading, oil dilution above B5</td></tr>
+        <tr><td>Cummins ISB 6.7 (RAM 2500/3500)</td><td>Yes</td><td>B20</td><td>40</td><td>Moderate tolerance; filter changes at 2× above B20</td></tr>
+        <tr><td>Duramax LML/L5P (GM 2500/3500)</td><td>Yes</td><td>B20</td><td>40</td><td>B20 approved; monitor DPF regen frequency</td></tr>
+        <tr><td>Power Stroke 6.7 (Ford F-250+)</td><td>Yes</td><td>B20</td><td>40</td><td>B20 approved; fuel filter interval sensitive</td></tr>
+        <tr><td>Pre-2007 Mechanical Diesel</td><td>No</td><td>B100</td><td>35</td><td>Minimal risk from biodiesel; rubber seal compatibility varies</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Contribution Protocol</div>
+    <div class="list-item"><span class="highlight">Snap & Submit:</span> Photograph the pump face at any diesel fill. OCR extracts all visible data. User confirms/corrects. One tap to submit to local mesh.</div>
+    <div class="list-item"><span class="highlight">Passive Drive:</span> Mount dashcam with FuelMesh companion app or RPi unit. Price signs are read automatically, GPS-tagged, and queued for mesh sync. Zero user interaction after initial setup.</div>
+    <div class="list-item"><span class="highlight">Manual Entry:</span> For stations without photo opportunity — log price, chemistry, and station manually. Lower confidence score but still contributes to the mesh.</div>
+    <div class="list-item"><span class="highlight">Verification Bounty:</span> Users who confirm an existing observation (second independent photo at same station within 24h) earn elevated trust score. Convergence drives confidence.</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">OSM Upstream Export</div>
+    <div class="body-text">
+      <p>Every FuelMesh observation enriches OpenStreetMap. The protocol maps directly onto OSM's existing <code>amenity=fuel</code> node schema with extended properties in the <code>fuel:*</code> namespace. Observations are batched into OSM changesets and contributed upstream under ODbL — the same license OSM uses. This is public infrastructure data contributed to the public commons. Not a walled garden. Not a SaaS dashboard. A public utility.</p>
+    </div>
+    <div class="code-block">amenity=fuel
+fuel:diesel=yes
+fuel:biodiesel_blend=B20
+fuel:diesel:price=5.499
+fuel:diesel:price:currency=USD
+fuel:diesel:price:date=2026-04-08
+fuel:diesel:chemistry_verified=yes
+fuel:diesel:chemistry_date=2026-04-08
+restroom=yes
+restroom:fee=no
+restroom:cleanliness=fair
+amenity:air_pump=yes
+amenity:air_pump:fee=no
+amenity:def_at_pump=yes
+amenity:dump_station=no
+hgv_parking=limited
+fuel:source=FuelMesh
+fuel:source:confidence=0.87</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Amenity & Cleanliness Layer</div>
+    <div class="body-text">
+      <p>Fuel stations are not just fuel dispensers — they're infrastructure nodes for anyone living on the road. Van lifers, truckers, overlanders, and traveling workers need restrooms, air pumps, water, DEF, dump stations, and safe parking. This data is scattered across iOverlander, Trucker Path, AllStays, and a dozen other proprietary apps that don't talk to each other. FuelMesh unifies it into a single observation that covers chemistry, price, AND amenities — then pushes it all to OSM where it benefits everyone, not just app users.</p>
+    </div>
+    <div class="list-item"><span class="highlight">Restroom:</span> Available (yes/no), cleanliness rating (good/fair/poor via 3-button input or app), fee required, accessibility notes.</div>
+    <div class="list-item"><span class="highlight">Air & Water:</span> Free air pump, potable water fill station — critical for van/RV life.</div>
+    <div class="list-item"><span class="highlight">DEF at Pump:</span> Whether diesel exhaust fluid is dispensed at the pump island vs. only sold in bottles inside.</div>
+    <div class="list-item"><span class="highlight">Dump Station:</span> RV/van dump availability — one of the most underreported pieces of road infrastructure.</div>
+    <div class="list-item"><span class="highlight">Parking:</span> Truck/van overnight viability — safe, lit, tolerated, ticketed, or explicitly prohibited. Time-stamped observations from actual overnighters.</div>
+  </div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Data Domains</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">Fuel Chemistry</span>
+      <span class="sem-chip">Price Intelligence</span>
+      <span class="sem-chip">Engine Compatibility</span>
+      <span class="sem-chip">Geospatial</span>
+      <span class="sem-chip">Trust Scoring</span>
+      <span class="sem-chip">OCR Provenance</span>
+      <span class="sem-chip">Amenities</span>
+      <span class="sem-chip">OSM Export</span>
+      <span class="sem-chip">Van/Truck Life</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab2')">← Architecture</button>
+    <button class="nav-btn" onclick="switchTab('tab4')">Next: Roadmap →</button>
+  </div>
+</div>
+
+<!-- TAB 4: ROADMAP -->
+<div class="panel" id="tab4">
+  <div class="tag">[ § 04 ]</div>
+  <h2 class="section-header">Development Roadmap</h2>
+
+  <div class="body-text">
+    <p>FuelMesh is designed to ship value from day one. Phase 0 is the fuel log that already exists — the personal vehicle log built tonight for the Sprinter "Flux." Each phase adds a layer of network effect, moving from single-user utility to multi-user intelligence to ambient passive collection.</p>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 0 — Now</div>
+    <div class="phase-title">Personal Fuel Log</div>
+    <div class="phase-desc">Single-user fuel chemistry and maintenance tracker. Manual entry with rich schema: fuel type, blend %, price, station, additives, odometer, DTC codes. Already built and operational for Flux (VS30 Sprinter). Persistent storage across sessions. This is the seed — every FuelMesh user starts here.</div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 1 — MVP</div>
+    <div class="phase-title">Pump Photo OCR</div>
+    <div class="phase-desc">Mobile app (PWA or native) with camera integration. Point at pump → OCR extracts price, blend label, pump number. GPS auto-tags location. User confirms extracted data. Stores locally in SQLite. Export to JSON/CSV. No network required — works completely offline. Target: functional on GrapheneOS Pixel 9.</div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 2 — Network</div>
+    <div class="phase-title">Mesh Sync + Station Map + OSM Export</div>
+    <div class="phase-desc">Local-first CRDT sync between FuelMesh users. When two devices encounter each other (BLE, shared Tailscale network, WiFi direct), observations merge automatically. Map layer (MapLibre + Protomaps) shows all known stations with last-observed price and chemistry. Station clustering by GPS coordinate proximity. Confidence scoring based on observation recency and convergence. Automated OSM changeset generation — every verified observation enriches OpenStreetMap's <code>amenity=fuel</code> nodes with chemistry, price, and amenity tags under ODbL.</div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 3 — Passive</div>
+    <div class="phase-title">Dashcam OCR + Price Sign Reading</div>
+    <div class="phase-desc">Raspberry Pi Zero 2W + Camera Module 3 companion unit. Mounts to windshield or dash. Runs PaddleOCR-lite continuously while driving. Recognizes fuel price signs (high-contrast, standardized font, large numerals) and logs GPS-stamped observations. Syncs to phone via BLE. No user interaction after initial mount — pure ambient intelligence. Stretch: integrate with existing dashcam hardware (Viofo, BlackVue) via RTSP stream.</div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 4 — Physical Nodes</div>
+    <div class="phase-title">Station Hardware + Amenity Layer</div>
+    <div class="phase-desc">Open-hardware ESP32-S3 feedback nodes deployed at fuel stations. Three-button amenity rating (restroom cleanliness, pump condition, overall experience). Optional price display reader for continuous capture. BLE beacon broadcasts station state to any passing FuelMesh device. Amenity schema tracks restrooms, air pumps, water fill, DEF at pump, dump stations, overnight parking tolerance — the full road-life infrastructure layer that iOverlander, Trucker Path, and AllStays each capture partially but none unify. Station operators opt in via a value exchange: foot traffic analytics from the mesh in return for chemistry data per delivery batch.</div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 5 — Intelligence</div>
+    <div class="phase-title">Route Optimization + Alerts</div>
+    <div class="phase-desc">With sufficient mesh density: predictive pricing (time-of-day, day-of-week patterns), route-optimized fueling recommendations ("fill at Forney, skip Terrell — $0.40/gal savings, ULSD confirmed"), and real-time chemistry alerts ("station at your next exit is B-20 — your engine profile flags this"). Integration with vehicle OBD-II for automatic odometer and DTC sync.</div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 6 — Protocol</div>
+    <div class="phase-title">Open Standard + Federation</div>
+    <div class="phase-desc">FuelMesh observation format published as open specification (CC BY-SA 4.0). Third-party apps can read/write to the mesh. Federation between regional FuelMesh instances. Potential integration with fleet management systems, truck stop networks, and DOT fuel quality monitoring programs. The protocol becomes infrastructure — like GPS, not like Google Maps.</div>
+  </div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Milestones</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">Phase 0: Complete</span>
+      <span class="sem-chip">Phase 1: Q3 2026</span>
+      <span class="sem-chip">Phase 2: Q4 2026</span>
+      <span class="sem-chip">Phase 3: Q1 2027</span>
+      <span class="sem-chip">Phase 4: Q2 2027</span>
+      <span class="sem-chip">Phase 5: 2027</span>
+      <span class="sem-chip">Phase 6: 2028+</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab3')">← Data Model</button>
+    <button class="nav-btn" onclick="switchTab('tab5')">Next: Manifesto →</button>
+  </div>
+</div>
+
+<!-- TAB 5: MANIFESTO -->
+<div class="panel" id="tab5">
+  <div class="tag">[ § 05 ]</div>
+  <h2 class="section-header">The FuelMesh Thesis</h2>
+
+  <div class="philosophical-block">The fuel supply chain generates billions of dollars in revenue from information asymmetry. The driver at the pump is the only participant in the system who doesn't know what they're buying. FuelMesh inverts that.</div>
+
+  <div class="body-text">
+    <p><span class="highlight">Observation is a sovereign act.</span> When you photograph a fuel pump, you are not "contributing data to a platform." You are exercising your right to observe and record the physical world around you. FuelMesh does not own your observations. You do. The mesh carries them because you choose to share. You can stop at any time. Your device, your camera, your data.</p>
+  </div>
+
+  <div class="body-text">
+    <p><span class="highlight">Chemistry matters more than price.</span> The entire fuel app ecosystem optimizes for one variable: cents per gallon. FuelMesh recognizes that the composition of the fuel — blend ratio, additive package, sulfur content, cetane rating — has a larger impact on total cost of ownership than price delta. A $0.20/gal savings on B-20 that accelerates your $3,000 injector replacement is not a savings. It's a trap.</p>
+  </div>
+
+  <div class="body-text">
+    <p><span class="highlight">Decentralization is not an ideology. It's an engineering requirement.</span> Fuel prices change hourly. Pump chemistry varies by delivery batch. Corporate APIs update daily at best. The only system capable of tracking ground truth at the pace it changes is a distributed observation network with contributors at every station. Central servers can aggregate and relay, but the observation layer must be peer-to-peer or it will always be stale.</p>
+  </div>
+
+  <div class="body-text">
+    <p><span class="highlight">The protocol must outlive the project.</span> FuelMesh is licensed AGPL-3.0. The observation schema is published CC BY-SA 4.0. If ARX Foundation disappears tomorrow, the data format and sync protocol remain. Anyone can build a FuelMesh-compatible client. Anyone can run a relay. The network is the product — not the app, not the server, not the organization.</p>
+  </div>
+
+  <div class="philosophical-block">Every diesel driver who has been burned by bad data, surprise chemistry, or opaque pricing is already a FuelMesh node. They just don't have the protocol yet.</div>
+
+  <div class="body-text">
+    <p>FuelMesh is project #72 in the ARX Foundation ecosystem. It is built by Elryan Dalren under the ARX open-source mandate. Contributions, forks, and independent implementations are not just welcome — they are the point.</p>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab4')">← Roadmap</button>
+  </div>
+</div>
+
+</div>
+
+<div class="site-footer">
+  <p>FuelMesh · ARX Foundation · Open Protocol for Fuel Intelligence</p>
+  <p class="footer-sub">© 2026 · AGPL-3.0 · CC BY-SA 4.0 · Built from a $61.19 mistake</p>
+</div>
+
+<script>
+const themeBtn = document.getElementById('theme-btn');
+let isDarkMode = localStorage.getItem('fuelmesh-theme') === 'dark' || false;
+
+if (isDarkMode) {
+  document.body.setAttribute('data-theme', 'dark');
+  themeBtn.textContent = 'Light Mode';
+}
+
+function toggleTheme() {
+  isDarkMode = !isDarkMode;
+  document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+  themeBtn.textContent = isDarkMode ? 'Light Mode' : 'Dark Mode';
+  localStorage.setItem('fuelmesh-theme', isDarkMode ? 'dark' : 'light');
+}
+
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.panel');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const panelId = tab.getAttribute('data-panel');
+    switchTab(panelId);
+  });
+});
+
+function switchTab(panelName) {
+  const targetTab = document.querySelector(`.tab[data-panel="${panelName}"]`);
+  const targetPanel = document.getElementById(panelName);
+  if (!targetTab || !targetPanel) return;
+
+  tabs.forEach(t => t.classList.remove('active'));
+  panels.forEach(p => p.classList.remove('active'));
+
+  targetTab.classList.add('active');
+  targetPanel.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+const mainHeader = document.getElementById('main-header');
+const progressBar = document.getElementById('progress');
+const scrollPctEl = document.getElementById('scroll-pct');
+let isCollapsed = false;
+
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const should = scrollTop > 40;
+  if (should !== isCollapsed) {
+    isCollapsed = should;
+    mainHeader.classList.toggle('collapsed', isCollapsed);
+  }
+  if (docHeight > 0) {
+    const pct = (scrollTop / docHeight) * 100;
+    progressBar.style.width = pct + '%';
+    scrollPctEl.textContent = Math.round(pct) + '%';
+  }
+}, { passive: true });
+
+if (tabs.length > 0) tabs[0].classList.add('active');
+if (panels.length > 0) panels[0].classList.add('active');
+</script>
+
+</body>
+</html>

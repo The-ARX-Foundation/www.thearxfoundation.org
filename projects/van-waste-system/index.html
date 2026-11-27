@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="color-scheme" content="light only">
+<title>ARX Foundation — Van Waste System</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+
+:root { color-scheme: light only; }
+@media (prefers-color-scheme: dark) {
+  html { background: #F5EFE4 !important; }
+  body { background: #F5EFE4 !important; color: #2A1F14 !important; }
+}
+
+:root {
+  --bg:      #F5EFE4;
+  --bg2:     #EDE5D6;
+  --bg3:     #E4DBCA;
+  --bg4:     #D9CEBC;
+  --border:  #C8BEA8;
+  --border2: #B8AC94;
+  --rust:     #7A3A1A;
+  --rust2:    #9B4A22;
+  --rust3:    #C06030;
+  --rust-dim: rgba(122,58,26,0.08);
+  --rust-mid: rgba(122,58,26,0.18);
+  --indigo:     #2D2A5E;
+  --indigo2:    #4A4690;
+  --indigo3:    #7B78C0;
+  --indigo-dim: rgba(45,42,94,0.08);
+  --lotus:     #5B8FA8;
+  --lotus2:    #7AAFC8;
+  --lotus-dim: rgba(91,143,168,0.08);
+  --lotus-mid: rgba(91,143,168,0.18);
+  --gold:     #8B6914;
+  --gold2:    #B8911C;
+  --gold-dim: rgba(139,105,20,0.08);
+  --green:     #4A7A30;
+  --green-dim: rgba(74,122,48,0.10);
+  --text:  #2A1F14;
+  --text2: #5A4030;
+  --text3: #8A7060;
+  --text4: #B8A890;
+  --serif:   'Crimson Pro', Georgia, serif;
+  --display: 'IM Fell English', Georgia, serif;
+  --mono:    'JetBrains Mono', 'Courier New', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 110px; overflow-x: hidden; width: 100%; background: #F5EFE4; }
+
+body {
+  background: #F5EFE4;
+  color: #2A1F14;
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.72;
+  width: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+#progress {
+  position: fixed; top: 0; left: 0; height: 2px;
+  background: var(--rust); width: 0%; z-index: 9999;
+  transition: width 0.1s;
+}
+
+#main-header {
+  position: sticky; top: 0; z-index: 100;
+  background: #F5EFE4;
+  border-bottom: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.header-inner {
+  max-width: 860px; margin: 0 auto;
+  padding: 20px 24px 0;
+  transition: padding 0.3s ease;
+}
+
+#main-header.collapsed .header-inner { padding: 10px 24px 0; }
+
+.header-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.wordmark-arx {
+  font-family: var(--mono);
+  font-size: 0.62rem; font-weight: 500;
+  letter-spacing: 0.18em; color: var(--rust);
+  text-transform: uppercase; display: block; margin-bottom: 2px;
+}
+
+.wordmark-title {
+  font-family: var(--display);
+  font-size: 1.5rem; color: var(--text); line-height: 1.1;
+  transition: font-size 0.3s;
+}
+
+#main-header.collapsed .wordmark-title { font-size: 1.05rem; }
+
+.header-meta {
+  font-family: var(--mono);
+  font-size: 0.58rem; color: var(--text3);
+  text-align: right; line-height: 1.9;
+  transition: opacity 0.3s;
+}
+
+#main-header.collapsed .header-meta { opacity: 0; pointer-events: none; height: 0; overflow: hidden; }
+
+.tab-bar {
+  display: flex; overflow-x: auto; gap: 0;
+  border-top: 1px solid var(--border);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab {
+  font-family: var(--mono);
+  font-size: 0.63rem; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text3); padding: 10px 16px;
+  cursor: pointer; border: none; border-bottom: 2px solid transparent;
+  white-space: nowrap; flex-shrink: 0; background: none;
+  transition: all 0.2s; user-select: none;
+}
+.tab:hover { color: var(--rust2); background: var(--rust-dim); }
+.tab.active { color: var(--rust); border-bottom-color: var(--rust); background: var(--rust-dim); }
+
+.content-wrap {
+  max-width: 860px; margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+.panel { display: none; }
+.panel.active { display: block; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+.section { margin-bottom: 36px; }
+
+.sec-head {
+  display: flex; align-items: baseline; gap: 10px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px; margin-bottom: 16px;
+}
+
+.sec-tag {
+  font-family: var(--mono);
+  font-size: 0.58rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #fff; background: var(--rust);
+  padding: 2px 7px; border-radius: 2px; white-space: nowrap;
+}
+.sec-tag.indigo  { background: var(--indigo); }
+.sec-tag.lotus   { background: var(--lotus); }
+.sec-tag.gold    { background: var(--gold); }
+.sec-tag.green   { background: var(--green); }
+
+.sec-title {
+  font-family: var(--display);
+  font-size: 1.2rem; color: var(--text);
+}
+
+.callout {
+  background: #fff;
+  border-left: 3px solid var(--rust);
+  padding: 14px 18px; margin: 14px 0;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.93rem; color: var(--text2);
+}
+.callout.indigo { border-left-color: var(--indigo); background: var(--indigo-dim); }
+.callout.lotus  { border-left-color: var(--lotus);  background: var(--lotus-dim); }
+.callout.gold   { border-left-color: var(--gold);   background: var(--gold-dim); }
+.callout.green  { border-left-color: var(--green);  background: var(--green-dim); }
+
+.callout-label {
+  font-family: var(--mono);
+  font-size: 0.6rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--rust); margin-bottom: 5px; display: block;
+}
+.callout.indigo .callout-label { color: var(--indigo); }
+.callout.lotus  .callout-label { color: var(--lotus); }
+.callout.gold   .callout-label { color: var(--gold); }
+.callout.green  .callout-label { color: var(--green); }
+
+.card-grid { display: grid; gap: 12px; margin: 14px 0; }
+
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 4px; padding: 16px 18px;
+}
+.card.pick    { border-color: var(--rust);   border-width: 2px; }
+.card.indigo  { border-color: var(--indigo); }
+.card.lotus   { border-color: var(--lotus);  }
+.card.gold    { border-color: var(--gold);   }
+
+.card-header {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 10px; margin-bottom: 8px;
+}
+
+.card-name {
+  font-family: var(--display);
+  font-size: 1.05rem; color: var(--text); line-height: 1.25;
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.58rem; font-weight: 500;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 2px; white-space: nowrap; flex-shrink: 0;
+}
+.badge-rei    { background: rgba(122,58,26,0.12);  color: var(--rust); }
+.badge-direct { background: rgba(139,105,20,0.12); color: var(--gold); }
+.badge-pick   { background: rgba(74,122,48,0.12);  color: var(--green); }
+.badge-dog    { background: rgba(45,42,94,0.10);   color: var(--indigo2); }
+
+.card-body { font-size: 0.92rem; color: var(--text2); line-height: 1.6; margin-bottom: 10px; }
+
+.card-specs {
+  display: flex; flex-wrap: wrap; gap: 5px 16px;
+  font-family: var(--mono); font-size: 0.6rem; color: var(--text3); margin-bottom: 10px;
+}
+
+.card-link {
+  display: block;
+  font-family: var(--mono); font-size: 0.65rem;
+  color: var(--rust); text-decoration: none;
+  border-top: 1px dashed var(--border);
+  padding-top: 8px;
+}
+.card-link:hover { text-decoration: underline; }
+.card.indigo .card-link { color: var(--indigo2); }
+.card.lotus  .card-link { color: var(--lotus); }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 14px 0; }
+th {
+  font-family: var(--mono); font-size: 0.6rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text3); text-align: left;
+  padding: 8px 12px; border-bottom: 2px solid var(--border);
+  background: var(--bg2);
+}
+td {
+  padding: 9px 12px; border-bottom: 1px solid var(--bg3);
+  color: var(--text2); vertical-align: top;
+}
+td:first-child { color: var(--text); font-weight: 600; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fff; }
+
+.steps { list-style: none; counter-reset: s; margin: 12px 0; }
+.steps li {
+  counter-increment: s;
+  display: grid; grid-template-columns: 26px 1fr;
+  gap: 10px; padding: 9px 0;
+  border-bottom: 1px dashed var(--bg3);
+  font-size: 0.92rem; color: var(--text2);
+}
+.steps li:last-child { border-bottom: none; }
+.steps li::before {
+  content: counter(s);
+  font-family: var(--mono); font-size: 0.62rem; font-weight: 500;
+  color: #fff; background: var(--rust);
+  border-radius: 50%; width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 3px; flex-shrink: 0;
+}
+
+.pri-now   { font-family: var(--mono); font-size: 0.62rem; color: var(--green); }
+.pri-build { font-family: var(--mono); font-size: 0.62rem; color: var(--rust); }
+.pri-nice  { font-family: var(--mono); font-size: 0.62rem; color: var(--gold); }
+.pri-back  { font-family: var(--mono); font-size: 0.62rem; color: var(--indigo2); }
+
+.total-row td { background: var(--bg2) !important; font-weight: 600 !important; color: var(--text) !important; }
+
+#doc-footer {
+  border-top: 1px solid var(--border); margin-top: 40px; padding-top: 16px;
+  font-family: var(--mono); font-size: 0.6rem; color: var(--text4);
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px;
+}
+
+@media (max-width: 600px) {
+  .content-wrap { padding: 24px 16px 60px; }
+  .header-inner { padding: 14px 16px 0; }
+  .wordmark-title { font-size: 1.3rem; }
+  .card-header { flex-direction: column; gap: 4px; }
+  th, td { padding: 7px 8px; font-size: 0.82rem; }
+}
+
+@media print {
+  #main-header { position: static; }
+  #progress { display: none; }
+  .tab-bar { display: none; }
+  .panel { display: block !important; }
+}
+
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Shelved</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Paused, not dead. Open to collaborators or funding.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=Van%20Waste%20System" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div id="progress"></div>
+
+<header id="main-header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <span class="wordmark-arx">ARX Foundation · Van Build Series</span>
+        <div class="wordmark-title">Van Waste System</div>
+      </div>
+      <div class="header-meta">
+        SPRINTER 2500 · 2008<br>
+        ARX FOUNDATION<br>
+        REV 1.0 · MARCH 2026<br>
+        BUILD PHASE: MONTH 2
+      </div>
+    </div>
+    <nav class="tab-bar">
+      <button class="tab" onclick="switchTab('philosophy')">§01 Philosophy</button>
+      <button class="tab" onclick="switchTab('primary')">§02 Primary Toilet</button>
+      <button class="tab" onclick="switchTab('backup')">§03 Backup / REI</button>
+      <button class="tab" onclick="switchTab('dogs')">§04 Dogs</button>
+      <button class="tab" onclick="switchTab('shop')">§05 Shop List</button>
+    </nav>
+  </div>
+</header>
+
+<div class="content-wrap">
+
+  <!-- § 01 PHILOSOPHY -->
+  <div id="panel-philosophy" class="panel">
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-tag">§ 01</span>
+        <span class="sec-title">System Philosophy</span>
+      </div>
+
+      <div class="callout">
+        <span class="callout-label">Core Principle</span>
+        Design for full-time off-grid independence. Works for weeks without a dump station, handles two adults and a dog or two, and doesn't make the van smell like a porta-potty. <strong>Separating liquids from solids is the single most important decision</strong> — combined waste is what causes odor. Everything else follows from that.
+      </div>
+
+      <p style="font-size:0.93rem; color:var(--text2); margin:14px 0;">
+        Permanent build: <strong>composting/urine-diverting toilet</strong> (Nature's Head) as primary, backed by a <strong>Luggable Loo + WAG bags</strong> from REI for overflow, transit, and stealth. Dog waste runs its own track — outdoor dispersal on public land, bagged in town.
+      </p>
+
+      <table>
+        <thead><tr><th>Scenario</th><th>Human</th><th>Dog</th></tr></thead>
+        <tbody>
+          <tr><td>Boondocking / BLM / dispersed</td><td>Composting toilet</td><td>Far off-trail, no burial near water</td></tr>
+          <tr><td>Stealth urban parking</td><td>WAG bag in Luggable Loo</td><td>Eco bags → trash, no street burial</td></tr>
+          <tr><td>Campground w/ facilities</td><td>Use facilities</td><td>Designated dog waste bins</td></tr>
+          <tr><td>National park (pack-out zone)</td><td>WAG bag required</td><td>Waggy Baggy — full pack-out</td></tr>
+          <tr><td>Road transit / drive day</td><td>Rest stop + WAG bag backup</td><td>Rest stop grass + bagged</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-tag green">§ 01b</span>
+        <span class="sec-title">Gray Water + Urine Dispersal</span>
+      </div>
+
+      <ol class="steps">
+        <li><strong>BLM / dispersed federal land:</strong> Dilute and pour on ground, 200ft from water and camp. Urine is sterile and disperses safely. No bag, no waste — preferred method when boondocking.</li>
+        <li><strong>Urban / campground:</strong> Empty jug into any toilet, RV dump station, or pit toilet. Gas station bathrooms work — pour it down the toilet, rinse the jug.</li>
+        <li><strong>National forest / state parks:</strong> LNT rules — 200ft from water and high-use areas. Some alpine zones require pack-out even for urine; check area regs before going in.</li>
+        <li><strong>Gray water (dishes, cooking):</strong> Dr. Bronner's castile only (biodegradable — at REI). Scatter 200ft from water. Strain food solids out, pack those in trash. Small mesh strainer at the water station handles this every time.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- § 02 PRIMARY TOILET -->
+  <div id="panel-primary" class="panel">
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-tag">§ 02</span>
+        <span class="sec-title">Primary System — Composting Toilet</span>
+      </div>
+
+      <div class="callout gold">
+        <span class="callout-label">Purchase Note</span>
+        Nature's Head and OGO are direct-to-manufacturer only — not sold at REI. Plan ~$900–1,100 into Month 2 build budget. Standalone units: zero plumbing required, just a 12V fan wire and a 1.5" vent hole through the wall.
+      </div>
+
+      <div class="card-grid">
+        <div class="card pick">
+          <div class="card-header">
+            <div class="card-name">Nature's Head Self-Contained Composting Toilet</div>
+            <span class="badge badge-pick">▲ Top Pick</span>
+          </div>
+          <div class="card-body">
+            Van life composting toilet gold standard. Separates liquids into a removable 2.2-gallon jug (empties every 2–3 days for two people) and solids into a ~35-use bin with hand-crank agitator and coco coir medium. 12V fan-vented at ~0.1A continuous — negligible on a real battery bank. Full-time two-person: empty solids every 4–6 weeks. Zero odor when the fan runs. 5-year warranty.
+          </div>
+          <div class="card-specs">
+            <span>PRICE: ~$1,050</span>
+            <span>FOOTPRINT: 17.5"W × 20"D × 21"H</span>
+            <span>POWER: 12V DC fan (~0.1A)</span>
+            <span>VENT: 1.5" wall penetration</span>
+            <span>MEDIUM: Coco coir brick</span>
+          </div>
+          <a class="card-link" href="https://natureshead.net/product/composting-toilet/" target="_blank">→ natureshead.net — direct only</a>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-name">OGO Origin Composting Toilet</div>
+            <span class="badge badge-direct">Alt / Direct Only</span>
+          </div>
+          <div class="card-body">
+            Compact alternative if the toilet nook is tight. Electric auto-agitator (no cranking), liquid sensor light for urine bottle fill level, optional drain kit to divert urine externally. Smaller footprint than Nature's Head, slightly lower solids capacity — but the auto-agitator is a real QoL improvement for two-person daily use.
+          </div>
+          <div class="card-specs">
+            <span>PRICE: ~$850</span>
+            <span>FOOTPRINT: 15"W × 18"D × 18"H</span>
+            <span>POWER: 12V fan + agitator motor</span>
+          </div>
+          <a class="card-link" href="https://ogotoilet.com" target="_blank">→ ogotoilet.com — direct only</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-tag green">Install</span>
+        <span class="sec-title">Sprinter 2500 Notes</span>
+      </div>
+
+      <div class="callout green">
+        <span class="callout-label">Build Notes</span>
+        Mount on plywood platform, 4 bolts through floor — road vibration will walk it otherwise. Vent hose (1.5") through side wall near rear bottom; angle so prevailing wind draws outward. Stock 2–3 coco coir bricks at install (1 brick ≈ 1 month for 2 people). Keep 1 spare brick on board always.
+      </div>
+
+      <table>
+        <thead><tr><th>Consumable</th><th>Use</th><th>Frequency</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>Coco coir bricks</td><td>Composting medium</td><td>~1/month for 2</td><td>Nature's Head direct</td></tr>
+          <tr><td>Enzyme spray (BioKleen etc.)</td><td>Urine jug deodorizer</td><td>Every empty</td><td>REI / grocery</td></tr>
+          <tr><td>Nitrile gloves (box)</td><td>Solids bin emptying</td><td>Keep 1 box on board</td><td>Any pharmacy</td></tr>
+          <tr><td>Small trash bags</td><td>Solids disposal at dump sites</td><td>Per empty cycle</td><td>Anywhere</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- § 03 BACKUP / REI -->
+  <div id="panel-backup" class="panel">
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-tag lotus">§ 03</span>
+        <span class="sec-title">Backup System — REI-Sourced</span>
+      </div>
+
+      <p style="font-size:0.93rem; color:var(--text2); margin-bottom:14px;">
+        For transit days before the composting toilet installs, stealth urban nights, national parks with mandatory pack-out, or primary failure. Everything here is stocked at REI.
+      </p>
+
+      <div class="card-grid">
+        <div class="card pick">
+          <div class="card-header">
+            <div class="card-name">Reliance Luggable Loo — Metal Handle</div>
+            <span class="badge badge-rei">At REI</span>
+          </div>
+          <div class="card-body">
+            5-gallon bucket with snap-on toilet seat lid. Zero moving parts. Double-duty as storage when not in use, 300 lb rated. Pairs with WAG bags for fully sealed, pack-out-compliant waste anywhere. The van life stealth standard.
+          </div>
+          <div class="card-specs">
+            <span>PRICE: ~$18</span>
+            <span>CAPACITY: 5 gal / 300 lb</span>
+          </div>
+          <a class="card-link" href="https://www.rei.com/product/223884/reliance-luggable-loo-portable-toilet-with-metal-handle" target="_blank">→ rei.com — Reliance Luggable Loo (metal handle)</a>
+        </div>
+
+        <div class="card lotus">
+          <div class="card-header">
+            <div class="card-name">Cleanwaste WAG BAG GO Anywhere Kit — 12-pack</div>
+            <span class="badge badge-rei">At REI</span>
+          </div>
+          <div class="card-body">
+            NASA-developed Poo Powder gels and solidifies waste on contact. Puncture-resistant zip-lock outer bag. Multiple uses per bag (up to 32 oz liquid). Toss in regular trash in most jurisdictions — no dump station needed. Keep 1–2 packs stocked at all times.
+          </div>
+          <div class="card-specs">
+            <span>PRICE: ~$34 / 12-pack</span>
+            <span>CAPACITY: 32 oz / multiple uses</span>
+            <span>DISPOSAL: Regular trash (check local rules)</span>
+          </div>
+          <a class="card-link" href="https://www.rei.com/product/662978/cleanwaste-the-original-wag-bag-go-anywhere-toilet-kit-waste-bags-package-of-12" target="_blank">→ rei.com — Cleanwaste WAG BAG 12-pack</a>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-name">Reliance Double Doodie Toilet Waste Bags</div>
+            <span class="badge badge-rei">At REI</span>
+          </div>
+          <div class="card-body">
+            Designed for Luggable Loo. Double-layer with bio-gel. Cheaper per-use than WAG bags for camp nights where you can trash-dispose same-day. Use WAG bags for pack-out and alpine zones; Double Doodie for campground and car camping.
+          </div>
+          <div class="card-specs"><span>PRICE: ~$16 / 6-pack</span></div>
+          <a class="card-link" href="https://www.rei.com/search?q=reliance+double+doodie" target="_blank">→ rei.com — search "reliance double doodie"</a>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-name">Dr. Bronner's Pure-Castile Soap</div>
+            <span class="badge badge-rei">At REI</span>
+          </div>
+          <div class="card-body">
+            Only dish/body soap for van life. Fully biodegradable, LNT-compatible, extremely concentrated. Replaces dish soap, body wash, shampoo, and surface cleaner. One bottle lasts months. Eliminates an entire gray water concern category.
+          </div>
+          <div class="card-specs">
+            <span>PRICE: ~$12 / 16 oz</span>
+            <span>USE: Dish, body, surface, shampoo</span>
+          </div>
+          <a class="card-link" href="https://www.rei.com/search?q=dr+bronner" target="_blank">→ rei.com — search "Dr. Bronner's"</a>
+        </div>
+      </div>
+
+      <div class="callout">
+        <span class="callout-label">Urine Jug Trick</span>
+        A dedicated wide-mouth 32oz Nalgene used urine-only makes WAG bags last 3–5× longer. Empty at any gas station or public toilet. Eliminates ~80% of volume load on bags, keeps solid waste dry, cuts odor dramatically. At REI (~$16).
+      </div>
+    </div>
+  </div>
+
+  <!-- § 04 DOGS -->
+  <div id="panel-dogs" class="panel">
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-tag indigo">§ 04</span>
+        <span class="sec-title">Dog Waste System</span>
+      </div>
+
+      <div class="callout indigo">
+        <span class="callout-label">Key Rule</span>
+        Dog waste is high in pathogens — never bury it in a cathole like human waste. It doesn't decompose the same way and contaminates water sources. On public lands: bag and pack out, or move far from trails, water, and camp. In towns: always bag and bin.
+      </div>
+
+      <table>
+        <thead><tr><th>Location</th><th>Method</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>BLM / dispersed / national forest</td><td>Bag + pack out OR move off-trail</td><td>200ft from water, camp, trails minimum</td></tr>
+          <tr><td>National park / popular trail</td><td>Always bag + pack out</td><td>Some NPs require it by rule</td></tr>
+          <tr><td>Urban / stealth parking</td><td>Bag + bin immediately</td><td>Always. This is how van lifers lose neighborhoods.</td></tr>
+          <tr><td>Campground</td><td>Bag + designated dog bin</td><td>Most campgrounds have marked spots</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-tag indigo">Products</span>
+        <span class="sec-title">Dog Bag Picks</span>
+      </div>
+
+      <div class="card-grid">
+        <div class="card pick indigo">
+          <div class="card-header">
+            <div class="card-name">Cycle Dog Earth Friendly Pick-Up Bags</div>
+            <span class="badge badge-pick">Primary Pick</span>
+          </div>
+          <div class="card-body">
+            Plant-based — genuinely biodegrades faster than standard plastic, not greenwashing (unlike most "eco" bags on the market). Bright green color makes trail-dropped bags visible to grab on the way back. Thick enough for large breed use without double-bagging.
+          </div>
+          <div class="card-specs">
+            <span>PRICE: ~$11 / pack</span>
+            <span>MATERIAL: Vegetable-based, verified biodegradable</span>
+          </div>
+          <a class="card-link" href="https://www.rei.com/product/857319/cycle-dog-earth-friendly-pick-up-bags" target="_blank">→ rei.com — Cycle Dog Earth Friendly Pick-Up Bags</a>
+        </div>
+
+        <div class="card indigo">
+          <div class="card-header">
+            <div class="card-name">Cleanwaste Waggy Baggy Dog Waste Kits — 10-pack</div>
+            <span class="badge badge-dog">Backcountry</span>
+          </div>
+          <div class="card-body">
+            Same gelling/deodorizing tech as human WAG bags. Puncture-resistant outer bag, full odor lockdown. Overkill for daily town use — essential when you're in the backcountry carrying waste for hours. Keep a small stash specifically for national parks and long pack-out days.
+          </div>
+          <div class="card-specs">
+            <span>PRICE: ~$14 / 10-pack</span>
+          </div>
+          <a class="card-link" href="https://www.rei.com/b/cleanwaste/c/camping-and-hiking" target="_blank">→ rei.com — Cleanwaste brand, search "Waggy Baggy"</a>
+        </div>
+      </div>
+
+      <div class="callout indigo">
+        <span class="callout-label">Dispenser Setup</span>
+        Clip-on bag dispenser on each leash and on the van door handle. Backup roll in the day bag. The "drop it on the trail, grab it on the way back" method works for out-and-backs — Cycle Dog's green bags are visible against dirt and rock. Don't rely on it for more than 2–3 hours.
+      </div>
+    </div>
+  </div>
+
+  <!-- § 05 SHOP LIST -->
+  <div id="panel-shop" class="panel">
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-tag">§ 05</span>
+        <span class="sec-title">Consolidated Shopping List</span>
+      </div>
+
+      <table>
+        <thead><tr><th>Item</th><th>Source</th><th>Est. Price</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td>Reliance Luggable Loo (metal handle)</td><td>REI</td><td>~$18</td><td class="pri-now">NOW</td></tr>
+          <tr><td>Cleanwaste WAG BAG 12-pack</td><td>REI</td><td>~$34</td><td class="pri-now">NOW</td></tr>
+          <tr><td>Nalgene 32oz wide-mouth (urine jug)</td><td>REI</td><td>~$16</td><td class="pri-now">NOW</td></tr>
+          <tr><td>Cycle Dog Earth Friendly Bags</td><td>REI</td><td>~$11</td><td class="pri-now">NOW</td></tr>
+          <tr><td>Dr. Bronner's Pure-Castile Soap</td><td>REI</td><td>~$12</td><td class="pri-now">NOW</td></tr>
+          <tr><td>Reliance Double Doodie bags</td><td>REI</td><td>~$16</td><td class="pri-nice">NICE TO HAVE</td></tr>
+          <tr><td>Cleanwaste Waggy Baggy 10-pk (dog)</td><td>REI</td><td>~$14</td><td class="pri-back">BACKCOUNTRY</td></tr>
+          <tr class="total-row"><td>REI Run Subtotal (essentials)</td><td colspan="2">~$91</td><td></td></tr>
+          <tr><td>Nature's Head Composting Toilet</td><td>natureshead.net</td><td>~$1,050</td><td class="pri-build">MONTH 2 BUILD</td></tr>
+          <tr><td>Coco coir bricks (3-pack)</td><td>Nature's Head direct</td><td>~$30</td><td class="pri-build">WITH TOILET</td></tr>
+          <tr><td>Nitrile gloves (box of 100)</td><td>Any pharmacy</td><td>~$12</td><td class="pri-build">WITH TOILET</td></tr>
+          <tr class="total-row"><td>Full System Total</td><td colspan="2">~$1,213</td><td></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout green">
+        <span class="callout-label">Priority Logic</span>
+        The REI run (~$91) covers the van trial and transit period. Nature's Head goes in during Month 2 of the Sprinter build. Before that: Luggable Loo + WAG bags + Nalgene urine jug = functional system that handles everything.
+      </div>
+    </div>
+  </div>
+
+  <div id="doc-footer">
+    <span>ARX Foundation · Van Build Series · 2026</span>
+    <span>Van Waste System v1.0 · Sprinter 2500</span>
+  </div>
+
+</div>
+
+<script>
+window.addEventListener('scroll', () => {
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  if (total > 0) document.getElementById('progress').style.width = (window.scrollY / total * 100) + '%';
+}, { passive: true });
+
+const hdr = document.getElementById('main-header');
+let col = false;
+window.addEventListener('scroll', () => {
+  const s = window.scrollY > 50;
+  if (s !== col) { col = s; hdr.classList.toggle('collapsed', col); }
+}, { passive: true });
+
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${id}')"]`).classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+switchTab('philosophy');
+</script>
+</body>
+</html>

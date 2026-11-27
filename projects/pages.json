@@ -1,0 +1,122 @@
+{
+ "arx-003": {
+  "slug": "boox-keyboard",
+  "url": "/projects/boox-keyboard/",
+  "stage": "Shelved",
+  "blurb": "A fork of the Unexpected Keyboard Android app with Chinese Pinyin typing and AI autocorrect, tuned for the Boox e-reader."
+ },
+ "arx-021": {
+  "slug": "soundweave",
+  "url": "/projects/soundweave/",
+  "stage": "Up next",
+  "blurb": "SoundWeave: a music platform that puts listeners and artists first instead of engagement metrics."
+ },
+ "arx-022": {
+  "slug": "cognition-affect-learning",
+  "url": "/projects/cognition-affect-learning/",
+  "stage": "Up next",
+  "blurb": "Research codex on how humans think, feel and learn (cognition and emotion), as a foundation for ARX learning tools."
+ },
+ "arx-028": {
+  "slug": "the-commons",
+  "url": "/projects/the-commons/",
+  "stage": "Idea",
+  "blurb": "The Commons: public spaces with power, wifi and seating but no ads or corporate ownership."
+ },
+ "arx-030": {
+  "slug": "fuelmesh",
+  "url": "/projects/fuelmesh/",
+  "stage": "Shelved",
+  "blurb": "FuelMesh: snap a photo of the fuel pump and the app logs the price and fuel blend, crowdsourcing diesel and biodiesel availability (plus fleet/caravan mode)."
+ },
+ "arx-032": {
+  "slug": "the-caravan",
+  "url": "/projects/the-caravan/",
+  "stage": "Shelved",
+  "blurb": "The Caravan spec: a thought experiment redesigning society around everyone being mobile, with needs shared over a mesh network and children raised collectively."
+ },
+ "arx-035": {
+  "slug": "blkmrr",
+  "url": "/projects/blkmrr/",
+  "stage": "Up next",
+  "blurb": "BLKMRR: a hidden Raspberry Pi behind a TV that serves your own media (Jellyfin) to the house, no streaming service needed."
+ },
+ "arx-037": {
+  "slug": "wayfinder",
+  "url": "/projects/wayfinder/",
+  "stage": "Shelved",
+  "blurb": "Wayfinder: a de-Googled phone (postmarketOS/LineageOS) with an offline launcher for finding resources and maps."
+ },
+ "arx-038": {
+  "slug": "holdspace",
+  "url": "/projects/holdspace/",
+  "stage": "Up next",
+  "blurb": "Holdspace: inventory software for a shared storage/commons (bins, item IDs, locations), self-hosted."
+ },
+ "arx-065": {
+  "slug": "waystone",
+  "url": "/projects/waystone/",
+  "stage": "Shelved",
+  "blurb": "Waystone: one open app answering 'can I legally and safely camp here?' for van-lifers."
+ },
+ "arx-077": {
+  "slug": "tool-magnetism",
+  "url": "/projects/tool-magnetism/",
+  "stage": "Shelved",
+  "blurb": "Magnetic tool mounting (tool magnetism) concepts."
+ },
+ "arx-078": {
+  "slug": "ergon",
+  "url": "/projects/ergon/",
+  "stage": "Shelved",
+  "blurb": "Project ERGON: an adjustable car armrest/console redesign for ergonomics."
+ },
+ "arx-093": {
+  "slug": "framework-yubikey-pocket",
+  "url": "/projects/framework-yubikey-pocket/",
+  "stage": "Up next",
+  "blurb": "A YubiKey holder that fits Framework laptop expansion slots: spec sheet and configurator."
+ },
+ "arx-106": {
+  "slug": "private-batch-verification",
+  "url": "/projects/private-batch-verification/",
+  "stage": "Shelved",
+  "blurb": "Lets buyers verify a product batch is genuine without the brand tracking who checked."
+ },
+ "arx-115": {
+  "slug": "wellspring",
+  "url": "/projects/wellspring/",
+  "stage": "Shelved",
+  "blurb": "Wellspring: a free map of showers and bathhouses for van-lifers using OpenStreetMap data."
+ },
+ "arx-116": {
+  "slug": "van-life-route-planner",
+  "url": "/projects/van-life-route-planner/",
+  "stage": "Shelved",
+  "blurb": "Van-life route planner (code)."
+ },
+ "arx-120": {
+  "slug": "van-waste-system",
+  "url": "/projects/van-waste-system/",
+  "stage": "Shelved",
+  "blurb": "Van toilet and waste setup (composting toilet + backups)."
+ },
+ "arx-146": {
+  "slug": "handshake",
+  "url": "/projects/handshake/",
+  "stage": "Up next",
+  "blurb": "Research on Handshake, a blockchain-based alternative to the DNS domain system."
+ },
+ "arx-147": {
+  "slug": "threat-model",
+  "url": "/projects/threat-model/",
+  "stage": "Shelved",
+  "blurb": "Threat model for your own sovereign setup (what could go wrong, how to detect it)."
+ },
+ "arx-151": {
+  "slug": "arx-operator",
+  "url": "/projects/arx-operator/",
+  "stage": "Active",
+  "blurb": "Install guide for your Hetzner cloud node (Tailscale-only services)."
+ }
+}

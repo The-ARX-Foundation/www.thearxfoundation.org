@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARX Field Ops — Van Life Route Planner</title>
+<script src="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css" rel="stylesheet" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --cream: #F5EFE4;
+    --cream-dark: #E8DFD0;
+    --rust: #7A3A1A;
+    --rust-light: #A85A30;
+    --rust-glow: rgba(122, 58, 26, 0.4);
+    --charcoal: #1A1A1A;
+    --ink: #2C2418;
+    --sage: #6B7F5E;
+    --gold: #C4963A;
+    --panel-bg: rgba(26, 26, 26, 0.92);
+    --panel-border: rgba(245, 239, 228, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--charcoal);
+    color: var(--cream);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  #map {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 1;
+  }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: linear-gradient(180deg, rgba(26,26,26,0.95) 0%, rgba(26,26,26,0.7) 80%, transparent 100%);
+    pointer-events: none;
+  }
+  .top-bar > * { pointer-events: auto; }
+
+  .logo {
+    font-family: 'EB Garamond', serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--cream);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-mark {
+    width: 28px; height: 28px;
+    border: 2px solid var(--rust);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--rust);
+    font-weight: 700;
+  }
+  .status-pill {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sage);
+    background: rgba(107, 127, 94, 0.15);
+    border: 1px solid rgba(107, 127, 94, 0.3);
+    padding: 4px 12px;
+    border-radius: 100px;
+  }
+
+  /* ── SIDE PANEL ── */
+  .panel {
+    position: absolute;
+    top: 60px;
+    left: 16px;
+    bottom: 16px;
+    width: 380px;
+    z-index: 10;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    backdrop-filter: blur(20px);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+  }
+  .panel.collapsed {
+    transform: translateX(-400px);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .panel::-webkit-scrollbar { width: 4px; }
+  .panel::-webkit-scrollbar-track { background: transparent; }
+  .panel::-webkit-scrollbar-thumb { background: rgba(245,239,228,0.15); border-radius: 2px; }
+
+  .panel-header {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(180deg, var(--panel-bg) 85%, transparent);
+    padding: 20px 20px 12px;
+    z-index: 2;
+  }
+  .panel-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 4px;
+  }
+  .panel-sub {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rust-light);
+  }
+
+  .section {
+    padding: 0 20px 16px;
+    border-bottom: 1px solid var(--panel-border);
+  }
+  .section:last-child { border-bottom: none; }
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(245,239,228,0.4);
+    margin: 16px 0 10px;
+  }
+
+  .route-stop {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+  .route-stop:hover { background: rgba(245,239,228,0.05); }
+  .route-stop.active { background: rgba(122,58,26,0.2); }
+
+  .stop-marker {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 500;
+    flex-shrink: 0;
+    border: 1.5px solid;
+  }
+  .stop-marker.origin { background: rgba(107,127,94,0.2); border-color: var(--sage); color: var(--sage); }
+  .stop-marker.waypoint { background: rgba(196,150,58,0.2); border-color: var(--gold); color: var(--gold); }
+  .stop-marker.dest { background: rgba(122,58,26,0.2); border-color: var(--rust); color: var(--rust-light); }
+
+  .stop-info h3 {
+    font-family: 'EB Garamond', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cream);
+    margin-bottom: 2px;
+  }
+  .stop-info p {
+    font-size: 11px;
+    color: rgba(245,239,228,0.55);
+    line-height: 1.5;
+  }
+  .stop-tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-top: 4px;
+    margin-right: 4px;
+  }
+  .tag-free { background: rgba(107,127,94,0.2); color: var(--sage); }
+  .tag-paid { background: rgba(196,150,58,0.2); color: var(--gold); }
+  .tag-explore { background: rgba(122,58,26,0.2); color: var(--rust-light); }
+  .tag-infra { background: rgba(245,239,228,0.08); color: rgba(245,239,228,0.5); }
+  .tag-creator { background: rgba(168, 120, 210, 0.2); color: #B89ADB; }
+
+  /* ── SPEC GRID ── */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .spec-card {
+    background: rgba(245,239,228,0.04);
+    border: 1px solid rgba(245,239,228,0.08);
+    border-radius: 6px;
+    padding: 10px;
+  }
+  .spec-card .val {
+    font-family: 'EB Garamond', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--cream);
+  }
+  .spec-card .label {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(245,239,228,0.4);
+    margin-top: 2px;
+  }
+  .spec-card.highlight { border-color: var(--rust); }
+  .spec-card.highlight .val { color: var(--rust-light); }
+
+  /* ── CHECKLIST ── */
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: rgba(245,239,228,0.7);
+    line-height: 1.5;
+  }
+  .check-box {
+    width: 14px; height: 14px;
+    border: 1.5px solid rgba(245,239,228,0.25);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+  }
+  .check-box.checked {
+    background: var(--rust);
+    border-color: var(--rust);
+    color: var(--cream);
+  }
+
+  /* ── PHASE TIMELINE ── */
+  .phase {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .phase-line {
+    width: 2px;
+    background: rgba(245,239,228,0.1);
+    position: absolute;
+    left: 7px;
+    top: 20px;
+    bottom: -8px;
+  }
+  .phase:last-child .phase-line { display: none; }
+  .phase-dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--rust);
+    background: var(--charcoal);
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .phase.active .phase-dot { background: var(--rust); }
+  .phase-content h4 {
+    font-family: 'EB Garamond', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cream);
+  }
+  .phase-content .phase-desc {
+    font-size: 11px;
+    color: rgba(245,239,228,0.5);
+    line-height: 1.5;
+    margin-top: 2px;
+  }
+  .phase-content .phase-date {
+    font-size: 9px;
+    color: var(--rust-light);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ── TOGGLE BUTTON ── */
+  .panel-toggle {
+    position: absolute;
+    top: 70px;
+    left: 16px;
+    z-index: 10;
+    width: 36px; height: 36px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--cream);
+    font-size: 14px;
+    backdrop-filter: blur(12px);
+    transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+  }
+  .panel-toggle.shifted { left: 404px; }
+
+  /* ── MAP LEGEND ── */
+  .legend {
+    position: absolute;
+    bottom: 20px;
+    right: 16px;
+    z-index: 10;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    backdrop-filter: blur(12px);
+  }
+  .legend-title {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(245,239,228,0.4);
+    margin-bottom: 8px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    font-size: 11px;
+    color: rgba(245,239,228,0.6);
+  }
+  .legend-item:last-child { margin-bottom: 0; }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ── POPUP ── */
+  .maplibregl-popup-content {
+    background: var(--panel-bg) !important;
+    border: 1px solid var(--panel-border) !important;
+    border-radius: 8px !important;
+    padding: 14px !important;
+    color: var(--cream) !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    backdrop-filter: blur(16px) !important;
+    max-width: 260px !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+  }
+  .maplibregl-popup-tip {
+    border-top-color: var(--panel-bg) !important;
+  }
+  .popup-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .popup-desc {
+    font-size: 11px;
+    color: rgba(245,239,228,0.6);
+    line-height: 1.5;
+  }
+  .popup-tags {
+    margin-top: 6px;
+  }
+
+  /* ── COORDINATE READOUT ── */
+  .coord-readout {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    font-size: 10px;
+    color: rgba(245,239,228,0.35);
+    letter-spacing: 0.06em;
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    .panel {
+      width: calc(100% - 32px);
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 55vh;
+      border-radius: 16px 16px 0 0;
+      margin: 0 16px;
+      width: auto;
+    }
+    .panel.collapsed { transform: translateY(100%); }
+    .panel-toggle { top: auto; bottom: 60vh; left: 50%; transform: translateX(-50%); }
+    .panel-toggle.shifted { left: 50%; }
+  }
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Shelved</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Paused, not dead. Open to collaborators or funding.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=ARX%20Field%20Ops%20—%20Van%20Life%20Route%20Planner" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo">
+    <div class="logo-mark">A</div>
+    ARX FIELD OPS
+  </div>
+  <div class="status-pill">● Phase 0 — Pre-Departure</div>
+</div>
+
+<!-- PANEL TOGGLE -->
+<div class="panel-toggle shifted" id="panelToggle" onclick="togglePanel()">☰</div>
+
+<!-- SIDE PANEL -->
+<div class="panel" id="panel">
+  <div class="panel-header">
+    <div class="panel-title">Van Life Operations</div>
+    <div class="panel-sub">St. George UT → Redding CA → Creator Pilgrimage</div>
+  </div>
+
+  <!-- ROUTE -->
+  <div class="section">
+    <div class="section-label">Route Waypoints</div>
+    <div id="routeStops"></div>
+  </div>
+
+  <!-- BUDGET SPEC -->
+  <div class="section">
+    <div class="section-label">Monthly Budget (Van Life)</div>
+    <div class="spec-grid">
+      <div class="spec-card highlight">
+        <div class="val">$8,333</div>
+        <div class="label">Gross Income / Mo</div>
+      </div>
+      <div class="spec-card">
+        <div class="val">~$2,800</div>
+        <div class="label">Est. Expenses / Mo</div>
+      </div>
+      <div class="spec-card">
+        <div class="val">$0</div>
+        <div class="label">Rent / Mortgage</div>
+      </div>
+      <div class="spec-card">
+        <div class="val">~$600</div>
+        <div class="label">Fuel + Parking</div>
+      </div>
+      <div class="spec-card">
+        <div class="val">~$400</div>
+        <div class="label">Food / Supplies</div>
+      </div>
+      <div class="spec-card">
+        <div class="val">~$130</div>
+        <div class="label">Starlink / Data</div>
+      </div>
+      <div class="spec-card">
+        <div class="val">~$200</div>
+        <div class="label">Insurance (Van+Health)</div>
+      </div>
+      <div class="spec-card">
+        <div class="val">~$5,500</div>
+        <div class="label">Savings Potential</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFRASTRUCTURE -->
+  <div class="section">
+    <div class="section-label">Mobile Infrastructure</div>
+    <div id="infraChecklist"></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section">
+    <div class="section-label">Phase Timeline</div>
+    <div id="phaseTimeline"></div>
+  </div>
+
+  <!-- CREATOR PILGRIMAGE -->
+  <div class="section">
+    <div class="section-label" style="color: #B89ADB;">Creator Pilgrimage</div>
+    <div style="font-size: 11px; color: rgba(245,239,228,0.45); margin-bottom: 12px; line-height: 1.5;">
+      Visit creators who align with ARX values. Conversations, not clout. Show up with something real.
+    </div>
+    <div id="creatorVisits"></div>
+  </div>
+
+  <!-- LIVESTREAM -->
+  <div class="section">
+    <div class="section-label">Livestream / Content Pipeline</div>
+    <div style="font-size: 12px; color: rgba(245,239,228,0.6); line-height: 1.7;">
+      <strong style="color: var(--cream);">Safety net:</strong> Always-on stream = GPS trail + viewer network if anything goes wrong.<br>
+      <strong style="color: var(--cream);">ARX brand:</strong> Real open-source hardware dev from the road. Not lifestyle fluff — actual builds, failures, breakthroughs.<br>
+      <strong style="color: var(--cream);">Crash-spot network:</strong> Viewers offer land/driveways. Organic, trust-based, cheaper than paid sites.<br>
+      <strong style="color: var(--cream);">Revenue potential:</strong> Even modest viewership offsets parking/fuel costs.
+    </div>
+  </div>
+
+  <!-- OVERNIGHT STRATEGY -->
+  <div class="section">
+    <div class="section-label">Overnight Strategy</div>
+    <div style="font-size: 12px; color: rgba(245,239,228,0.6); line-height: 1.7;">
+      <span class="stop-tag tag-free">FREE</span> BLM / USFS dispersed camping (14-day limit), Walmart lots, Cracker Barrel, Casino lots, iOverlander app<br><br>
+      <span class="stop-tag tag-paid">$15–35/NIGHT</span> Harvest Hosts ($99/yr membership), Hipcamp, state park campgrounds<br><br>
+      <span class="stop-tag tag-explore">NETWORK</span> Livestream community crash-spot offers, friends/family along route, maker space parking
+    </div>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-title">Map Key</div>
+  <div class="legend-item"><div class="legend-dot" style="background: #6B7F5E;"></div> Origin / Home Base</div>
+  <div class="legend-item"><div class="legend-dot" style="background: #C4963A;"></div> Exploration Waypoint</div>
+  <div class="legend-item"><div class="legend-dot" style="background: #7A3A1A;"></div> Destination</div>
+  <div class="legend-item"><div class="legend-dot" style="background: rgba(245,239,228,0.3);"></div> BLM / Free Camping</div>
+  <div class="legend-item"><div style="width: 10px; height: 10px; background: rgba(168,120,210,0.3); border: 1.5px solid #B89ADB; border-radius: 2px; transform: rotate(45deg);"></div> Creator Visit</div>
+  <div class="legend-item"><div style="width: 20px; height: 3px; background: linear-gradient(90deg, #6B7F5E, #C4963A, #7A3A1A); border-radius: 2px;"></div> Primary Route</div>
+</div>
+
+<!-- COORD READOUT -->
+<div class="coord-readout" id="coords">–</div>
+
+<!-- MAP -->
+<div id="map"></div>
+
+<script>
+// ── ROUTE DATA ──
+const stops = [
+  {
+    id: 'stgeorge',
+    name: 'St. George, UT',
+    desc: 'Home base. Parents\' house. Tattoo apprenticeship with Cat at Tu Madres (Washington City). Final prep zone before departure.',
+    lat: 37.0965, lng: -113.5684,
+    type: 'origin',
+    tags: ['home', 'apprenticeship'],
+    phase: 'current'
+  },
+  {
+    id: 'zion',
+    name: 'Zion Corridor',
+    desc: 'BLM land south of Zion — free dispersed camping. Shakedown run: test all systems (power, water, Starlink, workstation) before committing to highway.',
+    lat: 37.20, lng: -112.98,
+    type: 'waypoint',
+    tags: ['free', 'shakedown'],
+  },
+  {
+    id: 'caliente',
+    name: 'Caliente / Cathedral Gorge, NV',
+    desc: 'State park campground ($15/night). Stunning geology, minimal crowds. Good first real overnight stop. Cell coverage decent on T-Mobile.',
+    lat: 37.6147, lng: -114.5124,
+    type: 'waypoint',
+    tags: ['paid', 'scenic'],
+  },
+  {
+    id: 'tonopah',
+    name: 'Tonopah, NV',
+    desc: 'Fuel/resupply stop. Free overnight at casino lots. Stargazing capital — if streaming, night sky content goes hard here.',
+    lat: 37.0687, lng: -117.2301,
+    type: 'waypoint',
+    tags: ['free', 'resupply'],
+  },
+  {
+    id: 'bishop',
+    name: 'Bishop, CA',
+    desc: 'Eastern Sierra gateway. BLM dispersed camping on Buttermilk Rd. Climber/van-life hub — network effect. Good Starlink signal. 2-3 day potential stay.',
+    lat: 37.3635, lng: -118.3951,
+    type: 'waypoint',
+    tags: ['free', 'community'],
+  },
+  {
+    id: 'mammoth',
+    name: 'Mammoth Lakes, CA',
+    desc: 'USFS dispersed camping (Inyo NF). If exploring, hot springs along 395. Van-life-friendly town with laundry, dump stations.',
+    lat: 37.6485, lng: -118.9721,
+    type: 'waypoint',
+    tags: ['free', 'explore'],
+  },
+  {
+    id: 'tahoe',
+    name: 'South Lake Tahoe, CA',
+    desc: 'Potential layover. Walmart overnight or USFS campgrounds. Library + coffee shop WiFi for remote work days. Beautiful but pricier area.',
+    lat: 38.9399, lng: -119.9772,
+    type: 'waypoint',
+    tags: ['paid', 'work-spot'],
+  },
+  {
+    id: 'lassen',
+    name: 'Lassen Volcanic NP area',
+    desc: 'USFS dispersed camping around Hat Creek. Last wilderness stretch before Redding. Excellent free sites, sparse crowds off-season.',
+    lat: 40.4884, lng: -121.5048,
+    type: 'waypoint',
+    tags: ['free', 'scenic'],
+  },
+  {
+    id: 'redding',
+    name: 'Redding, CA',
+    desc: 'Destination. Property scouting (RS-2 zoning). Library NFC pilot location. New home base for ARX Foundation operations. Affordable, warm, strategic.',
+    lat: 40.5865, lng: -122.3917,
+    type: 'dest',
+    tags: ['destination', 'home-base'],
+  },
+];
+
+// BLM / Free camping areas to show as clusters
+const blmAreas = [
+  { name: 'BLM - Virgin River', lat: 37.15, lng: -113.3, desc: 'Dispersed camping near St. George' },
+  { name: 'BLM - Pahranagat', lat: 37.28, lng: -115.1, desc: 'NV dispersed — very remote' },
+  { name: 'BLM - Buttermilk', lat: 37.35, lng: -118.55, desc: 'Popular van-life area near Bishop' },
+  { name: 'USFS - Inyo NF', lat: 37.72, lng: -119.05, desc: 'Free sites off Hwy 395' },
+  { name: 'BLM - Lassen Foothills', lat: 40.35, lng: -121.8, desc: 'Dispersed near Hat Creek' },
+];
+
+// ── CREATOR VISITS ──
+const creatorVisits = [
+  {
+    id: 'benn-jordan',
+    name: 'Benn Jordan',
+    handle: '@BennJordan',
+    location: 'Atlanta, GA (barn studio)',
+    lat: 33.88,
+    lng: -84.46,
+    desc: 'The Flashbulb. Music producer, acoustic science educator, artist advocacy. Founded non-profit publisher, challenged digital distribution. Anti-copyright maximalist. Runs channel under non-profit umbrella. Barn studio outside Atlanta.',
+    why: 'Open-source ethos overlap. Non-profit structure. Artist-first economics. Potential ARX audio/acoustics collab. He\'d get what you\'re building.',
+    channel: 'Benn Jordan (fka Benn and Gear)',
+    subs: '~700K',
+    tags: ['music', 'science', 'non-profit', 'artist-advocacy'],
+    status: 'wishlist', // wishlist | contacted | confirmed
+  },
+  // ── ADD MORE CREATORS HERE ──
+  // { id: '', name: '', handle: '', location: '', lat: 0, lng: 0, desc: '', why: '', channel: '', subs: '', tags: [], status: 'wishlist' },
+];
+
+// ── INFRASTRUCTURE CHECKLIST ──
+const infraItems = [
+  { text: 'Starlink Mini — roof-mounted, 12V DC', checked: false },
+  { text: 'CharaChorder X + Wear-a-Chorder + SterlingKey BT', checked: false },
+  { text: 'Pensieve remote access via Tailscale mesh', checked: true },
+  { text: '400W solar panel array + 200Ah LiFePO4', checked: false },
+  { text: 'GrapheneOS Pixel 9 (primary) + hotspot failover', checked: true },
+  { text: 'Obsidian vault sync via Syncthing (local mesh)', checked: true },
+  { text: 'Livestream rig: GoPro/phone + OBS + Starlink uplink', checked: false },
+  { text: 'Water: 30gal fresh + gravity filter', checked: false },
+  { text: 'ARXd daemon running on laptop (local Claude API)', checked: false },
+  { text: 'T-Mobile → Cape SIM port (month 12 of 24)', checked: false },
+];
+
+// ── PHASES ──
+const phases = [
+  {
+    title: 'Phase 0 — Prep & Shakedown',
+    desc: 'Finish tattoo apprenticeship trade. Acquire van + build out. Shakedown trip to Zion corridor.',
+    date: 'Now → Q2 2026',
+    active: true
+  },
+  {
+    title: 'Phase 1 — Transit to Redding',
+    desc: 'Southern route via NV/395/Sierra. ~10-14 day transit with exploration stops. Remote work continues full-time. Livestream launches.',
+    date: 'Q2–Q3 2026',
+    active: false
+  },
+  {
+    title: 'Phase 2 — Redding Landing',
+    desc: 'Property scouting (RS-2 zoning for workshop). Library NFC pilot. ARX Foundation local chapter. Van becomes secondary vehicle.',
+    date: 'Q3 2026',
+    active: false
+  },
+  {
+    title: 'Phase 3 — Base + Pilgrimage',
+    desc: 'Workshop build-out. Tattoo practice space. Full ARX hardware lab. Van becomes exploration vehicle — creator pilgrimage tours, ARX on the road.',
+    date: 'Q4 2026+',
+    active: false
+  },
+];
+
+// ── BUILD UI ──
+function buildRouteStops() {
+  const container = document.getElementById('routeStops');
+  container.innerHTML = stops.map((s, i) => `
+    <div class="route-stop" data-idx="${i}" onclick="flyTo(${s.lat}, ${s.lng}, '${s.id}')">
+      <div class="stop-marker ${s.type}">${String(i + 1).padStart(2, '0')}</div>
+      <div class="stop-info">
+        <h3>${s.name}</h3>
+        <p>${s.desc}</p>
+        <div>${s.tags.map(t => {
+          const cls = t === 'free' ? 'tag-free' : t === 'paid' ? 'tag-paid' : ['destination','home-base','home','explore','community','scenic'].includes(t) ? 'tag-explore' : 'tag-infra';
+          return `<span class="stop-tag ${cls}">${t}</span>`;
+        }).join('')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function buildChecklist() {
+  const container = document.getElementById('infraChecklist');
+  container.innerHTML = infraItems.map((item, i) => `
+    <div class="checklist-item">
+      <div class="check-box ${item.checked ? 'checked' : ''}" onclick="toggleCheck(this)" data-idx="${i}">${item.checked ? '✓' : ''}</div>
+      <span style="${item.checked ? 'text-decoration: line-through; opacity: 0.5;' : ''}">${item.text}</span>
+    </div>
+  `).join('');
+}
+
+function buildTimeline() {
+  const container = document.getElementById('phaseTimeline');
+  container.innerHTML = phases.map(p => `
+    <div class="phase ${p.active ? 'active' : ''}">
+      <div class="phase-line"></div>
+      <div class="phase-dot"></div>
+      <div class="phase-content">
+        <h4>${p.title}</h4>
+        <div class="phase-desc">${p.desc}</div>
+        <div class="phase-date">${p.date}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleCheck(el) {
+  const idx = parseInt(el.dataset.idx);
+  infraItems[idx].checked = !infraItems[idx].checked;
+  buildChecklist();
+}
+
+function buildCreatorVisits() {
+  const container = document.getElementById('creatorVisits');
+  if (!creatorVisits.length) {
+    container.innerHTML = '<div style="font-size: 11px; color: rgba(245,239,228,0.3); font-style: italic;">No creators added yet.</div>';
+    return;
+  }
+  container.innerHTML = creatorVisits.map(c => `
+    <div class="route-stop" onclick="flyTo(${c.lat}, ${c.lng}, '${c.id}')" style="border-left: 2px solid #B89ADB; margin-left: 2px; padding-left: 10px;">
+      <div style="flex-shrink: 0; width: 32px; height: 32px; background: rgba(168,120,210,0.15); border: 1.5px solid #B89ADB; display: flex; align-items: center; justify-content: center; font-size: 14px; transform: rotate(45deg); border-radius: 4px;">
+        <span style="transform: rotate(-45deg);">◆</span>
+      </div>
+      <div class="stop-info">
+        <h3 style="color: #B89ADB;">${c.name}</h3>
+        <p style="margin-bottom: 2px;"><strong style="color: rgba(245,239,228,0.7);">${c.channel}</strong> · ${c.subs}</p>
+        <p>${c.location}</p>
+        <p style="color: rgba(245,239,228,0.5); margin-top: 4px;"><em>Why:</em> ${c.why}</p>
+        <div style="margin-top: 6px;">
+          ${c.tags.map(t => `<span class="stop-tag tag-creator">${t}</span>`).join('')}
+          <span class="stop-tag" style="background: ${c.status === 'confirmed' ? 'rgba(107,127,94,0.3)' : c.status === 'contacted' ? 'rgba(196,150,58,0.3)' : 'rgba(245,239,228,0.08)'}; color: ${c.status === 'confirmed' ? '#6B7F5E' : c.status === 'contacted' ? '#C4963A' : 'rgba(245,239,228,0.4)'};">${c.status}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+let panelOpen = true;
+function togglePanel() {
+  panelOpen = !panelOpen;
+  document.getElementById('panel').classList.toggle('collapsed', !panelOpen);
+  document.getElementById('panelToggle').classList.toggle('shifted', panelOpen);
+  document.getElementById('panelToggle').textContent = panelOpen ? '✕' : '☰';
+}
+
+// ── INIT MAP ──
+const map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    sources: {
+      'carto-dark': {
+        type: 'raster',
+        tiles: [
+          'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+          'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+          'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+        ],
+        tileSize: 256,
+        attribution: '© CartoDB © OpenStreetMap contributors',
+      }
+    },
+    layers: [{
+      id: 'carto-dark-layer',
+      type: 'raster',
+      source: 'carto-dark',
+      minzoom: 0,
+      maxzoom: 19,
+    }]
+  },
+  center: [-100, 38],
+  zoom: 4,
+  maxZoom: 14,
+  minZoom: 3,
+});
+
+map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+map.on('mousemove', (e) => {
+  document.getElementById('coords').textContent =
+    `${e.lngLat.lat.toFixed(4)}°N  ${e.lngLat.lng.toFixed(4)}°W`;
+});
+
+map.on('load', () => {
+  // ── ROUTE LINE ──
+  const routeCoords = stops.map(s => [s.lng, s.lat]);
+  map.addSource('route', {
+    type: 'geojson',
+    data: {
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates: routeCoords }
+    }
+  });
+
+  // Glow
+  map.addLayer({
+    id: 'route-glow',
+    type: 'line',
+    source: 'route',
+    paint: {
+      'line-color': '#C4963A',
+      'line-width': 8,
+      'line-opacity': 0.15,
+      'line-blur': 6,
+    }
+  });
+
+  // Main line
+  map.addLayer({
+    id: 'route-line',
+    type: 'line',
+    source: 'route',
+    paint: {
+      'line-color': '#C4963A',
+      'line-width': 2.5,
+      'line-opacity': 0.8,
+      'line-dasharray': [4, 3],
+    }
+  });
+
+  // ── STOP MARKERS ──
+  stops.forEach((s, i) => {
+    const colors = {
+      origin: '#6B7F5E',
+      waypoint: '#C4963A',
+      dest: '#7A3A1A',
+    };
+    const color = colors[s.type];
+
+    const el = document.createElement('div');
+    el.style.cssText = `
+      width: ${s.type === 'dest' ? 22 : s.type === 'origin' ? 20 : 16}px;
+      height: ${s.type === 'dest' ? 22 : s.type === 'origin' ? 20 : 16}px;
+      background: ${color};
+      border: 2px solid ${s.type === 'dest' ? '#F5EFE4' : color};
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 ${s.type === 'dest' ? 16 : 8}px ${color}88;
+      transition: transform 0.2s;
+    `;
+    el.addEventListener('mouseenter', () => el.style.transform = 'scale(1.4)');
+    el.addEventListener('mouseleave', () => el.style.transform = 'scale(1)');
+
+    const popup = new maplibregl.Popup({ offset: 12, closeButton: false })
+      .setHTML(`
+        <div class="popup-title">${s.name}</div>
+        <div class="popup-desc">${s.desc}</div>
+        <div class="popup-tags">${s.tags.map(t => {
+          const cls = t === 'free' ? 'tag-free' : t === 'paid' ? 'tag-paid' : 'tag-explore';
+          return `<span class="stop-tag ${cls}">${t}</span>`;
+        }).join('')}</div>
+      `);
+
+    new maplibregl.Marker({ element: el })
+      .setLngLat([s.lng, s.lat])
+      .setPopup(popup)
+      .addTo(map);
+  });
+
+  // ── BLM AREAS ──
+  blmAreas.forEach(b => {
+    const el = document.createElement('div');
+    el.style.cssText = `
+      width: 10px; height: 10px;
+      background: rgba(245,239,228,0.2);
+      border: 1px solid rgba(245,239,228,0.3);
+      border-radius: 50%;
+      cursor: pointer;
+    `;
+
+    const popup = new maplibregl.Popup({ offset: 8, closeButton: false })
+      .setHTML(`
+        <div class="popup-title">${b.name}</div>
+        <div class="popup-desc">${b.desc}</div>
+        <div class="popup-tags"><span class="stop-tag tag-free">free camping</span></div>
+      `);
+
+    new maplibregl.Marker({ element: el })
+      .setLngLat([b.lng, b.lat])
+      .setPopup(popup)
+      .addTo(map);
+  });
+
+  // ── CREATOR VISIT MARKERS ──
+  creatorVisits.forEach(c => {
+    // Dashed line from Redding (base) to creator
+    const redding = stops.find(s => s.id === 'redding');
+    if (redding) {
+      map.addSource(`creator-line-${c.id}`, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: [[redding.lng, redding.lat], [c.lng, c.lat]] }
+        }
+      });
+      map.addLayer({
+        id: `creator-line-glow-${c.id}`,
+        type: 'line',
+        source: `creator-line-${c.id}`,
+        paint: {
+          'line-color': '#B89ADB',
+          'line-width': 4,
+          'line-opacity': 0.08,
+          'line-blur': 4,
+        }
+      });
+      map.addLayer({
+        id: `creator-line-${c.id}`,
+        type: 'line',
+        source: `creator-line-${c.id}`,
+        paint: {
+          'line-color': '#B89ADB',
+          'line-width': 1.5,
+          'line-opacity': 0.4,
+          'line-dasharray': [2, 4],
+        }
+      });
+    }
+
+    // Diamond marker
+    const el = document.createElement('div');
+    el.style.cssText = `
+      width: 18px; height: 18px;
+      background: rgba(168,120,210,0.3);
+      border: 2px solid #B89ADB;
+      border-radius: 3px;
+      transform: rotate(45deg);
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(168,120,210,0.4);
+      transition: transform 0.2s;
+    `;
+    el.addEventListener('mouseenter', () => el.style.transform = 'rotate(45deg) scale(1.3)');
+    el.addEventListener('mouseleave', () => el.style.transform = 'rotate(45deg) scale(1)');
+
+    const popup = new maplibregl.Popup({ offset: 14, closeButton: false })
+      .setHTML(`
+        <div class="popup-title" style="color: #B89ADB;">${c.name}</div>
+        <div class="popup-desc"><strong>${c.channel}</strong> · ${c.subs}<br>${c.location}</div>
+        <div class="popup-desc" style="margin-top: 6px;">${c.desc}</div>
+        <div class="popup-tags">
+          ${c.tags.map(t => `<span class="stop-tag tag-creator">${t}</span>`).join('')}
+        </div>
+      `);
+
+    new maplibregl.Marker({ element: el })
+      .setLngLat([c.lng, c.lat])
+      .setPopup(popup)
+      .addTo(map);
+  });
+});
+
+function flyTo(lat, lng, id) {
+  map.flyTo({ center: [lng, lat], zoom: 9, duration: 1500, essential: true });
+  document.querySelectorAll('.route-stop').forEach(el => el.classList.remove('active'));
+  const activeEl = document.querySelector(`.route-stop[data-idx="${stops.findIndex(s => s.id === id)}"]`);
+  if (activeEl) activeEl.classList.add('active');
+}
+
+// ── BUILD ──
+buildRouteStops();
+buildChecklist();
+buildTimeline();
+buildCreatorVisits();
+</script>
+</body>
+</html>

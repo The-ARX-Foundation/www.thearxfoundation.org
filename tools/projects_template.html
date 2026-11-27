@@ -34,6 +34,14 @@ a{color:var(--gold)} a:hover{color:var(--cream)}
 .chip{font-family:"Space Mono",monospace;font-size:.66rem;letter-spacing:.04em;padding:.2rem .5rem;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:none;cursor:pointer}
 .chip.on{background:var(--gold);color:var(--void);border-color:var(--gold)}
 .chip i{font-style:normal;opacity:.7;margin-left:.25rem}
+.stages{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0 .25rem}
+.stage-chip{font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .7rem;border:1px solid var(--line);border-radius:999px;color:var(--cream);background:none;cursor:pointer}
+.stage-chip i{font-style:normal;opacity:.6;margin-left:.35rem}
+.stage-chip.on{background:var(--cream);color:var(--void);border-color:var(--cream)}
+.b.st-Active{background:#2f4a36}.b.st-Up{background:#4a432a}.b.st-Shelved{background:#3a3640}.b.st-Idea{background:#2a3a4a}
+.pitch{margin:.15rem 0 .6rem;font-size:1.02rem;line-height:1.45}
+.readmore{display:inline-block;margin:.1rem 0 .7rem;font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1px solid var(--gold);padding:.45rem .7rem;border-radius:3px}
+.readmore:hover{background:var(--gold);color:var(--void)}
 .count{color:var(--muted);margin:.75rem 0}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:.75rem}
 @media (max-width:420px){.grid{grid-template-columns:1fr}}
@@ -79,6 +87,7 @@ footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid rgba(139,69,24,.
   <div class="stats" id="stats"></div>
   <div class="controls" role="search">
     <input id="q" type="search" placeholder="Search title, theme, need…" aria-label="Search projects">
+    <select id="f-cat" aria-label="Category"></select>
     <select id="f-priority" aria-label="Priority"></select>
     <select id="f-status" aria-label="Status"></select>
     <select id="f-horizon" aria-label="Horizon"></select>
@@ -95,6 +104,7 @@ footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid rgba(139,69,24,.
     </select>
     <label id="l-ph"><input type="checkbox" id="f-ph"> placeholders</label>
   </div>
+  <div class="stages" id="stages" role="group" aria-label="Stage"></div>
   <div class="themes" id="themes" aria-label="Recurring themes"></div>
   <p class="count mono" id="count"></p>
   <div class="grid" id="grid"></div>
@@ -111,11 +121,12 @@ const byId = Object.fromEntries(P.map(p => [p.id, p]));
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const PRI = ["P0","P1","P2","P3","P4"], HOR = ["now","<3mo","3-12mo","1-3y","3y+"];
-const state = { q:"", theme:new Set() };
+const state = { q:"", theme:new Set(), stage:"" };
+const STAGES = ["Active","Up next","Shelved","Idea"];
 
 function opts(sel, label, vals){ const el=$(sel); el.innerHTML = `<option value="">${label}: all</option>` + vals.map(v=>`<option>${esc(v)}</option>`).join(""); el.onchange=draw; }
 const uniq = k => [...new Set(P.map(p=>p[k]).filter(Boolean))].sort();
-opts("#f-priority","Priority",PRI); opts("#f-status","Status",uniq("status"));
+opts("#f-cat","Category",uniq("category")); opts("#f-priority","Priority",PRI); opts("#f-status","Status",uniq("status"));
 opts("#f-horizon","Horizon",HOR); opts("#f-entity","Entity",uniq("entity"));
 if (PRIV) { opts("#f-vis","Visibility",["public","private","personal"]); opts("#f-scope","Scope",uniq("scope")); } else { $("#f-vis").remove(); $("#f-scope").remove(); }
 if (!PRIV) $("#l-ph").remove(); else $("#f-ph").onchange = draw;
@@ -124,6 +135,10 @@ $("#sort").onchange = draw; $("#q").oninput = e => { state.q = e.target.value.to
 $("#kicker").textContent = PRIV ? "Private triage view — not for publishing" : "Public";
 if (PRIV) $("#banner").innerHTML = `<div class="banner">Private view: all ${P.length} catalog entries. <b>Dashed badges</b> and <i>italic values</i> are suggestions that aren't confirmed on the triage board yet.</div>`;
 
+{ const n = st => P.filter(p=>!p.placeholder && (!st || p.stage===st)).length;
+  $("#stages").innerHTML = ["", ...STAGES].map(st => `<button type="button" class="stage-chip${st===state.stage?" on":""}" data-s="${esc(st)}" aria-pressed="${st===state.stage}">${st||"All"}<i>${n(st)}</i></button>`).join("");
+  $("#stages").onclick = e => { const b=e.target.closest(".stage-chip"); if(!b) return; state.stage=b.dataset.s;
+    document.querySelectorAll(".stage-chip").forEach(c=>{const on=c.dataset.s===state.stage; c.classList.toggle("on",on); c.setAttribute("aria-pressed",on);}); draw(); }; }
 $("#themes").innerHTML = DATA.themes.slice(0, PRIV ? 40 : 24).map(([t,n]) => `<button class="chip" data-t="${esc(t)}">${esc(t)}<i>${n}</i></button>`).join("");
 $("#themes").onclick = e => { const b=e.target.closest(".chip"); if(!b) return; const t=b.dataset.t; state.theme.has(t)?state.theme.delete(t):state.theme.add(t); b.classList.toggle("on"); draw(); };
 
@@ -139,8 +154,10 @@ function card(p){
   const needs = [["skills",p.skills],["people",p.people],["hardware",p.hardware]].filter(x=>x[1].length).map(([k,v])=>`${k}: ${v.map(esc).join(", ")}`).join("<br>");
   return `<article class="card" id="${p.id}" data-p="${esc(p.priority||"")}">
     <div class="mono id">${p.id}${p.category?` · ${esc(p.category)}`:""}</div>
-    <h3>${esc(p.title)}</h3>
-    <div class="badges">${badge(p,"priority")}${badge(p,"status")}${badge(p,"entity")}${PRIV?badge(p,"visibility","vis-"+p.visibility):""}${p.decision?`<span class="b">${esc(p.decision)}</span>`:""}${PRIV&&p.ip_flag_insightally?`<span class="b warn">IP boundary</span>`:""}${PRIV&&p.placeholder?`<span class="b sug">placeholder</span>`:""}${PRIV&&p.scope&&p.scope!=="ARX"?`<span class="b warn">${esc(p.scope)}</span>`:""}${PRIV&&p.kind==="curated"?`<span class="b">curated</span>`:""}</div>
+    <h3>${p.page?`<a href="${esc(p.page)}" style="color:inherit;text-decoration:none">${esc(p.title)}</a>`:esc(p.title)}</h3>
+    ${p.pitch?`<p class="pitch">${esc(p.pitch)}</p>`:""}
+    ${p.page?`<a class="readmore" href="${esc(p.page)}">${esc(p.page_label||"Read the write-up")} &rarr;</a>`:""}
+    <div class="badges">${p.stage?`<span class="b st-${esc(p.stage.split(" ")[0])}" title="stage">${esc(p.stage)}</span>`:""}${badge(p,"priority")}${badge(p,"status")}${badge(p,"entity")}${PRIV?badge(p,"visibility","vis-"+p.visibility):""}${p.decision?`<span class="b">${esc(p.decision)}</span>`:""}${PRIV&&p.ip_flag_insightally?`<span class="b warn">IP boundary</span>`:""}${PRIV&&p.placeholder?`<span class="b sug">placeholder</span>`:""}${PRIV&&p.scope&&p.scope!=="ARX"?`<span class="b warn">${esc(p.scope)}</span>`:""}${PRIV&&p.kind==="curated"?`<span class="b">curated</span>`:""}</div>
     ${p.decision==="archive"?`<p class="shelved">Shelved for now. Open to collaborators or funding: <a href="mailto:${esc(DATA.contact.email)}?subject=${encodeURIComponent(p.title)}">get in touch</a>.</p>`:""}
     ${p.blurb?`<p class="blurb">${esc(p.blurb)}</p>`:""}
     ${p.summary?`<p style="margin:.2rem 0 .5rem;color:var(--muted)">${esc(p.summary)}</p>`:""}
@@ -173,13 +190,14 @@ function draw(){
   const f = k => $("#f-"+k) ? $("#f-"+k).value : "";
   let rows = P.filter(p =>
     (PRIV && $("#f-ph").checked || !p.placeholder) &&
+    (!state.stage || p.stage===state.stage) && (!f("cat") || p.category===f("cat")) &&
     (!f("priority") || p.priority===f("priority")) && (!f("status") || p.status===f("status")) &&
     (!f("horizon") || p.horizon===f("horizon")) && (!f("entity") || p.entity===f("entity")) &&
     (!f("vis") || p.visibility===f("vis")) && (!f("scope") || p.scope===f("scope")) &&
     [...state.theme].every(t => p.themes.includes(t)) &&
-    (!state.q || [p.title,p.blurb,p.category,p.next_action,p.blockers,...p.themes,...p.skills,...p.people,...p.hardware].join(" ").toLowerCase().includes(state.q)));
+    (!state.q || [p.title,p.pitch,p.blurb,p.category,p.next_action,p.blockers,...p.themes,...p.skills,...p.people,...p.hardware].join(" ").toLowerCase().includes(state.q)));
   const pi = p => p.priority ? PRI.indexOf(p.priority) : 9, ev = p => (p.effort_invested.versions||0)*3 + (p.effort_invested.chats||0)*2 + (p.effort_invested.span_days||0)/30;
-  const S = { priority:(a,b)=>pi(a)-pi(b)||ev(b)-ev(a), effort:(a,b)=>ev(b)-ev(a), feasibility:(a,b)=>(b.feasibility||0)-(a.feasibility||0),
+  const S = { priority:(a,b)=>(!!b.page-!!a.page)||pi(a)-pi(b)||ev(b)-ev(a), effort:(a,b)=>ev(b)-ev(a), feasibility:(a,b)=>(b.feasibility||0)-(a.feasibility||0),
     links:(a,b)=>conn(b)-conn(a), fresh:(a,b)=>String(b.last_touched).localeCompare(a.last_touched), stale:(a,b)=>(b.staleness_days||0)-(a.staleness_days||0) };
   rows.sort(S[$("#sort").value]);
   $("#count").textContent = `${rows.length} of ${P.length} shown`;
@@ -188,7 +206,7 @@ function draw(){
   $("#stats").innerHTML = [["projects",real.length],["P0 · now",cnt(p=>p.priority==="P0")],["active / building",cnt(p=>["active","build"].includes(p.status))],["blocked",cnt(p=>p.status==="blocked"||p.blockers)],["with crossovers",cnt(p=>p.related.length)],PRIV?["public (confirmed)",cnt(p=>p.confirmed_public)]:null].filter(Boolean).map(([l,n])=>`<div class="stat"><b>${n}</b><span class="mono">${l}</span></div>`).join("");
 }
 document.addEventListener("click", e => { const a=e.target.closest("[data-go]"); if(!a) return; const el=document.getElementById(a.dataset.go);
-  if(!el){ ["#q","#f-priority","#f-status","#f-horizon","#f-entity","#f-vis","#f-scope"].forEach(s=>$(s)&&($(s).value="")); state.q=""; state.theme.clear(); document.querySelectorAll(".chip.on").forEach(c=>c.classList.remove("on")); if($("#f-ph")) $("#f-ph").checked=true; draw(); }
+  if(!el){ ["#q","#f-cat","#f-priority","#f-status","#f-horizon","#f-entity","#f-vis","#f-scope"].forEach(s=>$(s)&&($(s).value="")); state.q=""; state.theme.clear(); state.stage=""; document.querySelectorAll(".stage-chip").forEach(c=>c.classList.toggle("on",c.dataset.s==="")); document.querySelectorAll(".chip.on").forEach(c=>c.classList.remove("on")); if($("#f-ph")) $("#f-ph").checked=true; draw(); }
   e.preventDefault(); const t=document.getElementById(a.dataset.go); if(t){ t.scrollIntoView({behavior:"smooth",block:"start"}); t.classList.add("flash"); setTimeout(()=>t.classList.remove("flash"),1600); history.replaceState(null,"","#"+a.dataset.go);} });
 $("#foot").textContent = `Generated ${DATA.generated} · ${PRIV ? "private build" : "public build"} · The ARX Foundation`;
 draw();

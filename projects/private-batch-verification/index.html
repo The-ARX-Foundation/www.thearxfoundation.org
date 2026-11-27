@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>ARX Foundation — Private Batch Verification</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5EFE4; --bg2: #EDE5D6; --border: #C8BEA8; --text: #2A1F14; --text2: #5A4030; --text3: #8A7060;
+  --rust: #7A3A1A; --rust2: #9B4A22; --gold: #8B6914; --indigo: #2D2A5E; --indigo2: #4A4690;
+  --serif: 'Crimson Pro', serif; --display: 'IM Fell English', serif; --mono: 'JetBrains Mono', monospace;
+}
+body[data-theme="dark"] {
+  --bg: #1a2417; --bg2: #2d3a31; --border: #3d5640; --text: #e8dcc8; --text2: #b8a890; --text3: #8b9e82;
+  --rust: #d4a574; --rust2: #e8b88d; --gold: #b8911c; --indigo: #4a5e6d; --indigo2: #6a8fb8;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 100px; width: 100%; overflow-x: hidden; }
+body { background: var(--bg); color: var(--text); font-family: var(--serif); font-size: clamp(15px, 2.5vw, 17px);
+  line-height: 1.75; min-height: 100vh; width: 100%; overflow-x: hidden; transition: background 0.3s, color 0.3s; }
+body::before { content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; }
+#progress { position: fixed; top: 0; left: 0; height: 2px; background: var(--rust); z-index: 101; transition: width 0.1s linear; }
+.header { background: var(--bg2); border-bottom: 2px solid var(--rust); padding: clamp(10px, 3vw, 14px) clamp(16px, 4vw, 20px);
+  display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 20px rgba(122,58,26,0.08); min-height: 52px; width: 100%; gap: 12px; transition: all 0.15s ease; }
+.header.collapsed { padding: 6px clamp(12px, 3vw, 16px); min-height: 36px; }
+.header-left { display: flex; align-items: center; gap: clamp(6px, 2vw, 10px); flex-shrink: 0; }
+.logo-text { font-family: var(--display); font-size: clamp(16px, 3vw, 20px); color: var(--rust); font-style: italic; letter-spacing: 0.5px; }
+.tagline { font-family: var(--mono); font-size: clamp(9px, 1.8vw, 11px); color: var(--text2); letter-spacing: 1px;
+  text-transform: uppercase; display: none; }
+@media (min-width: 500px) { .tagline { display: block; } }
+.header-right { display: flex; align-items: center; gap: clamp(8px, 2vw, 12px); }
+.theme-btn { font-family: var(--mono); font-size: clamp(10px, 2vw, 12px); background: var(--bg); color: var(--text);
+  border: 1px solid var(--border); padding: clamp(4px, 1.5vw, 6px) clamp(8px, 2.5vw, 12px); border-radius: 4px;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.theme-btn:hover { background: var(--rust); color: var(--bg); border-color: var(--rust); }
+.tabs-wrapper { position: relative; z-index: 1; width: 100%; }
+.tabs { display: flex; gap: clamp(6px, 2vw, 10px); border-bottom: 1px solid var(--border); padding: 0 clamp(16px, 4vw, 20px);
+  background: var(--bg); overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: var(--rust) var(--bg2); }
+.tabs::-webkit-scrollbar { height: 4px; }
+.tabs::-webkit-scrollbar-track { background: var(--bg2); }
+.tabs::-webkit-scrollbar-thumb { background: var(--rust); border-radius: 2px; }
+.tab { font-family: var(--mono); font-size: clamp(10px, 2vw, 12px); color: var(--text2); background: none; border: none;
+  border-bottom: 2px solid transparent; padding: clamp(8px, 2vw, 12px) clamp(10px, 2.5vw, 14px); cursor: pointer;
+  transition: all 0.2s; white-space: nowrap; letter-spacing: 0.5px; text-transform: uppercase; }
+.tab:hover { color: var(--rust); border-bottom-color: var(--rust2); }
+.tab.active { color: var(--rust); border-bottom-color: var(--rust); font-weight: 500; }
+.panels { position: relative; z-index: 1; width: 100%; }
+.panel { display: none; padding: clamp(24px, 5vw, 48px) clamp(16px, 4vw, 20px); width: 100%; animation: fadeIn 0.3s ease; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.title { font-family: var(--display); font-size: clamp(28px, 6vw, 44px); color: var(--text); margin-bottom: clamp(12px, 3vw, 20px);
+  line-height: 1.2; font-style: italic; }
+.subtitle { font-family: var(--mono); font-size: clamp(11px, 2.2vw, 13px); color: var(--text2); letter-spacing: 1px;
+  text-transform: uppercase; margin-bottom: clamp(20px, 4vw, 32px); }
+.section { max-width: 800px; margin: 0 auto clamp(32px, 6vw, 48px); }
+.section-title { font-family: var(--display); font-size: clamp(20px, 4vw, 26px); color: var(--rust);
+  margin-bottom: clamp(12px, 3vw, 16px); font-style: italic; }
+p { margin-bottom: clamp(12px, 3vw, 16px); color: var(--text); }
+.callout { background: var(--bg2); border-left: 3px solid var(--rust); padding: clamp(14px, 3vw, 18px);
+  margin: clamp(20px, 4vw, 28px) 0; border-radius: 2px; }
+.callout-title { font-family: var(--mono); font-size: clamp(10px, 2vw, 11px); color: var(--rust); letter-spacing: 1px;
+  text-transform: uppercase; margin-bottom: 8px; }
+.card { background: var(--bg2); border: 1px solid var(--border); padding: clamp(16px, 3.5vw, 20px);
+  margin-bottom: clamp(16px, 3vw, 20px); border-radius: 4px; transition: all 0.2s; }
+.card:hover { border-color: var(--rust2); box-shadow: 0 2px 12px rgba(122,58,26,0.1); }
+.card-title { font-family: var(--mono); font-size: clamp(12px, 2.5vw, 14px); color: var(--rust);
+  margin-bottom: clamp(8px, 2vw, 10px); letter-spacing: 0.5px; }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--bg2); padding: 2px 6px; border-radius: 2px; color: var(--indigo); }
+pre { background: var(--bg2); border: 1px solid var(--border); padding: clamp(12px, 3vw, 16px); border-radius: 4px;
+  overflow-x: auto; margin: clamp(16px, 3vw, 20px) 0; }
+pre code { background: none; padding: 0; }
+.chip { display: inline-block; font-family: var(--mono); font-size: clamp(9px, 1.8vw, 10px); background: var(--bg);
+  color: var(--text2); border: 1px solid var(--border); padding: 4px 8px; border-radius: 3px; margin: 0 4px 4px 0; letter-spacing: 0.5px; }
+.chip.warn { border-color: var(--rust); color: var(--rust); }
+.chip.info { border-color: var(--indigo); color: var(--indigo); }
+.nav-footer { display: flex; gap: clamp(8px, 2vw, 12px); margin-top: clamp(32px, 6vw, 48px); justify-content: center; flex-wrap: wrap; }
+.nav-btn { font-family: var(--mono); font-size: clamp(11px, 2.2vw, 13px); background: var(--bg2); color: var(--text);
+  border: 1px solid var(--border); padding: clamp(8px, 2vw, 10px) clamp(14px, 3vw, 18px); border-radius: 4px;
+  cursor: pointer; transition: all 0.15s; letter-spacing: 0.5px; }
+.nav-btn:hover { background: var(--rust); color: var(--bg); border-color: var(--rust); }
+ul, ol { margin: clamp(12px, 3vw, 16px) 0; padding-left: clamp(20px, 4vw, 28px); }
+li { margin-bottom: clamp(6px, 1.5vw, 8px); color: var(--text); }
+.data-table { width: 100%; border-collapse: collapse; margin: clamp(20px, 4vw, 28px) 0; font-size: clamp(13px, 2.5vw, 15px); }
+.data-table th { font-family: var(--mono); font-size: clamp(10px, 2vw, 11px); text-align: left; padding: clamp(8px, 2vw, 10px);
+  background: var(--bg2); border-bottom: 2px solid var(--rust); color: var(--text); letter-spacing: 0.5px; text-transform: uppercase; }
+.data-table td { padding: clamp(8px, 2vw, 10px); border-bottom: 1px solid var(--border); color: var(--text); }
+.data-table tr:hover td { background: var(--bg2); }
+@media (max-width: 600px) { .tabs { padding: 0 12px; } .panel { padding: 20px 12px; } }
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Shelved</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Paused, not dead. Open to collaborators or funding.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=Private%20Batch%20Verification" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div id="progress"></div>
+
+<header class="header" id="main-header">
+  <div class="header-left">
+    <div class="logo-text">ARX Foundation</div>
+    <div class="tagline">Privacy-Preserving Verification</div>
+  </div>
+  <div class="header-right">
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
+  </div>
+</header>
+
+<div class="tabs-wrapper">
+  <div class="tabs">
+    <button class="tab" onclick="switchTab('tab1')">Problem</button>
+    <button class="tab" onclick="switchTab('tab2')">Solutions</button>
+    <button class="tab" onclick="switchTab('tab3')">NFC + Tor</button>
+    <button class="tab" onclick="switchTab('tab4')">Build Spec</button>
+  </div>
+</div>
+
+<div class="panels">
+
+<!-- TAB 1 -->
+<div class="panel" id="panel-tab1">
+  <h1 class="title">The Tracking Problem</h1>
+  <p class="subtitle">Why QR Codes Dox Users</p>
+
+  <div class="section">
+    <h2 class="section-title">Data Leaked by Standard QR Verification</h2>
+    
+    <table class="data-table">
+      <thead>
+        <tr><th>Data Point</th><th>How It's Captured</th><th>Risk</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Device ID</strong></td><td>User-Agent string, screen resolution, browser fingerprint</td><td>Permanent tracking across sessions</td></tr>
+        <tr><td><strong>IP Address</strong></td><td>HTTP request to brand's COA server</td><td>Approximate location (city-level)</td></tr>
+        <tr><td><strong>GPS Coordinates</strong></td><td>Phone OS permission prompt if site requests</td><td>Exact location</td></tr>
+        <tr><td><strong>Timestamp</strong></td><td>Server logs when COA is accessed</td><td>Usage patterns, frequency</td></tr>
+        <tr><td><strong>Batch Number</strong></td><td>URL parameter or form submission</td><td>Links identity to specific purchase</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>Result:</strong> Brand knows who bought what, where, when. User has zero privacy.</p>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Why Brands Want This Data</h2>
+    <ul>
+      <li>Retargeting ads (sell to data brokers)</li>
+      <li>Geographic demand mapping</li>
+      <li>Batch recall targeting (identify affected customers)</li>
+      <li>Law enforcement cooperation (if pressured)</li>
+    </ul>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">Core Requirement</div>
+    <p>Users must verify batch authenticity <strong>without revealing identity</strong>. Brands must prove batch legitimacy <strong>without tracking lookups</strong>.</p>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab2')">Solutions →</button>
+  </div>
+</div>
+
+<!-- TAB 2 -->
+<div class="panel" id="panel-tab2">
+  <h1 class="title">Privacy-Preserving Solutions</h1>
+  <p class="subtitle">Ranked by Simplicity</p>
+
+  <div class="section">
+    <h2 class="section-title">Tier 1: Static File Hosting (Simplest)</h2>
+    
+    <div class="card">
+      <div class="card-title">Architecture</div>
+      <p>Batch number <strong>printed on package</strong> (no QR). User manually types into privacy-focused browser. COA served as static PDF from CDN.</p>
+      
+      <p><strong>Example URL:</strong></p>
+      <pre><code>https://brand.com/coa/batch-SD241227-037.pdf</code></pre>
+
+      <p><strong>Tech Stack:</strong></p>
+      <ul>
+        <li>CDN: Bunny CDN (privacy-respecting, no tracking)</li>
+        <li>No backend — just static files</li>
+        <li>No analytics — no Google, no Cloudflare tracking mode</li>
+      </ul>
+
+      <p><span class="chip info">Zero tracking if configured correctly</span></p>
+      <p><span class="chip warn">Requires manual batch entry</span></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Tier 2: IPFS + Blockchain (Better)</h2>
+    
+    <div class="card">
+      <div class="card-title">Zero-Knowledge Batch Verification</div>
+      
+      <p><strong>How it works:</strong></p>
+      <ol>
+        <li>Brand uploads COA to IPFS (decentralized storage)</li>
+        <li>Brand publishes <code>hash(batch_data) → IPFS_CID</code> to Polygon smart contract</li>
+        <li>QR code contains <strong>batch hash</strong> (not batch number)</li>
+        <li>User scans → visits neutral site (arxverify.org)</li>
+        <li>Site queries smart contract (client-side, no server)</li>
+        <li>Contract returns IPFS link</li>
+        <li>User downloads COA from IPFS (peer-to-peer)</li>
+      </ol>
+
+      <p><strong>Tech Stack:</strong></p>
+      <ul>
+        <li>IPFS for COA hosting</li>
+        <li>Polygon L2 for smart contract (cheap, fast)</li>
+        <li>Client-side web3.js (no backend server)</li>
+      </ul>
+
+      <p><span class="chip info">Brand can't track lookups</span></p>
+      <p><span class="chip info">Data is immutable</span></p>
+      <p><span class="chip warn">Requires crypto infrastructure</span></p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Smart Contract Example</div>
+      <pre><code>// Solidity (Polygon)
+contract BatchVerify {
+  mapping(bytes32 => string) public batches;
+  
+  function addBatch(bytes32 _hash, string memory _ipfsCID) public {
+    batches[_hash] = _ipfsCID;
+  }
+  
+  function getCOA(bytes32 _hash) public view returns (string memory) {
+    return batches[_hash];
+  }
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Tier 3: ZK-SNARKs (Maximum Privacy)</h2>
+    
+    <div class="card">
+      <div class="card-title">Merkle Tree + Zero-Knowledge Proofs</div>
+      
+      <p><strong>Concept:</strong> User proves "I have a valid batch" <strong>without revealing which batch</strong>.</p>
+      
+      <p><strong>How it works:</strong></p>
+      <ol>
+        <li>Brand creates Merkle tree of all batches</li>
+        <li>Publishes Merkle root on-chain</li>
+        <li>User receives Merkle proof (QR code or NFC)</li>
+        <li>User submits proof to verifier (smart contract or local)</li>
+        <li>Verifier confirms: "Valid batch" without learning batch number</li>
+      </ol>
+
+      <p><span class="chip info">Maximum privacy</span></p>
+      <p><span class="chip warn">Complex implementation</span></p>
+      <p><span class="chip warn">Requires ZK circuit (SnarkJS, Circom)</span></p>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab1')">← Problem</button>
+    <button class="nav-btn" onclick="switchTab('tab3')">NFC + Tor →</button>
+  </div>
+</div>
+
+<!-- TAB 3 -->
+<div class="panel" id="panel-tab3">
+  <h1 class="title">NFC + Tor Architecture</h1>
+  <p class="subtitle">Instant Scan, Zero Tracking</p>
+
+  <div class="section">
+    <h2 class="section-title">Option 1: NFC → Tor Hidden Service</h2>
+    
+    <div class="card">
+      <div class="card-title">User Flow</div>
+      <ol>
+        <li>Tap NFC tag → Reads <code>.onion</code> URL + batch ID</li>
+        <li>Phone opens Tor Browser (Android: Orbot + Tor Browser)</li>
+        <li>Queries <code>arxverify.onion</code> over Tor</li>
+        <li>COA delivered (IP hidden, no location leak)</li>
+      </ol>
+
+      <p><strong>NFC Tag Contents:</strong></p>
+      <pre><code>arxverify.onion/batch/7a3f9b2c8e4d</code></pre>
+
+      <p><span class="chip info">Tor hides user location</span></p>
+      <p><span class="chip warn">Requires Tor Browser on phone</span></p>
+      <p><span class="chip warn">Slow (Tor latency)</span></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Option 2: NFC → IPFS Hash (Offline Read)</h2>
+    
+    <div class="card">
+      <div class="card-title">User Flow</div>
+      <ol>
+        <li>Tap NFC → Reads IPFS CID (content hash)</li>
+        <li>Phone stores CID locally (no network request yet)</li>
+        <li>User manually visits IPFS gateway when ready</li>
+        <li>Pastes CID → Downloads COA</li>
+      </ol>
+
+      <p><strong>NFC Tag Contents:</strong></p>
+      <pre><code>QmT5NvUtoM5nWFfrQdVrFtvGfKFmG7AHE8P34isapyhCxX</code></pre>
+
+      <p><span class="chip info">NFC read is offline (no tracking)</span></p>
+      <p><span class="chip info">User controls when to fetch</span></p>
+      <p><span class="chip warn">Requires manual gateway visit</span></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Option 3: NFC → Encrypted COA (Fully Offline)</h2>
+    
+    <div class="card">
+      <div class="card-title">User Flow</div>
+      <ol>
+        <li>Tap NFC → Reads encrypted COA blob</li>
+        <li>User types batch number into local app</li>
+        <li>App derives decryption key from batch number</li>
+        <li>COA decrypted <strong>entirely offline</strong></li>
+      </ol>
+
+      <p><strong>Encryption:</strong></p>
+      <pre><code>key = PBKDF2(batch_number, salt)
+coa_decrypted = AES256.decrypt(nfc_data, key)</code></pre>
+
+      <p><strong>NFC Storage:</strong> 888 bytes (NTAG216) — enough for compressed JSON or link to IPFS</p>
+
+      <p><span class="chip info">Zero network request</span></p>
+      <p><span class="chip info">Zero tracking</span></p>
+      <p><span class="chip warn">Requires app</span></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">NFC Hardware</h2>
+    
+    <table class="data-table">
+      <thead>
+        <tr><th>Tag Type</th><th>Storage</th><th>Cost (Bulk)</th><th>Use Case</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>NTAG213</td><td>144 bytes</td><td>$0.08/tag</td><td>Simple URL or hash</td></tr>
+        <tr><td>NTAG215</td><td>504 bytes</td><td>$0.12/tag</td><td>IPFS CID + metadata</td></tr>
+        <tr><td>NTAG216</td><td>888 bytes</td><td>$0.18/tag</td><td>Encrypted COA or full payload</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab2')">← Solutions</button>
+    <button class="nav-btn" onclick="switchTab('tab4')">Build Spec →</button>
+  </div>
+</div>
+
+<!-- TAB 4 -->
+<div class="panel" id="panel-tab4">
+  <h1 class="title">ARX Verify — Build Specification</h1>
+  <p class="subtitle">Open Source, Privacy-First</p>
+
+  <div class="section">
+    <h2 class="section-title">Recommended Architecture</h2>
+    
+    <div class="callout">
+      <div class="callout-title">Core Design</div>
+      <p><strong>NFC tag</strong> stores IPFS CID. <strong>Smart contract</strong> maps batch hash → IPFS link. <strong>Static site</strong> queries contract client-side. <strong>Zero backend.</strong></p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Layer 1: Packaging</div>
+      <ul>
+        <li>NFC tag: NTAG216 (888 bytes, $0.18/tag bulk)</li>
+        <li>Tag contains: <code>batch_hash</code> + <code>IPFS_CID</code></li>
+        <li>Printed batch number on package (human-readable backup)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Layer 2: COA Hosting</div>
+      <ul>
+        <li>All COAs uploaded to IPFS (decentralized storage)</li>
+        <li>Smart contract on Polygon L2 (cheap gas fees)</li>
+        <li>Contract stores: <code>keccak256(batch_data) → IPFS_CID</code></li>
+        <li>Contract is read-only, public, immutable</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Layer 3: Verification Site</div>
+      <ul>
+        <li>Static HTML/JS hosted on IPFS + Tor mirror</li>
+        <li>No analytics, no tracking, no backend server</li>
+        <li>User pastes batch hash → Site queries contract (client-side)</li>
+        <li>Contract returns IPFS CID → Site fetches COA from IPFS</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">User Flow</h2>
+    <ol>
+      <li>User taps NFC tag → Phone reads <code>batch_hash</code></li>
+      <li>User visits <code>arxverify.org</code> (or <code>arxverify.onion</code> via Tor)</li>
+      <li>Pastes hash into lookup form</li>
+      <li>Site calls Polygon contract (web3.js, client-side)</li>
+      <li>Contract returns IPFS CID</li>
+      <li>Site fetches COA from IPFS gateway</li>
+      <li>COA displayed (PDF or JSON)</li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Smart Contract Code</h2>
+    <pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract ARXBatchVerify {
+    mapping(bytes32 => string) public batches;
+    address public owner;
+    
+    event BatchAdded(bytes32 indexed batchHash, string ipfsCID);
+    
+    constructor() { owner = msg.sender; }
+    
+    function addBatch(bytes32 _hash, string memory _cid) public {
+        require(msg.sender == owner, "Not authorized");
+        batches[_hash] = _cid;
+        emit BatchAdded(_hash, _cid);
+    }
+    
+    function getCOA(bytes32 _hash) public view returns (string memory) {
+        return batches[_hash];
+    }
+}</code></pre>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Frontend Code (Static Site)</h2>
+    <pre><code>// Client-side verification (no server)
+import Web3 from 'web3';
+
+const CONTRACT_ADDRESS = '0x...';
+const POLYGON_RPC = 'https://polygon-rpc.com';
+const web3 = new Web3(POLYGON_RPC);
+
+async function verifybatch(batchHash) {
+  const contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
+  const ipfsCID = await contract.methods.getCOA(batchHash).call();
+  
+  if (!ipfsCID) return 'Batch not found';
+  
+  // Fetch from IPFS
+  const coaURL = `https://ipfs.io/ipfs/${ipfsCID}`;
+  return coaURL;
+}</code></pre>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Cost Breakdown</h2>
+    
+    <table class="data-table">
+      <thead>
+        <tr><th>Component</th><th>Cost</th><th>Frequency</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Smart contract deployment</td><td>~$0.50</td><td>One-time</td></tr>
+        <tr><td>NFC tags (NTAG216)</td><td>$0.18/tag</td><td>Per product</td></tr>
+        <tr><td>IPFS pinning</td><td>Free (public nodes)</td><td>Per COA</td></tr>
+        <tr><td>Domain (arxverify.org)</td><td>$12/year</td><td>Annual</td></tr>
+        <tr><td>Tor hosting (.onion)</td><td>$0</td><td>Free</td></tr>
+        <tr><td>Gas fees (Polygon)</td><td>~$0.001/batch</td><td>Per COA upload</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>Total startup cost:</strong> &lt;$100<br>
+    <strong>Ongoing cost per batch:</strong> ~$0.18 (NFC tag only)</p>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Privacy Guarantees</h2>
+    
+    <div class="card">
+      <div class="card-title">What Brand Cannot Track</div>
+      <ul>
+        <li>Who looked up a batch (contract queries are public blockchain reads)</li>
+        <li>User IP address (if accessed via Tor or privacy browser)</li>
+        <li>User location (no GPS, no server logs)</li>
+        <li>Device fingerprint (client-side only, no analytics)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">What Brand Can See</div>
+      <ul>
+        <li>Total lookup count per batch (via blockchain explorer)</li>
+        <li>Timestamp of lookups (blockchain transaction time)</li>
+      </ul>
+      <p><strong>Note:</strong> These are aggregate metrics, not user-specific.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Alternative: Blind Signatures</h2>
+    
+    <div class="card">
+      <div class="card-title">Maximum Privacy Protocol</div>
+      <p><strong>Concept:</strong> User gets COA without brand knowing which batch they looked up.</p>
+      
+      <ol>
+        <li>User blinds batch hash: <code>blinded = blind(batch_hash, random)</code></li>
+        <li>User sends blinded hash to brand server</li>
+        <li>Brand signs blinded hash (proves it's valid) without seeing original</li>
+        <li>User unblinds signature: <code>sig = unblind(blinded_sig, random)</code></li>
+        <li>User submits <code>(batch_hash, sig)</code> to neutral third party</li>
+        <li>Third party verifies signature → returns COA</li>
+      </ol>
+
+      <p><strong>Tech:</strong> RSA blind signatures (Privacy Pass protocol)</p>
+      <p><span class="chip info">Brand can't link signature to user</span></p>
+      <p><span class="chip warn">Requires backend server for signing</span></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Open Source Release Plan</h2>
+    
+    <div class="card">
+      <div class="card-title">Repository Structure</div>
+      <pre><code>arx-verify/
+├── contracts/
+│   └── BatchVerify.sol
+├── frontend/
+│   ├── index.html
+│   └── verify.js
+├── nfc-tools/
+│   └── write-tag.py
+├── docs/
+│   ├── SETUP.md
+│   └── PRIVACY.md
+└── README.md</code></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">License & Deployment</div>
+      <ul>
+        <li>License: MIT (fully open source)</li>
+        <li>Deploy contract to Polygon mainnet</li>
+        <li>Host frontend on IPFS + GitHub Pages + Tor</li>
+        <li>Publish to: GitHub, r/researchchemicals, Erowid, PsychonautWiki</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">Next Steps</div>
+    <ol>
+      <li>Deploy smart contract to Polygon testnet (Mumbai)</li>
+      <li>Build static verification site (HTML/JS/Web3)</li>
+      <li>Write NFC tags with test batch hashes</li>
+      <li>Test full flow: NFC tap → lookup → COA retrieval</li>
+      <li>Audit for privacy leaks (check network requests, analytics)</li>
+      <li>Deploy to mainnet + publish code</li>
+    </ol>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab3')">← NFC + Tor</button>
+    <button class="nav-btn" onclick="switchTab('tab1')">Back to Problem</button>
+  </div>
+</div>
+
+</div><!-- /panels -->
+
+<script>
+let isDarkMode = localStorage.getItem('arx-theme') === 'dark' || false;
+const mainHeader = document.getElementById('main-header');
+const themeBtn = document.getElementById('theme-btn');
+
+if (isDarkMode) {
+  document.body.setAttribute('data-theme', 'dark');
+  themeBtn.textContent = '☀ Light';
+}
+
+function toggleTheme() {
+  isDarkMode = !isDarkMode;
+  document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+  themeBtn.textContent = isDarkMode ? '☀ Light' : '🌙 Dark';
+  localStorage.setItem('arx-theme', isDarkMode ? 'dark' : 'light');
+}
+
+let isCollapsed = false;
+window.addEventListener('scroll', () => {
+  const should = window.scrollY > 40;
+  if (should !== isCollapsed) {
+    isCollapsed = should;
+    mainHeader.classList.toggle('collapsed', isCollapsed);
+  }
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  if (total > 0) {
+    const percentage = (window.scrollY / total) * 100;
+    document.getElementById('progress').style.width = percentage + '%';
+  }
+}, { passive: true });
+
+function switchTab(tab) {
+  const tabEl = document.querySelector(`[onclick="switchTab('${tab}')"]`);
+  const panelEl = document.getElementById(`panel-${tab}`);
+  if (!tabEl || !panelEl) return;
+  
+  panelEl.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => {
+    if (p !== panelEl) p.classList.remove('active');
+  });
+  tabEl.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+document.querySelectorAll('.tab')[0].classList.add('active');
+document.getElementById('panel-tab1').classList.add('active');
+</script>
+
+</body>
+</html>

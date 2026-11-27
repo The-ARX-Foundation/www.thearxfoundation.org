@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARX Sovereign Threat Model</title>
+<style>
+  :root {
+    --color-bg: #0e0e0e;
+    --color-surface: #161616;
+    --color-surface2: #1e1e1e;
+    --color-border: rgba(255,255,255,0.08);
+    --color-border2: rgba(255,255,255,0.15);
+    --color-text: #f0ede8;
+    --color-muted: #888780;
+    --color-hint: #5a5955;
+    --font-mono: 'JetBrains Mono', 'Fira Mono', monospace;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem 1.25rem 4rem;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-hint);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0 0 14px;
+  }
+  .header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 0.5px solid var(--color-border);
+  }
+  .header h1 {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--color-muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .header h2 {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+  }
+  .threat-card {
+    background: var(--color-surface);
+    border: 0.5px solid var(--color-border);
+    border-left: 3px solid;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 13px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .threat-card:hover { background: var(--color-surface2); }
+  .threat-card .expand-body { display: none; }
+  .threat-card.open .expand-body { display: block; }
+  .card-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .card-title { font-size: 14px; font-weight: 500; color: var(--color-text); margin: 0; }
+  .card-sub { font-size: 12px; color: var(--color-muted); margin: 3px 0 0; }
+  .expand-body {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 0.5px solid var(--color-border);
+    font-size: 13px;
+    color: var(--color-muted);
+    line-height: 1.65;
+  }
+  .diff-dots { display: flex; gap: 4px; flex-shrink: 0; margin-top: 4px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #2a2a2a; }
+  .dot.filled-easy { background: #E24B4A; }
+  .dot.filled-med { background: #EF9F27; }
+  .dot.filled-hard { background: #1D9E75; }
+  .dot.filled-vhard { background: #378ADD; }
+  .dot.filled-xhard { background: #7F77DD; }
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .badge-easy  { background: #2e1414; color: #f09595; }
+  .badge-med   { background: #2e2010; color: #FAC775; }
+  .badge-hard  { background: #0e2218; color: #5DCAA5; }
+  .badge-vhard { background: #0e1e2e; color: #85B7EB; }
+  .badge-xhard { background: #1c1630; color: #AFA9EC; }
+  .stack-item { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+  .stack-line { display: flex; flex-direction: column; align-items: center; }
+  .stack-circle { width: 10px; height: 10px; border-radius: 50%; border: 2px solid; flex-shrink: 0; margin-top: 3px; }
+  .stack-connector { width: 1.5px; flex: 1; min-height: 22px; background: var(--color-border2); margin: 4px 0; }
+  .stack-title { font-size: 14px; font-weight: 500; color: var(--color-text); margin: 0 0 2px; }
+  .stack-desc { font-size: 12px; color: var(--color-muted); line-height: 1.5; margin: 0; }
+  .divider { height: 0.5px; background: var(--color-border); margin: 28px 0; }
+  .unsolved-card {
+    background: var(--color-surface);
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .unsolved-title { font-size: 13px; font-weight: 500; color: var(--color-text); margin: 0 0 3px; }
+  .unsolved-desc { font-size: 12px; color: var(--color-muted); margin: 0; line-height: 1.55; }
+  .level-row { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 12px; }
+  .level-tag { font-family: var(--font-mono); font-size: 11px; min-width: 52px; padding-top: 2px; flex-shrink: 0; }
+  .level-title { font-size: 13px; font-weight: 500; color: var(--color-text); margin: 0 0 2px; }
+  .level-desc { font-size: 12px; color: var(--color-muted); line-height: 1.5; margin: 0; }
+  .endnote {
+    font-size: 13px;
+    color: var(--color-muted);
+    line-height: 1.75;
+    padding: 16px;
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    font-style: italic;
+  }
+  .badge-row { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Shelved</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Paused, not dead. Open to collaborators or funding.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=ARX%20Sovereign%20Threat%20Model" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div class="header">
+  <h1>ARX Foundation // Classified</h1>
+  <h2>Sovereign Identity Threat Model</h2>
+</div>
+
+<p class="section-label">01 — threat surface</p>
+
+<div class="threat-card" style="border-left-color:#E24B4A" onclick="this.classList.toggle('open')">
+  <div class="card-row">
+    <div><p class="card-title">Password</p><p class="card-sub">Coercion, shoulder surf, replay</p></div>
+    <div class="badge-row">
+      <span class="badge badge-easy">easy to break</span>
+      <div class="diff-dots"><div class="dot filled-easy"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+  </div>
+  <div class="expand-body">Weakest link. Memorable = guessable, complex = written down. Rotate frequently. Use as decoy layer only — never sole gate.</div>
+</div>
+
+<div class="threat-card" style="border-left-color:#EF9F27" onclick="this.classList.toggle('open')">
+  <div class="card-row">
+    <div><p class="card-title">NFC Card</p><p class="card-sub">Clone attack, relay, signal intercept</p></div>
+    <div class="badge-row">
+      <span class="badge badge-med">medium</span>
+      <div class="diff-dots"><div class="dot filled-med"></div><div class="dot filled-med"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+  </div>
+  <div class="expand-body">Relay attacks are the real threat — amplify signal to clone a tap. Mitigated by challenge-response (card signs a nonce). Private key stays on card, never exported. Physical possession still required.</div>
+</div>
+
+<div class="threat-card" style="border-left-color:#EF9F27" onclick="this.classList.toggle('open')">
+  <div class="card-row">
+    <div><p class="card-title">Static biometrics</p><p class="card-sub">Deepfake, mold, high-res photo</p></div>
+    <div class="badge-row">
+      <span class="badge badge-med">medium</span>
+      <div class="diff-dots"><div class="dot filled-med"></div><div class="dot filled-med"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+  </div>
+  <div class="expand-body">Face, fingerprint, iris from photo — all cracked with enough resources. Iris from retinal blood vessel pattern is harder. On-device liveness detection raises the bar but doesn't seal it.</div>
+</div>
+
+<div class="threat-card" style="border-left-color:#EF9F27" onclick="this.classList.toggle('open')">
+  <div class="card-row">
+    <div><p class="card-title">Wearable signal spoof</p><p class="card-sub">Replay recorded vitals, synthetic HRV</p></div>
+    <div class="badge-row">
+      <span class="badge badge-hard">hard</span>
+      <div class="diff-dots"><div class="dot filled-hard"></div><div class="dot filled-hard"></div><div class="dot filled-hard"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+  </div>
+  <div class="expand-body">Replaying recorded vitals fails because the baseline model expects real-time variation + contextual coherence. Synthetic generation is expensive and must fool a model trained only on you.</div>
+</div>
+
+<div class="threat-card" style="border-left-color:#1D9E75" onclick="this.classList.toggle('open')">
+  <div class="card-row">
+    <div><p class="card-title">Semantic footprint</p><p class="card-sub">LLM mimicry, impersonation</p></div>
+    <div class="badge-row">
+      <span class="badge badge-hard">hard → eroding</span>
+      <div class="diff-dots"><div class="dot filled-hard"></div><div class="dot filled-hard"></div><div class="dot filled-hard"></div><div class="dot filled-hard"></div><div class="dot"></div></div>
+    </div>
+  </div>
+  <div class="expand-body">Style can be mimicked. Conceptual fingerprint — how you connect ideas, your specific reasoning leaps — is much harder. But LLMs are improving. Use as passive layer, not sole gate. Erodes over time.</div>
+</div>
+
+<div class="threat-card" style="border-left-color:#378ADD" onclick="this.classList.toggle('open')">
+  <div class="card-row">
+    <div><p class="card-title">ECG morphology</p><p class="card-sub">QRS waveform — unique per person</p></div>
+    <div class="badge-row">
+      <span class="badge badge-vhard">very hard</span>
+      <div class="diff-dots"><div class="dot filled-vhard"></div><div class="dot filled-vhard"></div><div class="dot filled-vhard"></div><div class="dot filled-vhard"></div><div class="dot"></div></div>
+    </div>
+  </div>
+  <div class="expand-body">Not just heart rate — the shape of each beat is a biological fingerprint. Requires your actual heart. Cannot be replayed from a wearable relay. Medical-grade sensors needed; consumer chips are getting there.</div>
+</div>
+
+<div class="threat-card" style="border-left-color:#7F77DD" onclick="this.classList.toggle('open')">
+  <div class="card-row">
+    <div><p class="card-title">Multi-factor combined</p><p class="card-sub">Coordinated simultaneous attack</p></div>
+    <div class="badge-row">
+      <span class="badge badge-xhard">extremely hard</span>
+      <div class="diff-dots"><div class="dot filled-xhard"></div><div class="dot filled-xhard"></div><div class="dot filled-xhard"></div><div class="dot filled-xhard"></div><div class="dot filled-xhard"></div></div>
+    </div>
+  </div>
+  <div class="expand-body">Security compounds multiplicatively, not additively. Spoofing card + wearable + semantic footprint + ECG simultaneously under live physiological monitoring approaches impossible at current capability levels.</div>
+</div>
+
+<div class="divider"></div>
+<p class="section-label">02 — biometric stack (live auth)</p>
+
+<div class="stack-item">
+  <div class="stack-line"><div class="stack-circle" style="border-color:#E24B4A"></div><div class="stack-connector"></div></div>
+  <div><p class="stack-title">Temporal HRV + skin temp</p><p class="stack-desc">Baseline-relative, not population-relative. Your calm at 2am ≠ your calm at 2pm. Continuous drift correction.</p></div>
+</div>
+<div class="stack-item">
+  <div class="stack-line"><div class="stack-circle" style="border-color:#EF9F27"></div><div class="stack-connector"></div></div>
+  <div><p class="stack-title">EDA (skin conductance)</p><p class="stack-desc">Involuntary sweat response. Impossible to suppress under genuine duress. Pairs with HRV for duress fingerprint.</p></div>
+</div>
+<div class="stack-item">
+  <div class="stack-line"><div class="stack-circle" style="border-color:#1D9E75"></div><div class="stack-connector"></div></div>
+  <div><p class="stack-title">ECG morphology</p><p class="stack-desc">QRS waveform shape. Requires your actual heart. Unspoofable by relay. Add when hardware matures.</p></div>
+</div>
+<div class="stack-item">
+  <div class="stack-line"><div class="stack-circle" style="border-color:#378ADD"></div><div class="stack-connector"></div></div>
+  <div><p class="stack-title">Keystroke + gait dynamics</p><p class="stack-desc">Passive. Always on. Dwell time, cadence, micro-movement from accelerometer. 20 years of research — robust.</p></div>
+</div>
+<div class="stack-item">
+  <div class="stack-line"><div class="stack-circle" style="border-color:#7F77DD"></div></div>
+  <div><p class="stack-title">Hidden layer (undisclosed)</p><p class="stack-desc">Never reveal all layers. Attacker must spoof something they don't know exists. Roll new layers as old ones become known.</p></div>
+</div>
+
+<div class="divider"></div>
+<p class="section-label">03 — duress response protocol</p>
+
+<div class="level-row"><span class="level-tag" style="color:#1D9E75">level 1</span><div><p class="level-title">Subtle deviation</p><p class="level-desc">Silent flag. Extended monitoring. No action taken.</p></div></div>
+<div class="level-row"><span class="level-tag" style="color:#EF9F27">level 2</span><div><p class="level-title">Moderate deviation</p><p class="level-desc">Require additional confirmation. Grace period before escalation.</p></div></div>
+<div class="level-row"><span class="level-tag" style="color:#E24B4A">level 3</span><div><p class="level-title">Duress threshold</p><p class="level-desc">Crypto shred. Mesh alert fires. Assistance dispatched to trusted contacts.</p></div></div>
+<div class="level-row"><span class="level-tag" style="color:#7F77DD">forced ↩</span><div><p class="level-title">Forced cancel</p><p class="level-desc">Biometrics still spiked during "cancel" → system acknowledges, silently escalates anyway.</p></div></div>
+
+<div class="divider"></div>
+<p class="section-label">04 — near-term unsolvable</p>
+
+<div class="unsolved-card"><p class="unsolved-title">Legal compulsion</p><p class="unsolved-desc">Jurisdiction is the only partial answer. Cryptographic shredding helps — you can't hand over a key that doesn't exist.</p></div>
+<div class="unsolved-card"><p class="unsolved-title">Supply chain compromise</p><p class="unsolved-desc">Hardware you didn't manufacture could be backdoored before it reaches you. Open hardware is the long play.</p></div>
+<div class="unsolved-card"><p class="unsolved-title">Trusted contact compromise</p><p class="unsolved-desc">Your assistance network is as strong as its weakest member. Social graph is the actual attack surface.</p></div>
+<div class="unsolved-card"><p class="unsolved-title">Quantum</p><p class="unsolved-desc">Breaks current asymmetric crypto. Timeline 10–15yr. Post-quantum primitives exist now — worth migrating early.</p></div>
+
+<div class="divider"></div>
+<p class="endnote">The cure is not a better lock. It's making the house not worth robbing. Every layer buys time for the larger transition — decentralized, post-scarcity infrastructure where aggregated personal data holds no extractable market value. The economic rational actor threat (~90% of attacks) dissolves. What remains is state-level and personal — a much smaller surface.</p>
+
+</body>
+</html>

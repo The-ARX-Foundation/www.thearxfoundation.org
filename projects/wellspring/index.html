@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARX Foundation — Wellspring Project Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #F5EFE4;
+    --parchment-dark: #EBE3D4;
+    --rust: #7A3A1A;
+    --rust-light: #9B5B3A;
+    --rust-faint: rgba(122, 58, 26, 0.08);
+    --rust-border: rgba(122, 58, 26, 0.2);
+    --ink: #2C2418;
+    --ink-light: #5A4E3C;
+    --ink-faint: #8A7E6C;
+    --cream: #FAF7F0;
+    --accent-green: #3A5A2A;
+    --accent-blue: #2A4A5A;
+    --white: #FFFFFF;
+    --serif: 'EB Garamond', Georgia, serif;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--serif);
+    background: var(--parchment);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    opacity: 0.035;
+    pointer-events: none;
+    z-index: 9999;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+  }
+
+  /* Header */
+  .header {
+    padding: 3rem 2rem 2rem;
+    border-bottom: 1px solid var(--rust-border);
+    position: relative;
+  }
+
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .org-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 0.75rem;
+  }
+
+  .project-title {
+    font-family: var(--serif);
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.1;
+    margin-bottom: 0.4rem;
+  }
+
+  .project-subtitle {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--ink-light);
+    margin-bottom: 1.2rem;
+  }
+
+  .header-meta {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+  }
+
+  .meta-item strong {
+    color: var(--ink-light);
+    font-weight: 500;
+  }
+
+  /* Tab Navigation */
+  .tab-nav {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--rust);
+    position: sticky;
+    top: 0;
+    background: var(--parchment);
+    z-index: 100;
+  }
+
+  .tab-btn {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    background: none;
+    border: none;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover {
+    color: var(--rust-light);
+  }
+
+  .tab-btn.active {
+    color: var(--rust);
+    font-weight: 600;
+  }
+
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--parchment);
+  }
+
+  .tab-btn .tab-num {
+    display: inline-block;
+    width: 1.4em;
+    height: 1.4em;
+    line-height: 1.4em;
+    text-align: center;
+    border-radius: 50%;
+    background: var(--rust-faint);
+    color: var(--ink-faint);
+    font-size: 0.6rem;
+    margin-right: 0.5em;
+    vertical-align: middle;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active .tab-num {
+    background: var(--rust);
+    color: var(--cream);
+  }
+
+  /* Tab Content */
+  .tab-panels {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+  }
+
+  .tab-panel {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .tab-panel.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Typography */
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+  }
+
+  h2 .section-num {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--rust);
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  h3 {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h3::before {
+    content: '—';
+    color: var(--rust);
+    margin-right: 0.4em;
+  }
+
+  p {
+    font-size: 1.02rem;
+    margin-bottom: 1rem;
+    color: var(--ink);
+    max-width: 65ch;
+  }
+
+  .lead {
+    font-size: 1.12rem;
+    font-style: italic;
+    color: var(--ink-light);
+    border-left: 3px solid var(--rust);
+    padding-left: 1.2rem;
+    margin-bottom: 2rem;
+    max-width: 60ch;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--rust-border);
+    margin: 2.5rem 0;
+  }
+
+  /* Spec blocks */
+  .spec-block {
+    background: var(--cream);
+    border: 1px solid var(--rust-border);
+    border-left: 3px solid var(--rust);
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .spec-block .spec-title {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 0.75rem;
+  }
+
+  .spec-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 0.3rem 1rem;
+    font-size: 0.92rem;
+    margin-bottom: 0.4rem;
+    align-items: baseline;
+  }
+
+  .spec-key {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--ink-light);
+    letter-spacing: 0.02em;
+  }
+
+  .spec-val {
+    color: var(--ink);
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: #2C2418;
+    color: #E8DCC8;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    padding: 1.25rem 1.5rem;
+    border-radius: 4px;
+    margin: 1.25rem 0;
+    overflow-x: auto;
+    position: relative;
+  }
+
+  .code-block .code-label {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.75rem;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #8A7E6C;
+  }
+
+  .code-block .comment { color: #8A7E6C; }
+  .code-block .string { color: #C49A6C; }
+  .code-block .keyword { color: #B07A4A; }
+  .code-block .tag { color: #9B5B3A; }
+
+  /* Status badges */
+  .status {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2em 0.6em;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-left: 0.5em;
+  }
+
+  .status-concept { background: var(--rust-faint); color: var(--rust); }
+  .status-ready { background: rgba(58, 90, 42, 0.12); color: var(--accent-green); }
+  .status-active { background: rgba(42, 74, 90, 0.12); color: var(--accent-blue); }
+
+  /* Roadmap */
+  .phase-block {
+    position: relative;
+    padding-left: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .phase-block::before {
+    content: '';
+    position: absolute;
+    left: 0.45rem;
+    top: 0.5rem;
+    bottom: -1.5rem;
+    width: 1px;
+    background: var(--rust-border);
+  }
+
+  .phase-block:last-child::before {
+    bottom: 0;
+  }
+
+  .phase-block::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.45rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--rust);
+    background: var(--parchment);
+  }
+
+  .phase-block.complete::after {
+    background: var(--rust);
+  }
+
+  .phase-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 0.3rem;
+  }
+
+  .phase-title {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+
+  .phase-desc {
+    font-size: 0.92rem;
+    color: var(--ink-light);
+    max-width: 55ch;
+  }
+
+  /* Checklist */
+  .checklist {
+    list-style: none;
+    margin: 1rem 0;
+  }
+
+  .checklist li {
+    font-size: 0.92rem;
+    padding: 0.4rem 0 0.4rem 1.8rem;
+    position: relative;
+    border-bottom: 1px solid rgba(122, 58, 26, 0.06);
+  }
+
+  .checklist li::before {
+    content: '☐';
+    position: absolute;
+    left: 0;
+    color: var(--rust);
+    font-size: 1rem;
+  }
+
+  .checklist li.checked::before {
+    content: '☑';
+  }
+
+  /* Two column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  /* Callout */
+  .callout {
+    background: var(--rust);
+    color: var(--cream);
+    padding: 1.5rem 1.75rem;
+    border-radius: 4px;
+    margin: 2rem 0;
+  }
+
+  .callout p {
+    color: var(--cream);
+    font-size: 0.95rem;
+  }
+
+  .callout .callout-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Footer */
+  .footer {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    border-top: 1px solid var(--rust-border);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .project-title { font-size: 2rem; }
+    .tab-btn { padding: 0.75rem 0.7rem; font-size: 0.6rem; }
+    .tab-btn .tab-num { display: none; }
+    .two-col { grid-template-columns: 1fr; }
+    .spec-row { grid-template-columns: 110px 1fr; }
+    .header { padding: 2rem 1.5rem 1.5rem; }
+    .tab-panels { padding: 2rem 1.5rem 3rem; }
+  }
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Shelved</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Paused, not dead. Open to collaborators or funding.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=Wellspring%20Project%20Brief" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div class="header">
+  <div class="header-inner">
+    <div class="org-label">ARX Foundation — Project Brief</div>
+    <div class="project-title">Wellspring</div>
+    <div class="project-subtitle">An open bathhouse & amenity network built on OpenStreetMap</div>
+    <div class="header-meta">
+      <div class="meta-item"><strong>Status:</strong> Concept → Prototype</div>
+      <div class="meta-item"><strong>Author:</strong> Elryan / ARX Foundation</div>
+      <div class="meta-item"><strong>Date:</strong> 17 Mar 2026</div>
+      <div class="meta-item"><strong>License:</strong> AGPL-3.0 + ODbL (data)</div>
+    </div>
+  </div>
+</div>
+
+<nav class="tab-nav" role="tablist">
+  <button class="tab-btn active" role="tab" data-tab="wellspring" aria-selected="true">
+    <span class="tab-num">1</span>Wellspring PWA
+  </button>
+  <button class="tab-btn" role="tab" data-tab="garmin" aria-selected="false">
+    <span class="tab-num">2</span>Garmin Kit
+  </button>
+  <button class="tab-btn" role="tab" data-tab="mapping" aria-selected="false">
+    <span class="tab-num">3</span>Mapping Party
+  </button>
+  <button class="tab-btn" role="tab" data-tab="roadmap" aria-selected="false">
+    <span class="tab-num">4</span>Roadmap
+  </button>
+</nav>
+
+<div class="tab-panels">
+
+  <!-- TAB 1: WELLSPRING PWA -->
+  <div class="tab-panel active" id="wellspring" role="tabpanel">
+    <h2><span class="section-num">01</span>Wellspring — Open Amenity Network</h2>
+    <p class="lead">Every van life shower app is either paywalled, proprietary, or both. iOverlander went $99/year on community-contributed data. The OSM tagging schema already supports showers, bathhouses, and fitness centres. Nobody's built the bridge.</p>
+
+    <p>Wellspring is a lightweight PWA that queries OpenStreetMap's Overpass API for shower and bathing facilities, layers on van-life-specific community metadata, and feeds objective data back to OSM through proper contribution channels. Free. Open-source. No subscription. No investor exit strategy.</p>
+
+    <h3>What It Queries</h3>
+    <div class="spec-block">
+      <div class="spec-title">OSM Tag Coverage</div>
+      <div class="spec-row"><span class="spec-key">amenity=shower</span><span class="spec-val">Standalone public showers — beach, truck stop, municipal</span></div>
+      <div class="spec-row"><span class="spec-key">amenity=public_bath</span><span class="spec-val">Bathhouses, onsen, hammam, thermal baths, saunas</span></div>
+      <div class="spec-row"><span class="spec-key">leisure=fitness_centre</span><span class="spec-val">Gyms — filtered by <code>shower=yes</code> and <code>opening_hours=24/7</code></span></div>
+      <div class="spec-row"><span class="spec-key">amenity=fuel</span><span class="spec-val">Truck stops — filtered by <code>shower=yes</code> (Pilot, Love's, Flying J)</span></div>
+      <div class="spec-row"><span class="spec-key">tourism=camp_site</span><span class="spec-val">Campgrounds — filtered by <code>shower=yes</code></span></div>
+      <div class="spec-row"><span class="spec-key">leisure=swimming_pool</span><span class="spec-val">Public pools with changing facilities</span></div>
+    </div>
+
+    <h3>What OSM Can't Store (Wellspring's Layer)</h3>
+    <p>OSM accepts objective, verifiable facts. Wellspring adds the subjective, van-life-specific metadata that the community actually needs but OSM's data model won't accept:</p>
+
+    <div class="two-col">
+      <div class="spec-block">
+        <div class="spec-title">Facility Metadata</div>
+        <div class="spec-row"><span class="spec-key">water_pressure</span><span class="spec-val">1–5 rating, community avg</span></div>
+        <div class="spec-row"><span class="spec-key">towel_policy</span><span class="spec-val">provided / byob / rental</span></div>
+        <div class="spec-row"><span class="spec-key">access_method</span><span class="spec-val">keycode / staffed / coin-op / fob</span></div>
+        <div class="spec-row"><span class="spec-key">time_limit</span><span class="spec-val">minutes, or unlimited</span></div>
+        <div class="spec-row"><span class="spec-key">cleanliness</span><span class="spec-val">1–5 rating, community avg</span></div>
+        <div class="spec-row"><span class="spec-key">privacy_level</span><span class="spec-val">stall / curtain / open</span></div>
+      </div>
+      <div class="spec-block">
+        <div class="spec-title">Community Data</div>
+        <div class="spec-row"><span class="spec-key">van_parking</span><span class="spec-val">nearby / onsite / hostile</span></div>
+        <div class="spec-row"><span class="spec-key">overnight_ok</span><span class="spec-val">boolean + notes</span></div>
+        <div class="spec-row"><span class="spec-key">last_verified</span><span class="spec-val">ISO date, contributor ID</span></div>
+        <div class="spec-row"><span class="spec-key">photos</span><span class="spec-val">CC-BY-SA licensed uploads</span></div>
+        <div class="spec-row"><span class="spec-key">cost_actual</span><span class="spec-val">USD amount, last confirmed</span></div>
+        <div class="spec-row"><span class="spec-key">reviews</span><span class="spec-val">Free text, ODbL-licensed</span></div>
+      </div>
+    </div>
+
+    <h3>Architecture</h3>
+    <div class="code-block">
+      <span class="code-label">stack</span>
+<span class="comment">// Frontend</span>
+PWA (Vanilla JS + Leaflet) → installable, offline-capable
+Tiles: OpenStreetMap / OpenTopoMap (switchable)
+Search: Overpass API (live) + local IndexedDB cache
+
+<span class="comment">// Backend (minimal)</span>
+Hetzner VPS (alongside existing ARX infra)
+SQLite → community reviews, metadata, photos
+API: FastAPI or Hono (lightweight, single binary)
+
+<span class="comment">// Data flow</span>
+OSM Overpass → <span class="keyword">objective facility data</span> (location, hours, tags)
+Wellspring DB → <span class="keyword">subjective community data</span> (reviews, ratings)
+Contribution pipeline → verified objective data pushed <span class="keyword">back to OSM</span>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">Key Differentiator</div>
+      <p>Every competitor extracts from the commons and paywalls it. Wellspring is the reverse: build a focused tool, let the community enrich it, and <em>export</em> the objective data back to OSM so everyone benefits — including Garmin users, OsmAnd users, and any future tool built on open data.</p>
+    </div>
+
+    <h3>Existing Landscape & Gaps</h3>
+    <div class="spec-block">
+      <div class="spec-title">Competitor Analysis</div>
+      <div class="spec-row"><span class="spec-key">iOverlander</span><span class="spec-val">$59–99/yr. Proprietary data. Acquired by Hipcamp. Legacy app killed Apr 2025.</span></div>
+      <div class="spec-row"><span class="spec-key">Park4Night</span><span class="spec-val">Freemium. Euro-centric. Proprietary. Weak shower-specific data.</span></div>
+      <div class="spec-row"><span class="spec-key">AllStays</span><span class="spec-val">$9.99 app. No community contribution. Static dataset.</span></div>
+      <div class="spec-row"><span class="spec-key">The Dyrt</span><span class="spec-val">$36/yr pro. Campsite-focused, showers are secondary filter.</span></div>
+      <div class="spec-row"><span class="spec-key">OsmAnd</span><span class="spec-val">Open-source nav. Has POI overlays. Not purpose-built for amenity discovery.</span></div>
+      <div class="spec-row"><span class="spec-key">Vanly</span><span class="spec-val">Airbnb model — paid parking, not amenity data.</span></div>
+      <div class="spec-row"><span class="spec-key" style="color:var(--rust);font-weight:600">Wellspring</span><span class="spec-val" style="color:var(--rust)">Free. Open-source. OSM-native. Shower/bath-first. Data flows back to commons.</span></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: GARMIN KIT -->
+  <div class="tab-panel" id="garmin" role="tabpanel">
+    <h2><span class="section-num">02</span>Garmin OSM Kit — Switchpoint Donation Spec</h2>
+    <p class="lead">A pre-loaded Garmin GPS with OpenStreetMap topo maps and custom amenity POI layers, packaged as a reproducible kit that any resource center can build for clients transitioning from shelter to mobile living.</p>
+
+    <h3>Hardware Spec</h3>
+    <div class="spec-block">
+      <div class="spec-title">Recommended Device</div>
+      <div class="spec-row"><span class="spec-key">Model</span><span class="spec-val">Garmin GPSMAP 67 (or eTrex 22x/32x for budget)</span></div>
+      <div class="spec-row"><span class="spec-key">Why</span><span class="spec-val">SD card slot, USB mass storage, multi-IMG support, rugged, long battery</span></div>
+      <div class="spec-row"><span class="spec-key">Storage</span><span class="spec-val">32GB microSD (FAT32), SanDisk Ultra or equivalent</span></div>
+      <div class="spec-row"><span class="spec-key">Accessories</span><span class="spec-val">USB-C cable, carabiner mount, silicone case</span></div>
+      <div class="spec-row"><span class="spec-key">Est. Cost</span><span class="spec-val">$250–350 (GPSMAP 67) / $130–180 (eTrex 22x)</span></div>
+    </div>
+
+    <h3>Map Loading Procedure</h3>
+    <div class="code-block">
+      <span class="code-label">step-by-step</span>
+<span class="comment"># 1. Download OSM topo maps for the region</span>
+Source: garmin.opentopomap.org
+File:   otm-us-southwest.img  <span class="comment"># or us-pacific for CA/NV/OR/WA</span>
+
+<span class="comment"># 2. Download contour lines (separate file)</span>
+Source: garmin.opentopomap.org → "Garmin contours"
+File:   otm-us-southwest-contours.img
+
+<span class="comment"># 3. Optionally download routable street map</span>
+Source: alternativaslibres.org/en/downloads.php
+File:   gmapsupp_us_southwest.img
+
+<span class="comment"># 4. Format microSD as FAT32, create directory</span>
+mkdir /Volumes/GARMIN_SD/Garmin/
+
+<span class="comment"># 5. Copy .img files to SD card</span>
+cp otm-us-southwest.img      /Volumes/GARMIN_SD/Garmin/
+cp otm-us-southwest-contours.img /Volumes/GARMIN_SD/Garmin/
+cp gmapsupp_us_southwest.img /Volumes/GARMIN_SD/Garmin/
+
+<span class="comment"># 6. Insert SD, boot device</span>
+<span class="comment"># Verify: Setup → Map → Map Info → maps listed</span>
+<span class="comment"># Disable built-in Garmin basemap if areas overlap</span>
+    </div>
+
+    <h3>Custom POI Layer — Amenities</h3>
+    <p>Garmin supports custom POI files (.gpi) that overlay icons on the map. We generate these from an Overpass API query targeting showers, public baths, and rec centers in the target region, then convert to Garmin's POI format using <code>gpsbabel</code>.</p>
+
+    <div class="code-block">
+      <span class="code-label">overpass query → gpx → gpi</span>
+<span class="comment"># Query OSM for shower/bath amenities in Utah + nearby states</span>
+[out:json][timeout:60];
+area[name="Utah"]->.ut;
+area[name="Nevada"]->.nv;
+area[name="Arizona"]->.az;
+area[name="California"]->.ca;
+(
+  nwr[amenity=shower](area.ut)(area.nv)(area.az)(area.ca);
+  nwr[amenity=public_bath](area.ut)(area.nv)(area.az)(area.ca);
+  nwr[leisure=fitness_centre][shower=yes](area.ut)(area.nv)(area.az)(area.ca);
+  nwr[amenity=fuel][shower=yes](area.ut)(area.nv)(area.az)(area.ca);
+);
+out center;
+
+<span class="comment"># Convert JSON → GPX → Garmin .gpi</span>
+python3 overpass_to_gpx.py output.json > amenities.gpx
+gpsbabel -i gpx -f amenities.gpx -o garmin_gpi,bitmap=shower.bmp \
+  -F /Volumes/GARMIN_SD/Garmin/POI/showers.gpi
+    </div>
+
+    <h3>Switchpoint Donation Package</h3>
+    <div class="two-col">
+      <div>
+        <div class="spec-block">
+          <div class="spec-title">Physical Kit</div>
+          <div class="spec-row"><span class="spec-key">Device</span><span class="spec-val">Garmin eTrex 22x (budget) or GPSMAP 67</span></div>
+          <div class="spec-row"><span class="spec-key">SD Card</span><span class="spec-val">Pre-loaded: OSM topo + contours + amenity POIs</span></div>
+          <div class="spec-row"><span class="spec-key">Regions</span><span class="spec-val">UT, NV, AZ, CA (covers SLC–LA–Phoenix corridor)</span></div>
+          <div class="spec-row"><span class="spec-key">Quick Start</span><span class="spec-val">Laminated card: power on, find showers, navigate</span></div>
+          <div class="spec-row"><span class="spec-key">Case</span><span class="spec-val">Silicone + carabiner for pack/belt attachment</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="spec-block">
+          <div class="spec-title">Reproducible Build Doc</div>
+          <div class="spec-row"><span class="spec-key">Format</span><span class="spec-val">PDF + Markdown on ARX Forgejo</span></div>
+          <div class="spec-row"><span class="spec-key">Script</span><span class="spec-val">build-garmin-kit.sh — downloads maps, builds POI layer, copies to SD</span></div>
+          <div class="spec-row"><span class="spec-key">Pre-built</span><span class="spec-val">.img + .gpi files hosted on ARX infra for direct download</span></div>
+          <div class="spec-row"><span class="spec-key">Update</span><span class="spec-val">Quarterly re-run script, swap SD card</span></div>
+          <div class="spec-row"><span class="spec-key">License</span><span class="spec-val">CC-BY-SA 4.0 (doc) + ODbL (map data)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">For Switchpoint</div>
+      <p>Switchpoint's St. George facility serves 84 residents transitioning to independence. Some will move into vehicles. A Garmin kit with pre-loaded shower, water, and food bank locations across the UT/NV/AZ/CA corridor — plus a reproducible build spec so Switchpoint can replicate it — means one ARX donation creates infrastructure that scales without us.</p>
+    </div>
+  </div>
+
+  <!-- TAB 3: MAPPING PARTY -->
+  <div class="tab-panel" id="mapping" role="tabpanel">
+    <h2><span class="section-num">03</span>OSM Mapping Party — St. George Pilot</h2>
+    <p class="lead">You can't legally scrape Google Business Profiles into OSM. But you can organize volunteers to ground-truth amenities in person, properly tag them, and enrich the open map for everyone. This is how open data actually gets built.</p>
+
+    <h3>Why Google → OSM Scraping Is Off The Table</h3>
+    <p>Google's Terms of Service explicitly prohibit scraping, caching, or redistribution of their data. OSM's ODbL license requires all contributed data to come from license-compatible sources. The OSM community actively reverts bulk imports traced to Google data — they've killed entire datasets over this. Even indirect contamination (using Google to "confirm" data you then add) is a gray area the community polices.</p>
+
+    <p>But the <em>need</em> is real: OSM's business and amenity data in southern Utah is sparse. Google has it, OSM doesn't. The legal path is ground-truthing: go there, confirm it exists, tag it yourself from direct observation.</p>
+
+    <h3>The StreetComplete Pipeline</h3>
+    <p><strong>StreetComplete</strong> is an open-source Android app (F-Droid available) that gamifies OSM contributions. It presents simple questions about nearby features as you walk: "Does this gym have showers?" "What are the opening hours?" "Is this wheelchair accessible?" No editing knowledge needed. Answers go directly to OSM.</p>
+
+    <div class="spec-block">
+      <div class="spec-title">App Stack for Mappers</div>
+      <div class="spec-row"><span class="spec-key">StreetComplete</span><span class="spec-val">Question-based OSM editing (F-Droid). Primary tool for non-technical volunteers.</span></div>
+      <div class="spec-row"><span class="spec-key">Vespucci</span><span class="spec-val">Full-featured OSM editor for Android. For adding new nodes with complete tagging.</span></div>
+      <div class="spec-row"><span class="spec-key">OsmAnd</span><span class="spec-val">Navigation + OSM notes. Mark locations for later editing.</span></div>
+      <div class="spec-row"><span class="spec-key">JOSM</span><span class="spec-val">Desktop editor for bulk post-processing after field collection.</span></div>
+    </div>
+
+    <h3>Mapping Party Format</h3>
+    <div class="two-col">
+      <div>
+        <div class="spec-block">
+          <div class="spec-title">Event Structure</div>
+          <div class="spec-row"><span class="spec-key">Duration</span><span class="spec-val">3–4 hours (morning preferred)</span></div>
+          <div class="spec-row"><span class="spec-key">Team Size</span><span class="spec-val">4–8 people, split into pairs</span></div>
+          <div class="spec-row"><span class="spec-key">Coverage</span><span class="spec-val">Assign zones: Bluff St corridor, Red Cliffs, downtown, S 60 E truck row</span></div>
+          <div class="spec-row"><span class="spec-key">Prep</span><span class="spec-val">Pre-load StreetComplete, OSM accounts, target tag list</span></div>
+          <div class="spec-row"><span class="spec-key">Debrief</span><span class="spec-val">Coffee + JOSM cleanup session. Review additions.</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="spec-block">
+          <div class="spec-title">Target Tags per Facility</div>
+          <div class="spec-row"><span class="spec-key">Core</span><span class="spec-val">amenity type, name, opening_hours, fee</span></div>
+          <div class="spec-row"><span class="spec-key">Shower</span><span class="spec-val">shower=yes/no, shower:fee, shower:supervised</span></div>
+          <div class="spec-row"><span class="spec-key">Access</span><span class="spec-val">wheelchair, gender, access (public/customers/members)</span></div>
+          <div class="spec-row"><span class="spec-key">Contact</span><span class="spec-val">phone, website, addr:*</span></div>
+          <div class="spec-row"><span class="spec-key">Verify</span><span class="spec-val">check_date=*, source=survey</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Switchpoint Integration</h3>
+    <p>Invite Switchpoint residents and case workers to participate in mapping parties. The dual benefit: residents learn their city's resources by physically visiting them, and their on-the-ground knowledge enriches the map. Switchpoint staff can identify facilities their clients actually use that aren't yet in OSM — laundromats, food pantries, water fill stations, free wifi spots.</p>
+
+    <p>This creates a feedback loop: the Garmin kits (Tab 2) get better because the underlying OSM data gets richer from the mapping parties, and the Wellspring PWA (Tab 1) automatically surfaces the new data through Overpass queries.</p>
+
+    <div class="callout">
+      <div class="callout-label">The Actual Alternative to Scraping</div>
+      <p>Instead of illegally copying Google's database, you build a community that creates <em>better</em> data — verified in person, tagged with detail Google doesn't capture (shower=yes, fee amount, actual hours), and licensed for anyone to use. The data starts local in St. George, then the model replicates to Redding, then anywhere ARX has a presence.</p>
+    </div>
+  </div>
+
+  <!-- TAB 4: ROADMAP -->
+  <div class="tab-panel" id="roadmap" role="tabpanel">
+    <h2><span class="section-num">04</span>Project Roadmap</h2>
+    <p class="lead">Four phases from concept to replicable infrastructure. Each phase produces a standalone deliverable — nothing depends on "finishing everything."</p>
+
+    <div class="phase-block complete">
+      <div class="phase-label">Phase 0 — Research & Brief</div>
+      <div class="phase-title">Landscape Analysis <span class="status status-ready">Complete</span></div>
+      <div class="phase-desc">Competitor audit, OSM tag schema review, Garmin compatibility research, Switchpoint context. This document.</div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label">Phase 1 — Garmin Kit</div>
+      <div class="phase-title">Switchpoint Donation Package <span class="status status-active">Next Up</span></div>
+      <div class="phase-desc">Lowest-effort, highest-immediate-impact. Build script, pre-built .img files, laminated quick start card, physical device donation.</div>
+      <ul class="checklist">
+        <li>Download & test OSM topo + contour maps for UT/NV/AZ/CA on target Garmin device</li>
+        <li>Write Overpass query → GPX → .gpi pipeline for shower/amenity POI layer</li>
+        <li>Package build-garmin-kit.sh as reproducible script on ARX Forgejo</li>
+        <li>Design & print laminated quick start card (ARX aesthetic)</li>
+        <li>Purchase eTrex 22x + 32GB SD, load, test, donate to Switchpoint</li>
+        <li>Write reproducibility doc so Switchpoint can build more kits</li>
+      </ul>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label">Phase 2 — Wellspring MVP</div>
+      <div class="phase-title">PWA Prototype <span class="status status-concept">Concept</span></div>
+      <div class="phase-desc">Minimal viable shower finder. Overpass API → Leaflet map → IndexedDB cache. No backend needed for v0 (all data from OSM). Mobile-first, installable, offline tiles.</div>
+      <ul class="checklist">
+        <li>Leaflet + OSM tile layer with amenity query overlay</li>
+        <li>Category filters: showers, gyms, truck stops, pools, baths</li>
+        <li>Geolocation + radius search via Overpass</li>
+        <li>Offline tile caching (service worker)</li>
+        <li>PWA manifest, installable on GrapheneOS / iOS / any browser</li>
+        <li>Host on Hetzner alongside existing ARX infra</li>
+      </ul>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label">Phase 3 — Community Layer</div>
+      <div class="phase-title">Reviews, Metadata & Contribution Pipeline <span class="status status-concept">Concept</span></div>
+      <div class="phase-desc">Add the Wellspring-specific data layer: reviews, ratings, van-life metadata. Lightweight backend (FastAPI + SQLite). ODbL-licensed contributions. OSM push pipeline for verified objective data.</div>
+      <ul class="checklist">
+        <li>FastAPI backend for community reviews + metadata storage</li>
+        <li>Contributor accounts (optional — anonymous contributions accepted)</li>
+        <li>Photo upload with CC-BY-SA licensing agreement</li>
+        <li>OSM contribution pipeline: verified objective data → changeset API</li>
+        <li>Moderation system (minimum: flag + community vote)</li>
+      </ul>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label">Phase 4 — Mapping Parties & Replication</div>
+      <div class="phase-title">Community Data Enrichment <span class="status status-concept">Concept</span></div>
+      <div class="phase-desc">Organized mapping events starting in St. George, expanding to Redding after move. Switchpoint partnership. StreetComplete training. Exportable event toolkit for other cities.</div>
+      <ul class="checklist">
+        <li>Pilot mapping party in St. George (ARX + Switchpoint)</li>
+        <li>StreetComplete training doc + target tag checklist</li>
+        <li>Post-party JOSM cleanup session template</li>
+        <li>Redding mapping party after move (library NFC pilot tie-in)</li>
+        <li>Replicable "mapping party in a box" toolkit on Forgejo</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <h3>Connections to Active ARX Workstreams</h3>
+    <div class="spec-block">
+      <div class="spec-title">Cross-Project Dependencies</div>
+      <div class="spec-row"><span class="spec-key">Hetzner VPS</span><span class="spec-val">Wellspring backend alongside existing Docker Compose stack (Forgejo, OpenClaw, Syncthing, Infisical)</span></div>
+      <div class="spec-row"><span class="spec-key">Forgejo L1</span><span class="spec-val">Wellspring repo, Garmin kit scripts, mapping party docs — all self-hosted on ARX infra</span></div>
+      <div class="spec-row"><span class="spec-key">NFC Library</span><span class="spec-val">Redding library NFC pilot could include Wellspring QR/NFC links for resource discovery</span></div>
+      <div class="spec-row"><span class="spec-key">CleanOps</span><span class="spec-val">Shared infrastructure model — decentralized, open, no-fee-for-workers philosophy</span></div>
+      <div class="spec-row"><span class="spec-key">GrapheneOS</span><span class="spec-val">PWA avoids Play Store dependency. OsmAnd~ from F-Droid. StreetComplete from F-Droid.</span></div>
+      <div class="spec-row"><span class="spec-key">Pensieve</span><span class="spec-val">Local dev/testing. mkgmap builds. JOSM editing sessions.</span></div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">Philosophy</div>
+      <p>This isn't a product. It's infrastructure. Every piece — the data, the code, the hardware spec, the mapping toolkit — is designed to outlive any single maintainer. ODbL means the data can't be re-enclosed. AGPL means the code can't be proprietarized. CC-BY-SA means the docs propagate freely. The iOverlander pattern (build on community goodwill, sell to Hipcamp, paywall everything) is structurally impossible here.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span>ARX Foundation — Wellspring Project Brief v0.1</span>
+  <span>CC-BY-SA 4.0 — 17 Mar 2026</span>
+</div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ARX Foundation — SoundWeave</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/*
+═══════════════════════════════════════════════
+  ARX FOUNDATION · SOUNDWEAVE
+  Sovereign Music Platform — Portfolio Artifact
+  Indigo/Lotus accent shift for sonic identity
+════════════════════════════════════════════════
+*/
+
+:root {
+  --bg: #F5EFE4;
+  --bg2: #EDE5D6;
+  --bg3: #E4DBCA;
+  --bg4: #D9CEBC;
+  --border: #C8BEA8;
+  --border2: #B8AC94;
+  --rust: #7A3A1A;
+  --rust2: #9B4A22;
+  --rust3: #C06030;
+  --rust-dim: #7A3A1A12;
+  --rust-mid: #7A3A1A30;
+  --indigo: #2D2A5E;
+  --indigo2: #4A4690;
+  --indigo3: #7B78C0;
+  --indigo-dim: #2D2A5E12;
+  --indigo-mid: #2D2A5E30;
+  --lotus: #5B8FA8;
+  --lotus2: #7AAFC8;
+  --lotus3: #A8D0E8;
+  --lotus-dim: #5B8FA812;
+  --lotus-mid: #5B8FA830;
+  --gold: #8B6914;
+  --gold2: #B8911C;
+  --gold-dim: #8B691412;
+  --lime: #5a8a3a;
+  --lime-dim: #5a8a3a15;
+  --text: #2A1F14;
+  --text2: #5A4030;
+  --text3: #8A7060;
+  --text4: #B8A890;
+  /* SoundWeave accent: indigo primary, lotus secondary */
+  --sw: var(--indigo);
+  --sw2: var(--indigo2);
+  --sw3: var(--indigo3);
+  --sw-dim: var(--indigo-dim);
+  --sw-mid: var(--indigo-mid);
+  --sw-alt: var(--lotus);
+  --sw-alt2: var(--lotus2);
+  --sw-alt-dim: var(--lotus-dim);
+  --sw-alt-mid: var(--lotus-mid);
+  --serif: 'Crimson Pro', serif;
+  --display: 'IM Fell English', serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 100px; width: 100%; overflow-x: hidden; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.75;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── PROGRESS BAR ───────────────────────── */
+#progress { position: fixed; top: 0; left: 0; height: 2px; background: linear-gradient(90deg, var(--sw), var(--sw-alt)); z-index: 101; transition: width 0.1s; }
+
+/* ─── HEADER ─────────────────────────────── */
+.header {
+  background: var(--bg2);
+  border-bottom: 2px solid var(--sw);
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(45,42,94,0.08);
+  min-height: 52px;
+  transition: min-height 0.2s ease, padding 0.2s ease;
+  width: 100%;
+  overflow: hidden;
+}
+.header.collapsed { padding: 6px 16px; min-height: 36px; }
+.header-left { display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden; }
+.arx-mark {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  color: var(--rust); text-transform: uppercase;
+  padding: 3px 8px; border: 1px solid var(--rust-mid);
+  background: var(--rust-dim); white-space: nowrap; flex-shrink: 0;
+}
+.sw-mark {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  color: var(--sw); text-transform: uppercase;
+  padding: 3px 8px; border: 1px solid var(--sw-mid);
+  background: var(--sw-dim); white-space: nowrap; flex-shrink: 0;
+}
+.header-icon { font-size: 16px; flex-shrink: 0; }
+.header-title {
+  font-family: var(--display); font-size: 16px; color: var(--text);
+  font-style: italic; white-space: nowrap; overflow: hidden;
+  opacity: 1; transition: opacity 0.15s ease; flex-shrink: 1;
+}
+.header.collapsed .header-title { opacity: 0; width: 0; flex: 0 0 0; }
+.header-tab-name {
+  font-family: var(--display); font-size: 14px; font-style: italic;
+  color: var(--text2); white-space: nowrap; overflow: hidden;
+  opacity: 0; width: 0; flex: 0 0 0; transition: opacity 0.15s ease 0.05s;
+}
+.header.collapsed .header-tab-name { opacity: 1; width: auto; flex: 1; }
+.header-right {
+  font-family: var(--mono); font-size: 8px; color: var(--text3);
+  letter-spacing: 1px; text-align: right; line-height: 1.8;
+  white-space: nowrap; flex-shrink: 0;
+  opacity: 1; transition: opacity 0.15s ease;
+}
+.header.collapsed .header-right { opacity: 0; width: 0; overflow: hidden; flex: 0 0 0; }
+
+/* ─── TAB BAR ────────────────────────────── */
+.tab-bar {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 0 16px; display: flex; gap: 0;
+  overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: none; -ms-overflow-style: none;
+  position: sticky; top: 52px; z-index: 99;
+  transition: top 0.2s ease;
+  width: 100%; scroll-behavior: smooth;
+}
+.tab-bar.collapsed { top: 38px; }
+.tab-bar::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 10px 16px; font-family: var(--mono); font-size: 9px;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--text3);
+  cursor: pointer; border-bottom: 2px solid transparent;
+  white-space: nowrap; transition: all 0.15s; user-select: none; flex-shrink: 0;
+}
+.tab:hover { color: var(--sw2); }
+.tab.active { color: var(--sw); border-bottom-color: var(--sw); background: var(--sw-dim); }
+
+/* ─── PANELS ────────────────────────────── */
+.panels { position: relative; z-index: 1; padding: 24px 20px 120px; max-width: 900px; margin: 0 auto; width: 100%; overflow: hidden; }
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── SECTION HEADERS ────────────────────── */
+.sec-head {
+  display: flex; align-items: baseline; gap: 14px;
+  margin-bottom: 20px; margin-top: 40px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--border);
+}
+.sec-head:first-child { margin-top: 0; }
+.sec-num { font-family: var(--mono); font-size: 9px; color: var(--sw); letter-spacing: 2px; flex-shrink: 0; }
+.sec-title { font-family: var(--display); font-size: 22px; color: var(--text); }
+
+/* ─── BODY TEXT ──────────────────────────── */
+.body-text { font-size: 16px; color: var(--text2); line-height: 1.85; max-width: 720px; }
+.body-text p { margin-bottom: 16px; }
+.body-text strong { color: var(--text); font-weight: 600; }
+.body-text em { color: var(--sw2); font-style: italic; }
+
+/* ─── CALLOUTS ───────────────────────────── */
+.callout {
+  background: var(--bg3); border-left: 3px solid var(--sw);
+  padding: 16px 20px; margin-bottom: 24px;
+  font-size: 15px; color: var(--text2); line-height: 1.75;
+  font-style: italic; max-width: 720px;
+}
+.callout-rust { border-left-color: var(--rust); background: var(--rust-dim); }
+.callout-lotus { background: var(--sw-alt-dim); border-left-color: var(--sw-alt); }
+.callout-lime { background: var(--lime-dim); border-left-color: var(--lime); }
+
+/* ─── CARD GRID ──────────────────────────── */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin: 20px 0; }
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 2px; padding: 16px 18px; position: relative;
+  overflow: hidden; transition: all 0.2s;
+}
+.card:hover { background: var(--bg3); transform: translateY(-1px); }
+.card-accent { position: absolute; inset: 0; width: 3px; }
+.card-accent-sw { background: var(--sw); }
+.card-accent-alt { background: var(--sw-alt); }
+.card-accent-rust { background: var(--rust); }
+.card-accent-lime { background: var(--lime); }
+.card-accent-gold { background: var(--gold); }
+.card-title { font-family: var(--display); font-size: 15px; color: var(--text); font-style: italic; margin-bottom: 8px; }
+.card-text { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.card-tag { display: inline-block; font-family: var(--mono); font-size: 7px; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 7px; border-radius: 10px; margin-top: 8px; }
+.card-tag-sw { background: var(--sw-dim); color: var(--sw); border: 1px solid var(--sw-mid); }
+.card-tag-alt { background: var(--sw-alt-dim); color: var(--sw-alt); border: 1px solid var(--sw-alt-mid); }
+.card-tag-rust { background: var(--rust-dim); color: var(--rust); border: 1px solid var(--rust-mid); }
+
+/* ─── TIMELINE ───────────────────────────── */
+.tl-item {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 1px; margin-bottom: 10px; transition: all 0.2s;
+}
+.tl-header {
+  padding: 12px 16px; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  user-select: none;
+}
+.tl-header:hover { background: var(--sw-dim); }
+.tl-title { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--sw); text-transform: uppercase; }
+.tl-badge { font-family: var(--mono); font-size: 8px; padding: 2px 8px; border-radius: 10px; margin-left: 10px; }
+.tl-badge-active { background: var(--lime-dim); color: var(--lime); border: 1px solid var(--lime); }
+.tl-badge-next { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold2); }
+.tl-badge-future { background: var(--sw-alt-dim); color: var(--sw-alt); border: 1px solid var(--sw-alt); }
+.tl-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.tl-toggle { font-size: 12px; color: var(--text3); transition: transform 0.2s; flex-shrink: 0; }
+.tl-item.open .tl-toggle { transform: rotate(180deg); }
+.tl-content {
+  max-height: 0; overflow: hidden; opacity: 0; transition: all 0.25s;
+  border-top: 1px solid var(--border);
+}
+.tl-item.open .tl-content { max-height: 1200px; opacity: 1; }
+.tl-body { padding: 14px 16px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.tl-body ul { margin: 8px 0 8px 20px; }
+.tl-body li { margin-bottom: 6px; font-size: 13px; }
+.tl-body li::marker { color: var(--sw-alt); }
+
+/* ─── EXPANDABLE ENTRIES ─────────────────── */
+.exp-entry {
+  background: var(--bg2); border: 1px solid var(--border);
+  margin-bottom: 14px; overflow: hidden; transition: all 0.2s;
+}
+.exp-header {
+  background: var(--sw-dim); border-bottom: 1px solid var(--sw-mid);
+  padding: 10px 16px; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  user-select: none;
+}
+.exp-header:hover { background: var(--sw-mid); }
+.exp-header-text { font-family: var(--mono); font-size: 9px; letter-spacing: 1.8px; color: var(--sw); text-transform: uppercase; }
+.exp-toggle { transition: transform 0.2s; }
+.exp-entry.open .exp-toggle { transform: rotate(180deg); }
+.exp-content { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.25s; }
+.exp-entry.open .exp-content { max-height: 2000px; opacity: 1; }
+.exp-body { padding: 14px 16px; font-size: 13px; color: var(--text2); line-height: 1.8; border-top: 1px solid var(--border); }
+.exp-body strong { color: var(--text); display: block; margin-top: 8px; margin-bottom: 4px; }
+.exp-body strong:first-child { margin-top: 0; }
+
+/* ─── CODE BLOCKS ────────────────────────── */
+.code-block {
+  background: #1E1B2E; color: #d4cfba; padding: 16px;
+  font-family: var(--mono); font-size: 11px; line-height: 1.6;
+  overflow-x: auto; max-width: 720px; margin: 14px 0;
+  border-radius: 2px; white-space: pre-wrap; word-wrap: break-word;
+  border: 1px solid var(--sw-mid);
+}
+.code-block .hl-key { color: var(--sw3); }
+.code-block .hl-val { color: var(--lotus2); }
+.code-block .hl-cmt { color: #6a6580; font-style: italic; }
+.code-block .hl-num { color: var(--gold2); }
+
+/* ─── STAT ROW ───────────────────────────── */
+.stat-row { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
+.stat-box {
+  flex: 1; min-width: 140px;
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 14px 16px; text-align: center;
+}
+.stat-num { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--sw); letter-spacing: -1px; }
+.stat-label { font-family: var(--mono); font-size: 8px; color: var(--text3); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 4px; }
+
+/* ─── COMPARISON TABLE ───────────────────── */
+.cmp-table { width: 100%; max-width: 720px; border-collapse: collapse; margin: 16px 0; }
+.cmp-table th {
+  font-family: var(--mono); font-size: 8px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text3); padding: 8px 12px;
+  border-bottom: 2px solid var(--sw); text-align: left;
+}
+.cmp-table td {
+  font-size: 13px; color: var(--text2); padding: 10px 12px;
+  border-bottom: 1px solid var(--border); vertical-align: top;
+}
+.cmp-table tr:hover td { background: var(--bg3); }
+.cmp-table .verdict { font-family: var(--mono); font-size: 8px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 10px; }
+.v-dead { background: #7A3A1A18; color: var(--rust); }
+.v-bridge { background: var(--gold-dim); color: var(--gold); }
+.v-go { background: var(--lime-dim); color: var(--lime); }
+
+/* ─── SEMANTIC FOOTER ────────────────────── */
+.sem-footer {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-top: 2px solid var(--sw); padding: 14px 16px; margin-top: 28px;
+}
+.sem-footer-label { font-family: var(--mono); font-size: 8px; color: var(--text3); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 10px; }
+.sem-cloud { display: flex; flex-wrap: wrap; gap: 6px; }
+.sem-chip { background: var(--bg2); border: 1px solid var(--border); padding: 4px 9px; font-family: var(--mono); font-size: 8px; color: var(--text2); border-radius: 12px; }
+
+/* ─── WAVEFORM DIVIDER ───────────────────── */
+.wave-div {
+  height: 32px; margin: 24px 0; position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.wave-div svg { width: 200px; height: 20px; opacity: 0.15; }
+
+/* ─── NAVIGATION ─────────────────────────── */
+.prev-next {
+  position: fixed; bottom: 16px; left: 16px; right: 16px;
+  max-width: calc(100% - 32px);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 12px 16px; border-radius: 2px;
+  box-shadow: 0 8px 24px rgba(45,42,94,0.12);
+  z-index: 50; flex-wrap: wrap;
+}
+.nav-btn {
+  background: transparent; border: 1px solid var(--border);
+  padding: 8px 12px; font-family: var(--mono); font-size: 9px;
+  letter-spacing: 1.5px; color: var(--text2); text-transform: uppercase;
+  cursor: pointer; transition: all 0.18s; border-radius: 1px;
+  user-select: none; flex: 1; min-width: 80px;
+}
+.nav-btn:hover:not(:disabled) { background: var(--sw-dim); border-color: var(--sw); color: var(--sw); }
+.nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.nav-indicator { font-family: var(--mono); font-size: 8px; color: var(--text3); letter-spacing: 1px; padding: 0 10px; text-align: center; flex: 0 0 auto; white-space: nowrap; }
+
+/* ─── RESPONSIVE ──────────────────────────── */
+@media (max-width: 768px) {
+  .header { padding: 12px 16px; min-height: 48px; }
+  .header.collapsed { padding: 6px 12px; min-height: 34px; }
+  .tab-bar { padding: 0 12px; top: 48px; }
+  .tab-bar.collapsed { top: 34px; }
+  .tab { padding: 8px 12px; font-size: 8px; }
+  .panels { padding: 16px 14px 140px; }
+  .prev-next { flex-direction: column; bottom: 12px; left: 12px; right: 12px; }
+  .nav-btn { width: 100%; }
+  .nav-indicator { width: 100%; border: none; border-top: 1px solid var(--border); padding: 8px 0 0; }
+  .card-grid { grid-template-columns: 1fr; }
+  .sec-head { gap: 10px; margin-top: 32px; }
+  .sec-title { font-size: 18px; }
+  .body-text { font-size: 14px; }
+  .stat-row { gap: 8px; }
+  .stat-box { min-width: 100px; padding: 10px 12px; }
+  .stat-num { font-size: 18px; }
+}
+
+@media (max-width: 480px) {
+  .header-icon { font-size: 14px; }
+  .arx-mark, .sw-mark { font-size: 7px; padding: 2px 6px; }
+  .header-right { font-size: 7px; }
+  .tab { padding: 6px 10px; font-size: 7px; }
+  .panels { padding: 12px 12px 140px; }
+  .body-text { font-size: 13px; line-height: 1.7; }
+  .sec-title { font-size: 16px; }
+  .cmp-table { font-size: 11px; }
+  .cmp-table td, .cmp-table th { padding: 6px 8px; }
+}
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Up next</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Queued to build next.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=SoundWeave" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div id="progress"></div>
+
+<!-- ═══════════════════════════════════════
+     HEADER
+════════════════════════════════════════ -->
+<div class="header" id="main-header">
+  <div class="header-left">
+    <div class="arx-mark">ARX</div>
+    <div class="sw-mark">SoundWeave</div>
+    <div class="header-icon">🌊</div>
+    <div class="header-title">Sovereign Music Platform</div>
+    <div class="header-tab-name" id="header-tab-name"></div>
+  </div>
+  <div class="header-right">ARX Foundation<br>March 2026</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB BAR
+════════════════════════════════════════ -->
+<div class="tab-bar" id="tab-bar">
+  <div class="tab active" onclick="switchTab('vision')">🌊 Vision</div>
+  <div class="tab" onclick="switchTab('legal')">⚖️ Legal</div>
+  <div class="tab" onclick="switchTab('engine')">🧠 Flow Engine</div>
+  <div class="tab" onclick="switchTab('ownership')">🔑 Ownership</div>
+  <div class="tab" onclick="switchTab('roadmap')">📍 Roadmap</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANEL CONTENT
+════════════════════════════════════════ -->
+<div class="panels">
+
+<!-- ─── TAB 1: VISION ─────────────────── -->
+<div class="panel active" id="panel-vision">
+
+  <div class="sec-head"><span class="sec-num">§ 01</span><span class="sec-title">The Problem</span></div>
+  <div class="body-text">
+    <p>The music industry is broken at every layer. Streaming platforms optimize for <strong>engagement</strong> — time-on-platform, ad exposure, skip rate minimization — not for the listener's actual experience. Artists receive roughly <em>$0.003–$0.005 per stream</em>, with ~15% of subscriber revenue reaching them after label recoupment. The algorithms push what's popular, not what's meaningful.</p>
+    <p>You don't own anything. Your library is a rental agreement that can be revoked at any time. Your playlists are trapped. Your volume control doesn't work the way you expect. Headphone buttons control the wrong thing. And the lyrics you're absorbing? No one's auditing those for the messages they carry.</p>
+  </div>
+
+  <div class="callout callout-rust">"The music industry doesn't need another player. It needs a protocol." — The founding premise of SoundWeave.</div>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="stat-num">$0.004</div><div class="stat-label">Avg. per-stream payout</div></div>
+    <div class="stat-box"><div class="stat-num">~15%</div><div class="stat-label">Revenue reaching artists</div></div>
+    <div class="stat-box"><div class="stat-num">0</div><div class="stat-label">Tracks you own on Spotify</div></div>
+    <div class="stat-box"><div class="stat-num">0</div><div class="stat-label">Platforms auditing lyrics</div></div>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 02</span><span class="sec-title">What SoundWeave Is</span></div>
+  <div class="body-text">
+    <p>SoundWeave is a <strong>sovereign, flow-optimized music platform</strong> operated as an ARX Foundation 501(c)(3) non-profit. It rejects the engagement-maximization paradigm and builds around four principles:</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-accent card-accent-sw"></div>
+      <div class="card-title">Flow Over Engagement</div>
+      <div class="card-text">Algorithms designed to induce and sustain flow state — not to maximize time-on-platform. Smooth BPM transitions, key compatibility, emotional arcs that respect your consciousness.</div>
+      <div class="card-tag card-tag-sw">Core Algorithm</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-alt"></div>
+      <div class="card-title">True Ownership</div>
+      <div class="card-text">Buy a track. Transfer it to a friend. Check it out like a library book. Store it on your NAS. It's yours — with a contractual guarantee it won't be yanked from under you.</div>
+      <div class="card-tag card-tag-alt">Ownership Model</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-lime"></div>
+      <div class="card-title">85% to Artists</div>
+      <div class="card-text">Non-profit structure means no profit extraction. 85% of all revenue goes to the artist compensation pool. Transparent, auditable, quarterly-published allocations.</div>
+      <div class="card-tag card-tag-rust">Compensation</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-gold"></div>
+      <div class="card-title">Lyric Transparency</div>
+      <div class="card-text">Semantic parsing of every lyric. Sentiment analysis, theme extraction, subliminal pattern detection. Not censorship — information. Per-song discussion boards for the stories behind the music.</div>
+      <div class="card-tag card-tag-sw">Audit System</div>
+    </div>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 03</span><span class="sec-title">Why Non-Profit</span></div>
+  <div class="body-text">
+    <p>A for-profit streaming company is structurally incentivized to minimize artist payout and maximize engagement metrics for advertisers. SoundWeave under a <strong>501(c)(3)</strong> flips the incentives: all surplus is reinvested, artist compensation is the primary mission, and the lifetime license trust fund is legally protected from shareholder pressure — because there are no shareholders.</p>
+    <p>Non-profit status also provides reduced PRO licensing rates and positions SoundWeave as a public-benefit platform, not a competitor to be crushed.</p>
+  </div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Semantic Keywords</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">sovereign-music</span>
+      <span class="sem-chip">flow-state</span>
+      <span class="sem-chip">artist-compensation</span>
+      <span class="sem-chip">non-profit-streaming</span>
+      <span class="sem-chip">lyric-audit</span>
+      <span class="sem-chip">digital-ownership</span>
+      <span class="sem-chip">anti-engagement</span>
+      <span class="sem-chip">open-protocol</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TAB 2: LEGAL ──────────────────── -->
+<div class="panel" id="panel-legal">
+
+  <div class="sec-head"><span class="sec-num">§ 01</span><span class="sec-title">Backend Licensing — Who Can We Build On?</span></div>
+  <div class="body-text">
+    <p>Building a custom music client requires sitting on top of someone's licensing agreements — at least initially. We evaluated three backends for feasibility: Spotify, Tidal, and the Audius Open Audio Protocol.</p>
+  </div>
+
+  <table class="cmp-table">
+    <thead>
+      <tr><th>Platform</th><th>Streaming via 3rd Party</th><th>Custom UI</th><th>ML/Algo Use</th><th>Lossless</th><th>Verdict</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Spotify</strong></td>
+        <td>Prohibited for commercial use</td>
+        <td>Must use official SDKs</td>
+        <td>Banned since May 2025</td>
+        <td>No (lossy only via API)</td>
+        <td><span class="verdict v-dead">Dead</span></td>
+      </tr>
+      <tr>
+        <td><strong>Tidal</strong></td>
+        <td>Via official Player module</td>
+        <td>Allowed with branding req.</td>
+        <td>Not explicitly banned</td>
+        <td>FLAC / MQA</td>
+        <td><span class="verdict v-bridge">Bridge</span></td>
+      </tr>
+      <tr>
+        <td><strong>Audius</strong></td>
+        <td>Open protocol — anyone builds</td>
+        <td>Full control, open-source</td>
+        <td>Unrestricted</td>
+        <td>Artist-uploaded quality</td>
+        <td><span class="verdict v-go">Long Game</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="exp-entry">
+    <div class="exp-header"><span class="exp-header-text">Spotify — Why It's Dead on Arrival</span><span class="exp-toggle">▼</span></div>
+    <div class="exp-content"><div class="exp-body">
+      <strong>Commercial streaming prohibited</strong>
+      Spotify's Developer Policy limits commercial use to non-streaming SDAs only — apps that sell advertising or access but don't actually stream music. Streaming SDAs have restricted monetization and cannot be used commercially, with very limited exceptions.
+      <strong>No mixing with other services</strong>
+      The policy explicitly bans integrating Spotify content with content from another service. Our hybrid backend model is a non-starter.
+      <strong>AI/ML ban</strong>
+      As of May 2025, the Developer Policy states: "Do not use the Spotify Platform or any Spotify Content to train a machine learning or AI model." The Flow Engine alone would violate this.
+      <strong>Extended API access tightened</strong>
+      Since May 15, 2025, extended Web API access is reserved for apps that "drive Spotify's platform strategy forward." SoundWeave is architecturally opposed to that strategy.
+      <strong>Revocable at will</strong>
+      Spotify can terminate developer access at any time, for any reason. Building on this foundation is building on sand.
+    </div></div>
+  </div>
+
+  <div class="exp-entry">
+    <div class="exp-header"><span class="exp-header-text">Tidal — The MVP Bridge</span><span class="exp-toggle">▼</span></div>
+    <div class="exp-content"><div class="exp-body">
+      <strong>Official SDK = same as internal apps</strong>
+      Tidal explicitly states their SDK is the same one powering their own apps, with a roadmap to expose more internal functionality externally. The Player module is the only allowed way for third-party apps to play Tidal content.
+      <strong>Production review process</strong>
+      Apps start in "Development mode" with strict quotas. Submitting an "Application Review" unlocks production scale — manually evaluated, approximately 2 weeks. Non-profit status and quality UI may help approval.
+      <strong>DDEX standard compliance</strong>
+      Tidal supports the industry-standard data format for music metadata, which matters for interoperability with Audius and direct-license deals.
+      <strong>Unofficial Python API (tidalapi)</strong>
+      LGPL-3.0 licensed, well-maintained, full catalog access with pagination, favorites, mixes. Useful for prototyping and metadata enrichment.
+      <strong>Risks</strong>
+      Same fundamental fragility — they can revoke access at any time. Commercial use terms are still restrictive. "Integrating TIDAL content with content from another service" is prohibited. TIDAL branding required.
+    </div></div>
+  </div>
+
+  <div class="exp-entry">
+    <div class="exp-header"><span class="exp-header-text">Audius — The Real Play</span><span class="exp-toggle">▼</span></div>
+    <div class="exp-content"><div class="exp-body">
+      <strong>Open Audio Protocol 1.0 (October 2025)</strong>
+      Fully redesigned architecture with DDEX standard support, unlimited media storage, Artist Coins on Solana, and interoperability with major distributors (DistroKid, Warner Chappell, Downtown Music, Kobalt).
+      <strong>Explicitly invites competing clients</strong>
+      Audius publicly welcomes anyone building a music client that outpaces them in growth, built on the Open Audio Protocol. This is the rare case where a platform actually wants you to build.
+      <strong>Self-hostable content nodes</strong>
+      Artists or platforms can run their own content nodes with staked $AUDIO tokens, giving full control over storage and availability. Aligns perfectly with ARX self-hosted infrastructure (Pensieve).
+      <strong>Limitations</strong>
+      Catalog is indie/electronic-heavy — missing most major label content. Copyright enforcement is community-based. AUDIO token volatility affects artist earnings predictability. These are solvable with time and direct-licensing agreements.
+    </div></div>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 02</span><span class="sec-title">Required Licenses (US Non-Profit)</span></div>
+  <div class="body-text">
+    <p>Regardless of streaming backend, operating an interactive music streaming service in the US requires licenses from <strong>four categories</strong> of rights holders. Non-profit status helps with rates but does not exempt from any of these.</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-accent card-accent-sw"></div>
+      <div class="card-title">Mechanical License (MLC)</div>
+      <div class="card-text">Blanket license via the Mechanical Licensing Collective, established by the Music Modernization Act (2018). Required for all interactive streaming. MLC administers, collects, and distributes.</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-alt"></div>
+      <div class="card-title">Performance Rights (PROs)</div>
+      <div class="card-text">Separate licenses from ASCAP (1.1M+ members), BMI (1.4M+ songwriters), and SESAC. BMI explicitly confirms non-profit status does not exempt from licensing. Typically 1-year terms with minimum annual fees.</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-rust"></div>
+      <div class="card-title">Sound Recording (SoundExchange)</div>
+      <div class="card-text">For non-interactive streaming; interactive (on-demand) requires direct deals with labels/distributors. SoundExchange offers "WSA rates" with simplified reporting for qualifying webcasters.</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-gold"></div>
+      <div class="card-title">Sync License</div>
+      <div class="card-text">Only required if combining music with visual media (music videos, visualizers). Not needed for pure audio streaming. Relevant for future lyric visualization features.</div>
+    </div>
+  </div>
+
+  <div class="callout callout-lotus">Strategy: Tidal SDK handles sound recording licensing for MVP (their agreements cover it). PRO licenses (ASCAP/BMI/SESAC) and MLC blanket license are required regardless. Budget ~$2,000–$5,000/year for initial non-profit tier licensing before scale.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Semantic Keywords</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">music-licensing</span>
+      <span class="sem-chip">tidal-sdk</span>
+      <span class="sem-chip">audius-protocol</span>
+      <span class="sem-chip">ASCAP</span>
+      <span class="sem-chip">BMI</span>
+      <span class="sem-chip">MLC</span>
+      <span class="sem-chip">SoundExchange</span>
+      <span class="sem-chip">501c3</span>
+      <span class="sem-chip">DDEX-standard</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TAB 3: FLOW ENGINE ────────────── -->
+<div class="panel" id="panel-engine">
+
+  <div class="sec-head"><span class="sec-num">§ 01</span><span class="sec-title">Volume Control — The Foundation</span></div>
+  <div class="body-text">
+    <p>Before algorithms, before social features, the most basic thing has to work: <strong>volume control that doesn't suck.</strong> System volume stays at max. App volume is a percentage of max. Headphone buttons control the app, not the system. This is the single most important UX differentiation.</p>
+  </div>
+
+  <div class="code-block"><span class="hl-cmt">// SoundWeave Volume Architecture</span>
+
+<span class="hl-key">system_volume</span>:  <span class="hl-val">Always 100%</span>  <span class="hl-cmt">// Only changed from Settings or keyboard</span>
+<span class="hl-key">app_volume</span>:     <span class="hl-val">0.000 → 1.000</span>  <span class="hl-cmt">// 1000 steps, displayed as percentage</span>
+
+<span class="hl-key">button_press</span>:   <span class="hl-val">±10 steps</span>     <span class="hl-cmt">// 1.0% per press</span>
+<span class="hl-key">press_hold</span>:     <span class="hl-cmt">// Acceleration curve:</span>
+  <span class="hl-num">0–500ms</span>:    <span class="hl-val">±10 steps/tick</span>   <span class="hl-cmt">(100ms ticks)</span>
+  <span class="hl-num">500ms–1s</span>:   <span class="hl-val">±25 steps/tick</span>
+  <span class="hl-num">1s–2s</span>:      <span class="hl-val">±50 steps/tick</span>
+  <span class="hl-num">2s+</span>:        <span class="hl-val">±100 steps/tick</span>
+
+<span class="hl-key">headphone_hw</span>:   <span class="hl-val">Intercepts at app level</span>
+  <span class="hl-cmt">// Android: AudioFocus + KeyEvent.KEYCODE_VOLUME_UP/DOWN</span>
+  <span class="hl-cmt">// Linux:   MPRIS D-Bus + PipeWire intercept</span>
+  <span class="hl-cmt">// iOS:     AVAudioSession (limited — see risk register)</span></div>
+
+  <div class="sec-head"><span class="sec-num">§ 02</span><span class="sec-title">Flow State Algorithm</span></div>
+  <div class="body-text">
+    <p>Current streaming algorithms optimize for engagement. SoundWeave's <strong>Flow Engine</strong> optimizes for <em>flow state</em> — the psychological state of complete absorption, as defined by Csikszentmihalyi. In music listening, this means no jarring transitions, gradual emotional arcs, BPM continuity with intentional drift, and key compatibility via the Camelot wheel.</p>
+  </div>
+
+  <div class="callout">The Valence-Arousal model (Russell, 1980) maps all emotional states onto two axes: valence (positive/negative) and arousal (high/low energy). Flow Engine navigates this space deliberately — not randomly.</div>
+
+  <div class="body-text">
+    <p><strong>Feature vector per track</strong> — extracted via Essentia (AGPL-3.0) audio analysis library on locally cached files:</p>
+  </div>
+
+  <div class="code-block"><span class="hl-cmt">// Track Feature Vector</span>
+{
+  <span class="hl-key">valence</span>:              <span class="hl-num">float [0, 1]</span>     <span class="hl-cmt">// emotional positivity</span>
+  <span class="hl-key">energy</span>:               <span class="hl-num">float [0, 1]</span>     <span class="hl-cmt">// arousal/intensity</span>
+  <span class="hl-key">bpm</span>:                  <span class="hl-num">float</span>            <span class="hl-cmt">// tempo</span>
+  <span class="hl-key">key</span>:                  <span class="hl-num">int [0, 11]</span>      <span class="hl-cmt">// pitch class</span>
+  <span class="hl-key">mode</span>:                 <span class="hl-num">int [0, 1]</span>       <span class="hl-cmt">// major/minor</span>
+  <span class="hl-key">danceability</span>:         <span class="hl-num">float [0, 1]</span>
+  <span class="hl-key">acousticness</span>:         <span class="hl-num">float [0, 1]</span>
+  <span class="hl-key">spectral_contrast</span>:    <span class="hl-num">float[]</span>          <span class="hl-cmt">// timbral texture</span>
+  <span class="hl-key">harmonic_progression</span>: <span class="hl-num">float[]</span>          <span class="hl-cmt">// chord change rate</span>
+}
+
+<span class="hl-cmt">// Flow Transition Score (current → candidate)</span>
+<span class="hl-key">flow_score</span> = w1 * <span class="hl-val">valence_continuity</span>(c, n)
+           + w2 * <span class="hl-val">energy_trajectory</span>(c, n, intent)
+           + w3 * <span class="hl-val">bpm_proximity</span>(c, n)          <span class="hl-cmt">// ±5% preferred</span>
+           + w4 * <span class="hl-val">key_compatibility</span>(c, n)       <span class="hl-cmt">// Camelot distance</span>
+           + w5 * <span class="hl-val">spectral_similarity</span>(c, n)
+           + w6 * <span class="hl-val">novelty_bonus</span>(n, history)    <span class="hl-cmt">// prevent loops</span>
+           - w7 * <span class="hl-val">jarring_penalty</span>(c, n)        <span class="hl-cmt">// large deltas</span>
+
+<span class="hl-cmt">// Intent modes (user-set or auto-detected):</span>
+<span class="hl-key">intent</span> ∈ { <span class="hl-val">sustain</span>, <span class="hl-val">energize</span>, <span class="hl-val">wind_down</span>, <span class="hl-val">explore</span>, <span class="hl-val">focus</span> }</div>
+
+  <div class="sec-head"><span class="sec-num">§ 03</span><span class="sec-title">Reinforcement Learning Layer</span></div>
+  <div class="body-text">
+    <p>On top of the rule-based flow scoring, a <strong>reinforcement learning agent</strong> (inspired by Moodify's go-explore strategy, tested on 1M Spotify playlists) learns individual preferences over time:</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-accent card-accent-lime"></div>
+      <div class="card-title">Reward Signals</div>
+      <div class="card-text">Session duration without skip, explicit thumbs-up, replay, adding to library. These are positive signals that the flow is working.</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-rust"></div>
+      <div class="card-title">Penalty Signals</div>
+      <div class="card-text">Skip within 15 seconds, session abandonment, explicit thumbs-down. These indicate a broken transition or poor match.</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-sw"></div>
+      <div class="card-title">State Space</div>
+      <div class="card-text">Current position in valence-arousal space, session duration, time-of-day, intent mode, listening history context window.</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-alt"></div>
+      <div class="card-title">Open-Source Foundations</div>
+      <div class="card-text">PersonalAIs (GSoC 2025) — mood-aware recs via LLMs. Essentia (MTG) — audio feature extraction. ListenBrainz — open scrobble data. All forkable.</div>
+    </div>
+  </div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Semantic Keywords</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">flow-state</span>
+      <span class="sem-chip">valence-arousal</span>
+      <span class="sem-chip">BPM-matching</span>
+      <span class="sem-chip">camelot-wheel</span>
+      <span class="sem-chip">reinforcement-learning</span>
+      <span class="sem-chip">essentia</span>
+      <span class="sem-chip">1000-step-volume</span>
+      <span class="sem-chip">MPRIS</span>
+      <span class="sem-chip">headphone-intercept</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TAB 4: OWNERSHIP ──────────────── -->
+<div class="panel" id="panel-ownership">
+
+  <div class="sec-head"><span class="sec-num">§ 01</span><span class="sec-title">Bringing Back Ownership</span></div>
+  <div class="body-text">
+    <p>Music used to be physical. You could buy a CD, lend it to a friend, sell it at a garage sale, donate it to a library. Streaming killed all of that. SoundWeave brings it back — digitally, with cryptographic guarantees.</p>
+    <p>The key insight: <strong>use blockchain infrastructure, but never say "blockchain" to the user.</strong> Buy with a credit card. Transfer via username. The on-chain token is invisible unless you want to see it.</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-accent card-accent-sw"></div>
+      <div class="card-title">Stream License</div>
+      <div class="card-text">Standard streaming access via subscription. No ownership, no transfer. Music available while subscription and catalog licenses hold. This is the "Spotify equivalent" tier.</div>
+      <div class="card-tag card-tag-sw">Default</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-alt"></div>
+      <div class="card-title">Purchase License</div>
+      <div class="card-text">One-time buy. Stored locally + synced to your NAS. Transferable — gift, sell, or lend to another user. Transfer is true transfer: sender loses access, receiver gains it. Backed by Solana token.</div>
+      <div class="card-tag card-tag-alt">Ownership</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-gold"></div>
+      <div class="card-title">Limited Edition</div>
+      <div class="card-text">Artist releases N numbered copies. Scarcity creates value. Secondary market with 10% artist royalty on every resale. The vinyl collector model, digitized. Artists choose the edition size.</div>
+      <div class="card-tag card-tag-rust">Scarce</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-lime"></div>
+      <div class="card-title">Library Checkout</div>
+      <div class="card-text">Lend any owned track to another user for a defined period. Owner loses playback during checkout. Auto-returns when period expires. Builds social discovery — see what friends are borrowing.</div>
+      <div class="card-tag card-tag-sw">Social</div>
+    </div>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 02</span><span class="sec-title">NAS Sync & Full Trust Mode</span></div>
+  <div class="body-text">
+    <p>When a user enables <strong>Full Trust Mode</strong>, purchased tracks are auto-downloaded in FLAC to local storage and synced to their configured NAS via Syncthing. A cryptographic license proof is stored alongside every audio file. If SoundWeave ever ceases operations, the user retains full access to everything they've purchased — no platform dependency.</p>
+  </div>
+
+  <div class="code-block"><span class="hl-cmt">// Full Trust Mode — NAS Auto-Sync Architecture</span>
+
+<span class="hl-key">user enables Full Trust Mode</span>:
+├── <span class="hl-val">Auto-downloads</span> purchased tracks to local device
+├── <span class="hl-val">Syncs to NAS</span> via Syncthing / WebDAV / SFTP
+│   ├── FLAC lossless audio
+│   ├── metadata.json (credits, license proof)
+│   └── license_token.sig (cryptographic proof of purchase)
+├── <span class="hl-val">NAS = authoritative backup</span>
+│   └── Platform goes down → user retains everything
+└── <span class="hl-val">Escrow provision</span>:
+    └── Third-party trustee holds catalog decryption keys
+        → Released to license holders on platform dissolution</div>
+
+  <div class="sec-head"><span class="sec-num">§ 03</span><span class="sec-title">DeFi Compatibility — Backwards Compatible</span></div>
+  <div class="body-text">
+    <p>Ownership tokens live on Solana via the Audius Open Audio Protocol infrastructure. The system is <strong>backwards compatible with both Web2 and Web3 users</strong>:</p>
+  </div>
+
+  <div class="exp-entry">
+    <div class="exp-header"><span class="exp-header-text">Web2 User Experience (Default)</span><span class="exp-toggle">▼</span></div>
+    <div class="exp-content"><div class="exp-body">
+      <strong>Buy</strong> — Stripe / credit card checkout. Platform mints Solana token on behalf of user. User sees: "Purchased ✓"
+      <strong>Transfer</strong> — "Send to @friend" button. Platform handles on-chain transfer. User sees: "Sent to Sam ✓"
+      <strong>Checkout</strong> — "Lend for 2 weeks" button. Smart contract manages lockup. User sees: "Checked out until April 1"
+      <strong>No wallet, no seed phrase, no gas fees.</strong> The blockchain is invisible infrastructure.
+    </div></div>
+  </div>
+
+  <div class="exp-entry">
+    <div class="exp-header"><span class="exp-header-text">Web3 User Experience (Opt-In)</span><span class="exp-toggle">▼</span></div>
+    <div class="exp-content"><div class="exp-body">
+      <strong>Connect Wallet</strong> — Phantom, Solflare, etc. View and manage tokens directly.
+      <strong>Trade</strong> — Limited editions tradeable on any Solana NFT marketplace.
+      <strong>Export</strong> — If another platform supports Open Audio Protocol, tokens are portable.
+      <strong>DeFi</strong> — Collateralize, fractionalize, use in protocols. Full composability.
+    </div></div>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 04</span><span class="sec-title">Lifetime License</span></div>
+  <div class="body-text">
+    <p>A one-time <strong>Perpetual Access License</strong> structured as a prepaid subscription with no expiration. A portion of every lifetime license fee funds a trust dedicated to maintaining licensing payments in perpetuity.</p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="stat-num">$168</div><div class="stat-label">Annual streaming cost</div></div>
+    <div class="stat-box"><div class="stat-num">$4,200</div><div class="stat-label">Perpetuity value (4%)</div></div>
+    <div class="stat-box"><div class="stat-num">~$3,000</div><div class="stat-label">Target lifetime price</div></div>
+    <div class="stat-box"><div class="stat-num">25yr+</div><div class="stat-label">Guaranteed minimum</div></div>
+  </div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Semantic Keywords</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">digital-ownership</span>
+      <span class="sem-chip">license-transfer</span>
+      <span class="sem-chip">library-checkout</span>
+      <span class="sem-chip">limited-edition</span>
+      <span class="sem-chip">NAS-sync</span>
+      <span class="sem-chip">syncthing</span>
+      <span class="sem-chip">solana-token</span>
+      <span class="sem-chip">lifetime-license</span>
+      <span class="sem-chip">trust-fund</span>
+      <span class="sem-chip">DeFi-compatible</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TAB 5: ROADMAP ────────────────── -->
+<div class="panel" id="panel-roadmap">
+
+  <div class="sec-head"><span class="sec-num">§ 01</span><span class="sec-title">Phased Build Plan</span></div>
+  <div class="body-text">
+    <p>Four phases from legal foundation through self-sovereign infrastructure. Each phase delivers a usable product — not vaporware. The MVP is a desktop player that actually gets flow right and has volume control that works.</p>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-header" onclick="toggleTL(this.parentElement)">
+      <div class="tl-left">
+        <span class="tl-title">Phase 0 · Foundation — Months 1–2</span>
+        <span class="tl-badge tl-badge-active">Start Here</span>
+      </div>
+      <span class="tl-toggle">▼</span>
+    </div>
+    <div class="tl-content"><div class="tl-body">
+      Legal entity and core infrastructure. No code yet — this is paperwork and positioning.
+      <ul>
+        <li>File 501(c)(3) non-profit application under ARX Foundation</li>
+        <li>Register developer accounts: Tidal, Audius, MusicBrainz</li>
+        <li>Obtain BMI + ASCAP + SESAC digital streaming licenses (non-profit tier)</li>
+        <li>Register with MLC for blanket mechanical license</li>
+        <li>Set up SoundExchange account</li>
+        <li>Draft Terms of Service with perpetual purchase clause &amp; NAS sync guarantee</li>
+        <li>Set up Solana dev environment for license token prototyping</li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-header" onclick="toggleTL(this.parentElement)">
+      <div class="tl-left">
+        <span class="tl-title">Phase 1 · MVP "Flow Player" — Months 3–6</span>
+        <span class="tl-badge tl-badge-next">Next</span>
+      </div>
+      <span class="tl-toggle">▼</span>
+    </div>
+    <div class="tl-content"><div class="tl-body">
+      Desktop app that plays Tidal content with custom flow algorithm and 1000-step volume control.
+      <ul>
+        <li><strong>Tauri desktop app</strong> — Rust + web frontend, basic playback via Tidal SDK</li>
+        <li><strong>Volume control</strong> — 1000-step, press/hold acceleration, MPRIS/PulseAudio headphone intercept</li>
+        <li><strong>Flow Engine v0.1</strong> — Rule-based: BPM proximity + key compatibility + energy continuity via Essentia analysis</li>
+        <li><strong>Local FLAC cache</strong> — Auto-download playing tracks to ~/.soundweave/cache/</li>
+        <li><strong>Queue UI</strong> — Current track, next 5 suggested, skip/approve/veto controls</li>
+        <li><strong>ListenBrainz scrobbling</strong> — Open listening history from day one</li>
+      </ul>
+      <strong>Deliverable:</strong> A desktop music player that feels like it actually understands flow. Volume control that doesn't suck. Tidal lossless quality.
+    </div></div>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-header" onclick="toggleTL(this.parentElement)">
+      <div class="tl-left">
+        <span class="tl-title">Phase 2 · Social + Ownership — Months 7–12</span>
+        <span class="tl-badge tl-badge-future">Future</span>
+      </div>
+      <span class="tl-toggle">▼</span>
+    </div>
+    <div class="tl-content"><div class="tl-body">
+      Discussion boards, purchase model, NAS sync, and the reinforcement learning upgrade.
+      <ul>
+        <li><strong>Per-song discussion boards</strong> — Threaded discussions (Lyric Interpretation, Artist Context, Production Notes, Controversy)</li>
+        <li><strong>Synced lyrics + Lyric Audit v0.1</strong> — Basic sentiment analysis per line via open NLP models</li>
+        <li><strong>Purchase License system</strong> — Solana tokens minted on purchase, Stripe payment integration</li>
+        <li><strong>NAS Auto-Sync</strong> — Full Trust Mode via Syncthing, FLAC + metadata + license proof</li>
+        <li><strong>Transfer system</strong> — Username-based transfer with on-chain token movement</li>
+        <li><strong>Flow Engine v0.2</strong> — Add RL layer, train on user skip/play/replay data</li>
+        <li><strong>Mobile app v0.1</strong> — Flutter, basic playback + volume + flow queue</li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-header" onclick="toggleTL(this.parentElement)">
+      <div class="tl-left">
+        <span class="tl-title">Phase 3 · Production Platform — Months 13–24</span>
+        <span class="tl-badge tl-badge-future">Future</span>
+      </div>
+      <span class="tl-toggle">▼</span>
+    </div>
+    <div class="tl-content"><div class="tl-body">
+      Full-featured platform with Audius backend integration, artist onboarding, and the complete feature set.
+      <ul>
+        <li><strong>Audius Open Audio Protocol</strong> — Migrate from Tidal-only to Tidal + Audius hybrid backend</li>
+        <li><strong>Artist dashboard</strong> — Real-time earnings, analytics, direct fan messaging</li>
+        <li><strong>Artist Coin integration</strong> — Support Audius Artist Coins for fan-artist economy</li>
+        <li><strong>Limited Editions + Library Checkout</strong> — Numbered copies, secondary market, lending system</li>
+        <li><strong>Lyric Audit v1.0</strong> — Full semantic parsing, theme extraction, repetition analysis, propaganda indicators</li>
+        <li><strong>Context Cards</strong> — Per-song credits, samples, revenue split transparency</li>
+        <li><strong>Flow Engine v1.0</strong> — Multi-modal intent (time-of-day, activity, wearable heart rate)</li>
+        <li><strong>Lifetime License</strong> — Trust fund established, pricing finalized, legal review complete</li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-header" onclick="toggleTL(this.parentElement)">
+      <div class="tl-left">
+        <span class="tl-title">Phase 4 · Self-Sovereign — Year 2+</span>
+        <span class="tl-badge tl-badge-future">Future</span>
+      </div>
+      <span class="tl-toggle">▼</span>
+    </div>
+    <div class="tl-content"><div class="tl-body">
+      Break free from all third-party backends. Full sovereignty.
+      <ul>
+        <li><strong>Self-hosted catalog</strong> — Direct licensing with indie labels/artists, content on ARX infrastructure</li>
+        <li><strong>Federated model</strong> — ActivityPub integration (Funkwhale compatibility)</li>
+        <li><strong>ARX Library OS integration</strong> — SoundWeave as native app in the ARX ecosystem</li>
+        <li><strong>SCRIM haptic sync</strong> — Tempo-matched haptic feedback via SCRIM device</li>
+        <li><strong>Open algorithm marketplace</strong> — Community-contributed flow algorithms, forkable</li>
+        <li><strong>DAO governance</strong> — Decentralized platform decisions, artist advisory board</li>
+        <li><strong>Smart contract PRO payments</strong> — Automated real-time royalty distribution</li>
+        <li><strong>Offline-first architecture</strong> — Full functionality from NAS cache, no internet required</li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 02</span><span class="sec-title">Compensation Model</span></div>
+  <div class="body-text">
+    <p>The non-profit structure enables a radically different revenue allocation than any existing platform:</p>
+  </div>
+
+  <div class="code-block"><span class="hl-cmt">// SoundWeave Revenue Allocation (Non-Profit 501(c)(3))</span>
+
+<span class="hl-key">Revenue</span>
+├── <span class="hl-num">85%</span> → <span class="hl-val">Artist Compensation Pool</span>
+│   ├── <span class="hl-num">70%</span> → Pro-rata per-stream  <span class="hl-cmt">(actual listener plays)</span>
+│   ├── <span class="hl-num">15%</span> → Discovery bonus      <span class="hl-cmt">(new artist exposure)</span>
+│   └── <span class="hl-num">15%</span> → Direct tipping       <span class="hl-cmt">(zero platform cut)</span>
+├── <span class="hl-num">10%</span> → <span class="hl-val">Platform Operations</span>   <span class="hl-cmt">(servers, licenses, dev)</span>
+└── <span class="hl-num"> 5%</span> → <span class="hl-val">Trust Fund</span>            <span class="hl-cmt">(lifetime license sustainability)</span>
+
+<span class="hl-cmt">// Compare: Spotify pays ~15% to artists after label cut</span>
+<span class="hl-cmt">// SoundWeave: 85% to artists, no profit extraction</span></div>
+
+  <div class="sec-head"><span class="sec-num">§ 03</span><span class="sec-title">Technology Stack</span></div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-accent card-accent-sw"></div>
+      <div class="card-title">Clients</div>
+      <div class="card-text">Desktop: Tauri (Rust + Web). Mobile: Flutter. Web: React + TypeScript. Unified GraphQL API layer.</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-alt"></div>
+      <div class="card-title">Audio Intelligence</div>
+      <div class="card-text">Essentia (C++/Python) for MIR analysis. PyTorch for RL-based Flow Engine. ListenBrainz for open scrobble data.</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-rust"></div>
+      <div class="card-title">Infrastructure</div>
+      <div class="card-text">PostgreSQL + Redis. Syncthing for NAS sync. Navidrome for self-hosted playback. All deployable on Pensieve or Hetzner VPS.</div>
+    </div>
+    <div class="card">
+      <div class="card-accent card-accent-gold"></div>
+      <div class="card-title">Blockchain Layer</div>
+      <div class="card-text">Solana via Audius SDK for license tokens. Stripe + Solana Pay for fiat/crypto payments. Invisible to default users.</div>
+    </div>
+  </div>
+
+  <div class="callout callout-lime">The entire stack is self-hostable, FOSS-compatible, and designed to run on existing ARX infrastructure. Pensieve for NAS backend. Hetzner VPS for services. Tailscale mesh for connectivity. No vendor lock-in at any layer.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Semantic Keywords</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">tauri</span>
+      <span class="sem-chip">flutter</span>
+      <span class="sem-chip">graphql</span>
+      <span class="sem-chip">essentia</span>
+      <span class="sem-chip">pytorch</span>
+      <span class="sem-chip">solana</span>
+      <span class="sem-chip">navidrome</span>
+      <span class="sem-chip">syncthing</span>
+      <span class="sem-chip">pensieve</span>
+      <span class="sem-chip">85-percent-artists</span>
+      <span class="sem-chip">discovery-bonus</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /panels -->
+
+<!-- ═══════════════════════════════════════
+     PREV / NEXT NAVIGATION
+════════════════════════════════════════ -->
+<div class="prev-next">
+  <button class="nav-btn" id="btn-prev" onclick="navTab(-1)">← Prev</button>
+  <div class="nav-indicator" id="tab-indicator"></div>
+  <button class="nav-btn" id="btn-next" onclick="navTab(1)">Next →</button>
+</div>
+
+<script>
+const TAB_ORDER = ['vision', 'legal', 'engine', 'ownership', 'roadmap'];
+const TAB_LABELS = ['Vision', 'Legal & Licensing', 'Flow Engine', 'Ownership Model', 'Roadmap'];
+
+let currentTabIndex = 0;
+const mainHeader = document.getElementById('main-header');
+const tabBar = document.querySelector('.tab-bar');
+const headerTabName = document.getElementById('header-tab-name');
+
+let isCollapsed = false;
+window.addEventListener('scroll', () => {
+  const should = window.scrollY > 40;
+  if (should !== isCollapsed) {
+    isCollapsed = should;
+    mainHeader.classList.toggle('collapsed', isCollapsed);
+    tabBar.classList.toggle('collapsed', isCollapsed);
+  }
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  if (total > 0) document.getElementById('progress').style.width = (window.scrollY / total * 100) + '%';
+}, { passive: true });
+
+function switchTab(tab) {
+  currentTabIndex = TAB_ORDER.indexOf(tab);
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+  document.getElementById(`panel-${tab}`).classList.add('active');
+  headerTabName.textContent = TAB_LABELS[currentTabIndex];
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  updateNav();
+  // Auto-scroll tab into view
+  const activeTab = document.querySelector('.tab.active');
+  if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+}
+
+function navTab(dir) {
+  const n = Math.max(0, Math.min(TAB_ORDER.length - 1, currentTabIndex + dir));
+  if (n !== currentTabIndex) switchTab(TAB_ORDER[n]);
+}
+
+function updateNav() {
+  document.getElementById('btn-prev').disabled = currentTabIndex === 0;
+  document.getElementById('btn-next').disabled = currentTabIndex === TAB_ORDER.length - 1;
+  document.getElementById('tab-indicator').textContent = `${currentTabIndex + 1} / ${TAB_ORDER.length}`;
+}
+
+function toggleTL(item) {
+  const was = item.classList.contains('open');
+  document.querySelectorAll('.tl-item').forEach(i => i.classList.remove('open'));
+  if (!was) item.classList.add('open');
+}
+
+updateNav();
+headerTabName.textContent = TAB_LABELS[0];
+document.querySelectorAll('.exp-entry').forEach(entry => {
+  entry.addEventListener('click', function(e) {
+    if (e.target.closest('.exp-header')) this.classList.toggle('open');
+  });
+});
+</script>
+
+</body>
+</html>

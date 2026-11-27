@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Framework YubiKey Pocket — Spec Sheet & Configurator</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAFA;
+  --bg2: #F2F2F2;
+  --bg3: #E8E8E8;
+  --border: #D8D8D8;
+  --border-light: #ECECEC;
+  --text: #1A1A1A;
+  --text2: #4A4A4A;
+  --text3: #8A8A8A;
+  --accent: #1A1A1A;
+  --gold: #B8860B;
+  --gold2: #9A7209;
+  --gold-glow: rgba(184, 134, 11, 0.08);
+  --serif: 'EB Garamond', serif;
+  --sans: 'Manrope', sans-serif;
+  --mono: 'Space Mono', monospace;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+body[data-theme="dark"] {
+  --bg: #0D0D0D;
+  --bg2: #161616;
+  --bg3: #1E1E1E;
+  --border: #2A2A2A;
+  --border-light: #1F1F1F;
+  --text: #EBEBEB;
+  --text2: #B0B0B0;
+  --text3: #707070;
+  --accent: #E8E8E8;
+  --gold: #D4AF37;
+  --gold2: #E8C547;
+  --gold-glow: rgba(212, 175, 55, 0.06);
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.8;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.018'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* HEADER */
+.site-header {
+  padding: 48px 0 32px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+.site-header .tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+.site-header h1 {
+  font-family: var(--serif);
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+.site-header .subtitle {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+.header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+.theme-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 6px 14px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.theme-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* COMPATIBILITY BANNER */
+.compat-banner {
+  background: var(--gold-glow);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  padding: 16px 20px;
+  margin-bottom: 36px;
+  font-size: 14px;
+  color: var(--text2);
+}
+.compat-banner strong { color: var(--accent); }
+
+/* YUBIKEY REF */
+.ref-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+@media (max-width: 600px) { .ref-grid { grid-template-columns: 1fr; } }
+
+.ref-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 20px;
+  position: relative;
+}
+.ref-card.recommended::after {
+  content: 'RECOMMENDED';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 2px 8px;
+}
+.ref-card h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.ref-card .spec-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 13px;
+}
+.ref-card .spec-row:last-child { border-bottom: none; }
+.spec-label { color: var(--text3); }
+.spec-val { font-family: var(--mono); font-size: 12px; color: var(--text); }
+
+/* SECTION HEADERS */
+.section-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+  margin-top: 48px;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+.section-desc {
+  color: var(--text2);
+  font-size: 14px;
+  margin-bottom: 28px;
+  max-width: 680px;
+}
+
+/* OPTION SELECTOR TABS */
+.option-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 32px;
+}
+.option-tab {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 12px 20px;
+  cursor: pointer;
+  color: var(--text3);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  letter-spacing: 0.3px;
+}
+.option-tab:hover { color: var(--text); }
+.option-tab.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+.option-tab .tab-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  margin-right: 6px;
+  opacity: 0.6;
+}
+
+/* OPTION PANELS */
+.option-panel { display: none; }
+.option-panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* SPEC TABLES */
+.spec-section {
+  margin-bottom: 32px;
+}
+.spec-section-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.spec-table th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+.spec-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: top;
+}
+.spec-table td:first-child {
+  font-weight: 600;
+  color: var(--accent);
+  width: 40%;
+}
+.spec-table td:nth-child(2) {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text2);
+}
+
+/* SUB-OPTION SELECTOR */
+.sub-options {
+  margin-bottom: 32px;
+}
+.sub-option-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+.sub-option-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.sub-btn {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sub-btn:hover { border-color: var(--text3); color: var(--text); }
+.sub-btn.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: var(--gold-glow);
+}
+.sub-btn .sub-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  opacity: 0.5;
+  margin-right: 4px;
+}
+
+/* SUB-OPTION DETAIL CARD */
+.sub-detail {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 20px;
+  margin-bottom: 24px;
+  display: none;
+}
+.sub-detail.active { display: block; animation: fadeIn 0.2s ease; }
+.sub-detail h4 {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.sub-detail .pros-cons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+@media (max-width: 500px) { .sub-detail .pros-cons { grid-template-columns: 1fr; } }
+.pro-item::before { content: '+  '; color: #4a8; font-family: var(--mono); font-weight: 700; }
+.con-item::before { content: '−  '; color: #c55; font-family: var(--mono); font-weight: 700; }
+
+/* COST CALCULATOR */
+.cost-panel {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 24px;
+  margin: 32px 0;
+  position: relative;
+}
+.cost-panel::before {
+  content: 'BOM ESTIMATE';
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  background: var(--bg3);
+  padding: 0 8px;
+}
+.cost-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  text-align: center;
+}
+@media (max-width: 600px) { .cost-grid { grid-template-columns: 1fr; } }
+.cost-tier {
+  padding: 16px;
+  border: 1px solid var(--border-light);
+  background: var(--bg);
+}
+.cost-tier-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.cost-tier-val {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.cost-tier-note {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 4px;
+}
+
+/* PARTS LIST */
+.parts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 16px;
+}
+.parts-table th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.parts-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-light);
+}
+.parts-table td:nth-child(4) {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gold2);
+}
+
+/* PHILOSOPHICAL BLOCK */
+.philo {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-style: italic;
+  color: var(--text2);
+  border-left: 2px solid var(--gold);
+  padding: 12px 20px;
+  margin: 28px 0;
+  background: var(--gold-glow);
+}
+
+/* MATERIAL REC */
+.mat-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+@media (max-width: 700px) { .mat-cards { grid-template-columns: 1fr; } }
+.mat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mat-card:hover { border-color: var(--text3); }
+.mat-card.active { border-color: var(--gold); }
+.mat-card h5 {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.mat-card .mat-material {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.mat-card p {
+  font-size: 12px;
+  color: var(--text3);
+  line-height: 1.5;
+}
+
+/* FOOTER */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 0;
+  margin-top: 60px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text3);
+}
+.site-footer .footer-org {
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 4px;
+}
+
+/* CONFIGURATOR SUMMARY */
+.config-summary {
+  position: sticky;
+  top: 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 20px;
+  margin-bottom: 32px;
+  z-index: 10;
+}
+.config-summary h3 {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.config-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 13px;
+}
+.config-key { color: var(--text3); }
+.config-val { font-family: var(--mono); font-size: 12px; color: var(--accent); font-weight: 600; }
+
+/* Expansion card slot diagram placeholder */
+.slot-dims {
+  display: inline-block;
+  background: var(--bg3);
+  border: 1px dashed var(--border);
+  padding: 20px 40px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  margin: 12px 0;
+}
+.slot-dims .dim-val {
+  font-size: 18px;
+  color: var(--accent);
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Up next</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Queued to build next.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=Framework%20YubiKey%20Pocket%20—%20Spec%20Sheet%20&amp;%20Configurator" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+<div class="wrap">
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="tag">ARX FOUNDATION · HARDWARE</div>
+  <h1>Framework YubiKey Pocket</h1>
+  <div class="subtitle">Security Key Housing · Spec Sheet & Configurator</div>
+  <div class="header-controls">
+    <div style="font-size:12px;color:var(--text3);">v1.0 — April 2026</div>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">Dark Mode</button>
+  </div>
+</header>
+
+<!-- COMPATIBILITY -->
+<div class="compat-banner">
+  <strong>Framework Laptop Compatibility:</strong> Framework 13" &amp; 16" (identical expansion card slots), all current generations (Intel 11th–13th gen, AMD Ryzen 7040). USB-C expansion cards standard on all models. Expansion card slot: <strong style="font-family:var(--mono);">55mm × 110mm × 4mm</strong> with recessed cavity behind.
+</div>
+
+<!-- YUBIKEY REFERENCE -->
+<div class="section-tag">[ § 00 ] REFERENCE</div>
+<div class="section-title">Security Key Specs</div>
+<div class="ref-grid">
+  <div class="ref-card recommended">
+    <h3>YubiKey 5C Nano</h3>
+    <div class="spec-row"><span class="spec-label">Dimensions</span><span class="spec-val">48 × 18 × 9.5mm</span></div>
+    <div class="spec-row"><span class="spec-label">Weight</span><span class="spec-val">~3g</span></div>
+    <div class="spec-row"><span class="spec-label">Connector</span><span class="spec-val">USB-C (integrated)</span></div>
+    <div class="spec-row"><span class="spec-label">Cost</span><span class="spec-val">$50–60</span></div>
+    <div class="spec-row"><span class="spec-label">Features</span><span class="spec-val">FIDO2/U2F, OTP, Static PW</span></div>
+  </div>
+  <div class="ref-card">
+    <h3>YubiKey 5C Standard</h3>
+    <div class="spec-row"><span class="spec-label">Dimensions</span><span class="spec-val">60 × 19 × 8mm</span></div>
+    <div class="spec-row"><span class="spec-label">Weight</span><span class="spec-val">~4g</span></div>
+    <div class="spec-row"><span class="spec-label">Connector</span><span class="spec-val">USB-C (integrated)</span></div>
+    <div class="spec-row"><span class="spec-label">Cost</span><span class="spec-val">$60–70</span></div>
+    <div class="spec-row"><span class="spec-label">Features</span><span class="spec-val">FIDO2/U2F, OTP, Static PW</span></div>
+  </div>
+</div>
+
+<div class="philo">The Nano's smaller footprint makes it ideal for a recessed pocket — hidden when closed, accessible when needed. Security as integrated infrastructure, not an afterthought.</div>
+
+<!-- MOUNTING OPTIONS -->
+<div class="section-tag">[ § 01 ] MOUNTING APPROACHES</div>
+<div class="section-title">Three Paths, One Problem</div>
+<div class="section-desc">Each approach trades integration depth against complexity. Select an option below to view full specs, sub-options, material recommendations, and BOM estimates.</div>
+
+<div class="option-tabs">
+  <button class="option-tab active" data-opt="opt1"><span class="tab-num">01</span>Expansion Card</button>
+  <button class="option-tab" data-opt="opt2"><span class="tab-num">02</span>Side-Mount Magnetic</button>
+  <button class="option-tab" data-opt="opt3"><span class="tab-num">03</span>Clip-On Side</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- OPTION 1: INTEGRATED EXPANSION CARD -->
+<!-- ============================================================ -->
+<div class="option-panel active" id="opt1">
+
+<div class="philo">Mount directly into a Framework expansion card slot. The pocket becomes a custom expansion card that houses your security key — zero external footprint.</div>
+
+<div class="spec-section">
+  <div class="spec-section-title">Outer Housing</div>
+  <table class="spec-table">
+    <tr><th>Parameter</th><th>Specification</th></tr>
+    <tr><td>Overall length</td><td>110mm (matches standard expansion card)</td></tr>
+    <tr><td>Overall width</td><td>55mm (matches standard expansion card)</td></tr>
+    <tr><td>Overall thickness</td><td>8–10mm</td></tr>
+    <tr><td>Material</td><td>PETG / Nylon (3D printed) or Al 6061-T6 (machined)</td></tr>
+    <tr><td>Wall thickness</td><td>2mm minimum (structural integrity)</td></tr>
+    <tr><td>Finish</td><td>Matte or textured (anti-glare, professional)</td></tr>
+  </table>
+</div>
+
+<div class="spec-section">
+  <div class="spec-section-title">USB-C Pocket (Key Storage Cavity)</div>
+  <table class="spec-table">
+    <tr><th>Parameter</th><th>Specification</th></tr>
+    <tr><td>Pocket depth</td><td>12–15mm (recessed into card body)</td></tr>
+    <tr><td>Pocket width</td><td>22mm (~2mm clearance per side of Nano)</td></tr>
+    <tr><td>Pocket length</td><td>50mm (key + 2mm buffer)</td></tr>
+    <tr><td>USB-C opening</td><td>9mm × 3mm</td></tr>
+    <tr><td>Internal draft angle</td><td>2–3° (aids printing + insertion)</td></tr>
+    <tr><td>Corner radius</td><td>1–2mm (stress reduction)</td></tr>
+  </table>
+</div>
+
+<div class="spec-section">
+  <div class="spec-section-title">Sliding Cover Mechanism</div>
+  <table class="spec-table">
+    <tr><th>Parameter</th><th>Specification</th></tr>
+    <tr><td>Cover material</td><td>Anodized aluminum or PETG</td></tr>
+    <tr><td>Cover dimensions</td><td>57 × 22 × 2–3mm</td></tr>
+    <tr><td>Travel distance</td><td>45mm (fully exposes pocket)</td></tr>
+    <tr><td>Guide rail type</td><td>Ball bearing cartridge rails OR PTFE-lined grooves</td></tr>
+    <tr><td>Guide rail depth</td><td>3–4mm grooves (top/bottom surfaces)</td></tr>
+    <tr><td>Detent/retention</td><td>Neodymium N52 magnetic catch (5×5×2mm) at closed position</td></tr>
+    <tr><td>Friction target</td><td>200–300g drag force</td></tr>
+    <tr><td>Surface finish</td><td>Anodized or powder-coated (low friction)</td></tr>
+  </table>
+</div>
+
+<!-- USB SUB-OPTIONS -->
+<div class="sub-options">
+  <div class="sub-option-label">USB Connectivity</div>
+  <div class="sub-option-group" data-group="usb1">
+    <button class="sub-btn active" data-sub="usb1a"><span class="sub-tag">1A</span>Internal Adapter</button>
+    <button class="sub-btn" data-sub="usb1b"><span class="sub-tag">1B</span>Direct Pass-Through</button>
+    <button class="sub-btn" data-sub="usb1c"><span class="sub-tag">1C</span>Magnetic Dock</button>
+  </div>
+
+  <div class="sub-detail active" id="usb1a">
+    <h4>1A: Internal USB-C Adapter</h4>
+    <table class="spec-table">
+      <tr><td>Adapter type</td><td>USB-A male → USB-C female right-angle</td></tr>
+      <tr><td>Adapter dims</td><td>~15 × 12 × 8mm</td></tr>
+      <tr><td>Cable routing</td><td>Short 10cm USB-A to USB-C extension inside card</td></tr>
+      <tr><td>Cost</td><td>$15–25</td></tr>
+    </table>
+    <div class="pros-cons">
+      <div><div class="pro-item">Easy to source, reliable</div></div>
+      <div><div class="con-item">Visible cable inside card (aesthetic)</div></div>
+    </div>
+  </div>
+
+  <div class="sub-detail" id="usb1b">
+    <h4>1B: Direct USB-C Pass-Through</h4>
+    <table class="spec-table">
+      <tr><td>Connector type</td><td>USB 3.1 Type-C receptacle (right-angle, 24-pin)</td></tr>
+      <tr><td>Location</td><td>Rear edge of card body (Framework interface point)</td></tr>
+      <tr><td>Shielding</td><td>Ferrite bead + shielded micro-USB cable</td></tr>
+      <tr><td>Cable routing</td><td>~8cm shielded cable from pocket to rear connector</td></tr>
+      <tr><td>Cost</td><td>$20–35</td></tr>
+    </table>
+    <div class="pros-cons">
+      <div><div class="pro-item">Clean, professional, no visible cables</div></div>
+      <div><div class="con-item">Requires careful soldering; USB signal interference risk without proper shielding</div></div>
+    </div>
+  </div>
+
+  <div class="sub-detail" id="usb1c">
+    <h4>1C: Magnetic USB-C Dock</h4>
+    <table class="spec-table">
+      <tr><td>Connector type</td><td>Magnetic USB-C adapter (Volo, Anker, or equiv)</td></tr>
+      <tr><td>Magnet strength</td><td>N52 neodymium, ~3–5 lbs hold force</td></tr>
+      <tr><td>Pocket mod</td><td>Embed ferrous metal insert (steel plate) behind USB-C opening</td></tr>
+      <tr><td>Cable routing</td><td>External USB-C cable (no internal routing)</td></tr>
+      <tr><td>Cost</td><td>$30–50</td></tr>
+    </table>
+    <div class="pros-cons">
+      <div><div class="pro-item">Quick attach/detach, no soldering, most convenient</div></div>
+      <div><div class="con-item">External magnet connector visible; potential accidental disconnects</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MATERIAL SELECTION -->
+<div class="sub-options">
+  <div class="sub-option-label">Manufacturing Method</div>
+  <div class="mat-cards" data-group="mat1">
+    <div class="mat-card active" data-mat="fdm1">
+      <h5>FDM 3D Print</h5>
+      <div class="mat-material">PETG</div>
+      <p>Layer: 0.2mm (0.1mm pocket). Infill: 20–30%. Supports required. ~6–8hr print. Sand 220/400 grit + optional matte lacquer.</p>
+    </div>
+    <div class="mat-card" data-mat="sls1">
+      <h5>SLS 3D Print</h5>
+      <div class="mat-material">Nylon PA12</div>
+      <p>Stronger than FDM. No supports needed. Excellent surface finish. 5–10 day lead via Shapeways or equiv.</p>
+    </div>
+    <div class="mat-card" data-mat="cnc1">
+      <h5>CNC Machined</h5>
+      <div class="mat-material">Aluminum 6061-T6</div>
+      <p>110×55×8mm blank. Face milling, pocket drilling, USB-C hole, rail grooves. Anodize Type II Class 2.</p>
+    </div>
+  </div>
+</div>
+
+<!-- COST -->
+<div class="cost-panel" id="cost1">
+  <div class="cost-grid">
+    <div class="cost-tier">
+      <div class="cost-tier-label">FDM + Adapter</div>
+      <div class="cost-tier-val">$40–60</div>
+      <div class="cost-tier-note">DIY minimum</div>
+    </div>
+    <div class="cost-tier">
+      <div class="cost-tier-label">SLS + Adapter</div>
+      <div class="cost-tier-val">$120–180</div>
+      <div class="cost-tier-note">Pro print service</div>
+    </div>
+    <div class="cost-tier">
+      <div class="cost-tier-label">CNC Aluminum</div>
+      <div class="cost-tier-val">$200–300</div>
+      <div class="cost-tier-note">Machine shop + anodize</div>
+    </div>
+  </div>
+</div>
+
+<!-- PARTS -->
+<div class="spec-section">
+  <div class="spec-section-title">Parts List</div>
+  <table class="parts-table">
+    <tr><th>Part</th><th>Qty</th><th>Spec</th><th>Cost</th></tr>
+    <tr><td>Ball bearing linear rail</td><td>2</td><td>40mm length, 5mm dia rods</td><td>$25–40</td></tr>
+    <tr><td>PTFE sheet (alt to rails)</td><td>1</td><td>3mm × 100 × 50mm</td><td>$10–15</td></tr>
+    <tr><td>Neodymium magnets</td><td>2</td><td>5×5×2mm, N52 grade</td><td>$5–10</td></tr>
+    <tr><td>USB-C right-angle adapter</td><td>1</td><td>USB-A → USB-C, 90°</td><td>$12–20</td></tr>
+    <tr><td>Shielded micro-USB cable (1B)</td><td>1</td><td>10cm, ferrite bead</td><td>$8–12</td></tr>
+    <tr><td>Magnetic USB-C dock (1C)</td><td>1</td><td>Volo or similar</td><td>$35–50</td></tr>
+    <tr><td>Aluminum sheet stock (cover)</td><td>1</td><td>6061-T6, 2mm × 60 × 30mm</td><td>$15–25</td></tr>
+    <tr><td>Anodizing / powder coat</td><td>1</td><td>Professional finish service</td><td>$30–60</td></tr>
+  </table>
+</div>
+
+</div><!-- /opt1 -->
+
+<!-- ============================================================ -->
+<!-- OPTION 2: SIDE-MOUNT MAGNETIC -->
+<!-- ============================================================ -->
+<div class="option-panel" id="opt2">
+
+<div class="philo">Attach to the side of your Framework using strong magnets or adhesive-backed strips. The pocket protrudes slightly from the laptop edge — external but secure.</div>
+
+<div class="spec-section">
+  <div class="spec-section-title">Outer Housing</div>
+  <table class="spec-table">
+    <tr><th>Parameter</th><th>Specification</th></tr>
+    <tr><td>Overall dimensions</td><td>70 × 35 × 15–18mm</td></tr>
+    <tr><td>Material</td><td>PETG 3D printed or aluminum</td></tr>
+    <tr><td>Wall thickness</td><td>2–3mm</td></tr>
+    <tr><td>Weight</td><td>&lt;80g (magnet load limit)</td></tr>
+    <tr><td>Mounting surface</td><td>60 × 25mm flat adhesive pad area</td></tr>
+  </table>
+</div>
+
+<div class="spec-section">
+  <div class="spec-section-title">USB-C Pocket (Key Storage Cavity)</div>
+  <table class="spec-table">
+    <tr><th>Parameter</th><th>Specification</th></tr>
+    <tr><td>Pocket depth</td><td>12–15mm</td></tr>
+    <tr><td>Pocket width</td><td>22mm</td></tr>
+    <tr><td>Pocket length</td><td>50mm</td></tr>
+    <tr><td>USB-C opening</td><td>9 × 3mm</td></tr>
+    <tr><td>Bottom drainage</td><td>2–3 vent holes (2mm dia) — condensation prevention</td></tr>
+    <tr><td>Internal draft angle</td><td>2–3°</td></tr>
+  </table>
+</div>
+
+<div class="spec-section">
+  <div class="spec-section-title">Sliding Cover Mechanism</div>
+  <table class="spec-table">
+    <tr><th>Parameter</th><th>Specification</th></tr>
+    <tr><td>Cover material</td><td>Anodized aluminum 2mm or PETG 3mm</td></tr>
+    <tr><td>Cover dimensions</td><td>75 × 37 × 2–3mm</td></tr>
+    <tr><td>Travel distance</td><td>50mm</td></tr>
+    <tr><td>Guide mechanism</td><td>PTFE-lined groove channels OR ball bearing rails</td></tr>
+    <tr><td>Groove depth</td><td>4mm (top/bottom)</td></tr>
+    <tr><td>Detent/stop</td><td>Magnetic catch N52 5×5×2mm at closed; optional spring-loaded at open</td></tr>
+    <tr><td>Friction target</td><td>250–350g drag</td></tr>
+  </table>
+</div>
+
+<div class="spec-section">
+  <div class="spec-section-title">Mounting Hardware</div>
+  <table class="spec-table">
+    <tr><th>Parameter</th><th>Specification</th></tr>
+    <tr><td>Mounting method</td><td>4× neodymium magnets (N52, 10×10×5mm)</td></tr>
+    <tr><td>Magnet placement</td><td>Corners, 10mm inset from edges</td></tr>
+    <tr><td>Holding force/magnet</td><td>~11 lbs (total ~44 lbs all 4)</td></tr>
+    <tr><td>Installation</td><td>Epoxy into rear pockets (NOT adhesive tape)</td></tr>
+    <tr><td>Backup retention</td><td>3M VHB tape on mounting surface</td></tr>
+    <tr><td>Mounting location</td><td>Right side (near expansion slot) or left (near hinge)</td></tr>
+  </table>
+</div>
+
+<!-- USB SUB-OPTIONS -->
+<div class="sub-options">
+  <div class="sub-option-label">USB Connectivity</div>
+  <div class="sub-option-group" data-group="usb2">
+    <button class="sub-btn active" data-sub="usb2a"><span class="sub-tag">2A</span>External Cable</button>
+    <button class="sub-btn" data-sub="usb2b"><span class="sub-tag">2B</span>Internal Routing</button>
+  </div>
+
+  <div class="sub-detail active" id="usb2a">
+    <h4>2A: External USB-C Cable</h4>
+    <table class="spec-table">
+      <tr><td>Cable type</td><td>USB-C to USB-C, 20cm, right-angle connectors</td></tr>
+      <tr><td>Routing</td><td>Exits rear of pocket → clips along laptop edge to USB-C port</td></tr>
+      <tr><td>Cable management</td><td>Clips or velcro strips along edge</td></tr>
+      <tr><td>Cost</td><td>$12–20</td></tr>
+    </table>
+    <div class="pros-cons">
+      <div><div class="pro-item">No internal routing, easy to prototype</div></div>
+      <div><div class="con-item">Visible cable, less integrated</div></div>
+    </div>
+  </div>
+
+  <div class="sub-detail" id="usb2b">
+    <h4>2B: Internal USB Routing</h4>
+    <table class="spec-table">
+      <tr><td>Connector type</td><td>USB 3.1 Type-C right-angle receptacle</td></tr>
+      <tr><td>Routing</td><td>Cable inside pocket → exits through mounting surface slot</td></tr>
+      <tr><td>Connection</td><td>Routes under chassis or along edge with clips to Framework port</td></tr>
+      <tr><td>Cost</td><td>$25–35</td></tr>
+    </table>
+    <div class="pros-cons">
+      <div><div class="pro-item">Cleaner appearance</div></div>
+      <div><div class="con-item">More complex cable management</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MATERIAL SELECTION -->
+<div class="sub-options">
+  <div class="sub-option-label">Manufacturing Method</div>
+  <div class="mat-cards" data-group="mat2">
+    <div class="mat-card active" data-mat="fdm2">
+      <h5>FDM 3D Print</h5>
+      <div class="mat-material">PETG</div>
+      <p>Layer: 0.2mm. Infill: 25% (magnet pocket support). ~8–10hr print. Reinforce magnet pockets with epoxy/CA glue.</p>
+    </div>
+    <div class="mat-card" data-mat="sls2">
+      <h5>SLS 3D Print</h5>
+      <div class="mat-material">Nylon PA12</div>
+      <p>Stronger for magnet retention. Service print $90–140.</p>
+    </div>
+    <div class="mat-card" data-mat="cnc2">
+      <h5>CNC Machined</h5>
+      <div class="mat-material">Aluminum 6061-T6</div>
+      <p>Local machine shop. $150–250.</p>
+    </div>
+  </div>
+</div>
+
+<!-- COST -->
+<div class="cost-panel" id="cost2">
+  <div class="cost-grid">
+    <div class="cost-tier">
+      <div class="cost-tier-label">FDM + Mounting</div>
+      <div class="cost-tier-val">$50–80</div>
+      <div class="cost-tier-note">DIY minimum</div>
+    </div>
+    <div class="cost-tier">
+      <div class="cost-tier-label">SLS + Mounting</div>
+      <div class="cost-tier-val">$120–180</div>
+      <div class="cost-tier-note">Pro print service</div>
+    </div>
+    <div class="cost-tier">
+      <div class="cost-tier-label">CNC Aluminum</div>
+      <div class="cost-tier-val">$180–290</div>
+      <div class="cost-tier-note">Machine shop</div>
+    </div>
+  </div>
+</div>
+
+<!-- PARTS -->
+<div class="spec-section">
+  <div class="spec-section-title">Parts List</div>
+  <table class="parts-table">
+    <tr><th>Part</th><th>Qty</th><th>Spec</th><th>Cost</th></tr>
+    <tr><td>Neodymium magnets</td><td>4</td><td>10×10×5mm, N52</td><td>$15–25</td></tr>
+    <tr><td>3M VHB tape</td><td>1</td><td>25×50mm, outdoor-rated</td><td>$8–12</td></tr>
+    <tr><td>PTFE sheet</td><td>1</td><td>4mm × 100 × 60mm</td><td>$12–18</td></tr>
+    <tr><td>Ball bearing rails (optional)</td><td>2</td><td>50mm length, 5mm rods</td><td>$25–40</td></tr>
+    <tr><td>USB-C to USB-C cable (2A)</td><td>1</td><td>20cm, right-angle</td><td>$12–20</td></tr>
+    <tr><td>Ferrite bead + shielded cable (2B)</td><td>1</td><td>10cm micro-USB shielded</td><td>$10–15</td></tr>
+    <tr><td>Epoxy adhesive</td><td>1</td><td>Loctite or equiv</td><td>$5–8</td></tr>
+  </table>
+</div>
+
+</div><!-- /opt2 -->
+
+<!-- ============================================================ -->
+<!-- OPTION 3: CLIP-ON SIDE POCKET -->
+<!-- ============================================================ -->
+<div class="option-panel" id="opt3">
+
+<div class="philo">Clamp onto the Framework's edge like a bookend. Removable, requires no adhesive or magnets — purely mechanical retention. The most portable option.</div>
+
+<div class="spec-section">
+  <div class="spec-section-title">Outer Housing</div>
+  <table class="spec-table">
+    <tr><th>Parameter</th><th>Specification</th></tr>
+    <tr><td>Overall dimensions</td><td>65 × 40 × 20mm (when clamped)</td></tr>
+    <tr><td>Material</td><td>PETG 3D printed or aluminum</td></tr>
+    <tr><td>Wall thickness</td><td>2–3mm (body) / 3–4mm (clamp jaw)</td></tr>
+    <tr><td>Weight</td><td>&lt;100g</td></tr>
+  </table>
+</div>
+
+<div class="spec-section">
+  <div class="spec-section-title">Clamp Mechanism</div>
+  <table class="spec-table">
+    <tr><th>Parameter</th><th>Specification</th></tr>
+    <tr><td>Jaw spread</td><td>15–20mm (adjustable for Framework's 10–12mm edge)</td></tr>
+    <tr><td>Jaw depth</td><td>25mm horizontal reach</td></tr>
+    <tr><td>Clamping mechanism</td><td>Screw clamp (knurled M4 + nylon insert nut) OR lever clamp (toggle)</td></tr>
+    <tr><td>Clamping force</td><td>8–12 lbs (holds firm, won't warp chassis)</td></tr>
+    <tr><td>Jaw surface</td><td>Rubberized or PTFE-coated (scratch prevention)</td></tr>
+    <tr><td>Clamp location</td><td>Right edge (typical)</td></tr>
+  </table>
+</div>
+
+<div class="spec-section">
+  <div class="spec-section-title">USB-C Pocket (Key Storage Cavity)</div>
+  <table class="spec-table">
+    <tr><th>Parameter</th><th>Specification</th></tr>
+    <tr><td>Pocket depth</td><td>12–15mm</td></tr>
+    <tr><td>Pocket width</td><td>22mm</td></tr>
+    <tr><td>Pocket length</td><td>50mm</td></tr>
+    <tr><td>USB-C opening</td><td>9 × 3mm</td></tr>
+    <tr><td>Vent holes</td><td>3× 2mm dia (drainage)</td></tr>
+  </table>
+</div>
+
+<div class="spec-section">
+  <div class="spec-section-title">Sliding Cover Mechanism</div>
+  <table class="spec-table">
+    <tr><th>Parameter</th><th>Specification</th></tr>
+    <tr><td>Cover material</td><td>Aluminum or PETG</td></tr>
+    <tr><td>Cover dimensions</td><td>70 × 40 × 2–3mm</td></tr>
+    <tr><td>Travel distance</td><td>45–50mm</td></tr>
+    <tr><td>Guide type</td><td>PTFE-lined grooves OR ball bearing rails</td></tr>
+    <tr><td>Detent</td><td>Magnetic catch at fully closed</td></tr>
+    <tr><td>Friction target</td><td>250–350g</td></tr>
+  </table>
+</div>
+
+<!-- USB SUB-OPTIONS -->
+<div class="sub-options">
+  <div class="sub-option-label">USB Connectivity</div>
+  <div class="sub-option-group" data-group="usb3">
+    <button class="sub-btn active" data-sub="usb3a"><span class="sub-tag">3A</span>External Cable</button>
+    <button class="sub-btn" data-sub="usb3b"><span class="sub-tag">3B</span>Internal Pass-Through</button>
+  </div>
+
+  <div class="sub-detail active" id="usb3a">
+    <h4>3A: External USB-C Cable</h4>
+    <table class="spec-table">
+      <tr><td>Cable type</td><td>USB-C to USB-C, 25cm (longer due to clamp positioning)</td></tr>
+      <tr><td>Routing</td><td>Exits pocket → clips along laptop edge to USB port</td></tr>
+      <tr><td>Cost</td><td>$15–25</td></tr>
+    </table>
+    <div class="pros-cons">
+      <div><div class="pro-item">Simple, no internal routing</div></div>
+      <div><div class="con-item">Visible cable</div></div>
+    </div>
+  </div>
+
+  <div class="sub-detail" id="usb3b">
+    <h4>3B: Internal USB Pass-Through</h4>
+    <table class="spec-table">
+      <tr><td>Connector type</td><td>USB 3.1 Type-C receptacle on clamp base</td></tr>
+      <tr><td>Routing</td><td>Through clamp structure to Framework port</td></tr>
+      <tr><td>Cost</td><td>$25–40</td></tr>
+    </table>
+    <div class="pros-cons">
+      <div><div class="pro-item">Clean, integrated through clamp body</div></div>
+      <div><div class="con-item">Complex cable management inside clamp</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MATERIAL SELECTION -->
+<div class="sub-options">
+  <div class="sub-option-label">Manufacturing Method</div>
+  <div class="mat-cards" data-group="mat3">
+    <div class="mat-card active" data-mat="fdm3">
+      <h5>FDM 3D Print</h5>
+      <div class="mat-material">PETG</div>
+      <p>Needs strength for clamp mechanism. Higher infill on jaw areas. Reinforce with metal inserts if needed.</p>
+    </div>
+    <div class="mat-card" data-mat="sls3">
+      <h5>SLS 3D Print</h5>
+      <div class="mat-material">Nylon PA12</div>
+      <p>Best strength for mechanical clamp. Service print.</p>
+    </div>
+    <div class="mat-card" data-mat="cnc3">
+      <h5>CNC Machined</h5>
+      <div class="mat-material">Aluminum 6061-T6</div>
+      <p>Most durable clamp. Premium option.</p>
+    </div>
+  </div>
+</div>
+
+<!-- COST -->
+<div class="cost-panel" id="cost3">
+  <div class="cost-grid">
+    <div class="cost-tier">
+      <div class="cost-tier-label">FDM + Clamp HW</div>
+      <div class="cost-tier-val">$55–85</div>
+      <div class="cost-tier-note">DIY minimum</div>
+    </div>
+    <div class="cost-tier">
+      <div class="cost-tier-label">SLS + Clamp HW</div>
+      <div class="cost-tier-val">$130–190</div>
+      <div class="cost-tier-note">Pro print service</div>
+    </div>
+    <div class="cost-tier">
+      <div class="cost-tier-label">CNC Aluminum</div>
+      <div class="cost-tier-val">$200–320</div>
+      <div class="cost-tier-note">Machine shop</div>
+    </div>
+  </div>
+</div>
+
+<!-- PARTS -->
+<div class="spec-section">
+  <div class="spec-section-title">Parts List</div>
+  <table class="parts-table">
+    <tr><th>Part</th><th>Qty</th><th>Spec</th><th>Cost</th></tr>
+    <tr><td>Knurled M4 bolt + nylon insert nut</td><td>1</td><td>20mm length, stainless</td><td>$3–5</td></tr>
+    <tr><td>Rubber/PTFE jaw pads</td><td>2</td><td>25 × 10 × 2mm</td><td>$5–8</td></tr>
+    <tr><td>Neodymium magnets (cover detent)</td><td>2</td><td>5×5×2mm, N52</td><td>$5–10</td></tr>
+    <tr><td>PTFE sheet (guide grooves)</td><td>1</td><td>3mm × 80 × 50mm</td><td>$10–15</td></tr>
+    <tr><td>Ball bearing rails (optional)</td><td>2</td><td>45mm length, 5mm rods</td><td>$25–40</td></tr>
+    <tr><td>USB-C to USB-C cable (3A)</td><td>1</td><td>25cm, right-angle</td><td>$15–25</td></tr>
+    <tr><td>USB 3.1 Type-C receptacle (3B)</td><td>1</td><td>Right-angle, 24-pin</td><td>$8–15</td></tr>
+  </table>
+</div>
+
+</div><!-- /opt3 -->
+
+<!-- ============================================================ -->
+<!-- COMPARISON TABLE -->
+<!-- ============================================================ -->
+<div class="section-tag">[ § 02 ] COMPARISON</div>
+<div class="section-title">At a Glance</div>
+
+<table class="spec-table" style="margin-bottom:48px;">
+  <tr><th></th><th style="text-align:center;">Option 1: Expansion Card</th><th style="text-align:center;">Option 2: Side-Mount</th><th style="text-align:center;">Option 3: Clip-On</th></tr>
+  <tr><td>Integration</td><td style="text-align:center;">★★★★★</td><td style="text-align:center;">★★★☆☆</td><td style="text-align:center;">★★☆☆☆</td></tr>
+  <tr><td>Portability</td><td style="text-align:center;">★★★★★</td><td style="text-align:center;">★★★☆☆</td><td style="text-align:center;">★★★★☆</td></tr>
+  <tr><td>Complexity</td><td style="text-align:center;">Medium–High</td><td style="text-align:center;">Medium</td><td style="text-align:center;">Medium</td></tr>
+  <tr><td>Slot sacrifice</td><td style="text-align:center;">Yes (1 expansion slot)</td><td style="text-align:center;">No</td><td style="text-align:center;">No</td></tr>
+  <tr><td>Reversibility</td><td style="text-align:center;">Full (swap card out)</td><td style="text-align:center;">Partial (magnets/VHB)</td><td style="text-align:center;">Full (unclamp)</td></tr>
+  <tr><td>Protrusion</td><td style="text-align:center;">None (flush)</td><td style="text-align:center;">15–18mm</td><td style="text-align:center;">20mm</td></tr>
+  <tr><td>Min cost (FDM)</td><td style="text-align:center;font-family:var(--mono);color:var(--gold);">$40</td><td style="text-align:center;font-family:var(--mono);color:var(--gold);">$50</td><td style="text-align:center;font-family:var(--mono);color:var(--gold);">$55</td></tr>
+</table>
+
+<!-- FOOTER -->
+<div class="site-footer">
+  <div class="footer-org">ARX Foundation · Hardware Division</div>
+  <p>Framework YubiKey Pocket Spec Sheet v1.0 · April 2026</p>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+/* Theme Toggle */
+let isDark = false;
+const themeBtn = document.getElementById('theme-btn');
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  themeBtn.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+}
+
+/* Option Tabs */
+document.querySelectorAll('.option-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.option-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.option-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.opt).classList.add('active');
+  });
+});
+
+/* Sub-option buttons */
+document.querySelectorAll('.sub-option-group').forEach(group => {
+  group.querySelectorAll('.sub-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Deactivate siblings
+      group.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // Show corresponding detail
+      const panel = btn.closest('.option-panel') || btn.closest('.sub-options').parentElement;
+      const groupName = group.dataset.group;
+      // Hide all sub-details that belong to this group
+      const prefix = groupName; // e.g. "usb1", "usb2", "usb3"
+      panel.querySelectorAll('.sub-detail').forEach(d => {
+        if (d.id.startsWith(prefix)) d.classList.remove('active');
+      });
+      document.getElementById(btn.dataset.sub).classList.add('active');
+    });
+  });
+});
+
+/* Material cards */
+document.querySelectorAll('.mat-cards').forEach(group => {
+  group.querySelectorAll('.mat-card').forEach(card => {
+    card.addEventListener('click', () => {
+      group.querySelectorAll('.mat-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+    });
+  });
+});
+</script>
+</body>
+</html>

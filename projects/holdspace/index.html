@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>Holdspace — ARX Commons Infrastructure</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --theme: light;
+  --bg: #F5EFE4;
+  --bg2: #EDE5D6;
+  --border: #C8BEA8;
+  --text: #2A1F14;
+  --text2: #5A4030;
+  --text3: #8A7060;
+  --rust: #7A3A1A;
+  --rust2: #9B4A22;
+  --gold: #8B6914;
+  --indigo: #2D2A5E;
+  --indigo2: #4A4690;
+  --serif: 'Crimson Pro', serif;
+  --display: 'IM Fell English', serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+body[data-theme="dark"] {
+  --bg: #1a2417;
+  --bg2: #2d3a31;
+  --border: #3d5640;
+  --text: #e8dcc8;
+  --text2: #b8a890;
+  --text3: #8b9e82;
+  --rust: #d4a574;
+  --rust2: #e8b88d;
+  --gold: #b8911c;
+  --indigo: #4a5e6d;
+  --indigo2: #6a8fb8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: clamp(15px, 2.5vw, 17px);
+  line-height: 1.75;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+#progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--rust);
+  z-index: 101;
+  transition: width 0.1s linear;
+}
+
+.header {
+  background: var(--bg2);
+  border-bottom: 2px solid var(--rust);
+  padding: clamp(10px, 3vw, 14px) clamp(16px, 4vw, 20px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(122,58,26,0.08);
+  min-height: 52px;
+  width: 100%;
+  gap: 12px;
+  transition: all 0.15s ease;
+}
+
+.header.collapsed {
+  padding: 6px clamp(12px, 3vw, 16px);
+  min-height: 36px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 2vw, 10px);
+  flex: 1;
+  min-width: 0;
+}
+
+.arx-logo {
+  width: clamp(24px, 4vw, 32px);
+  height: clamp(24px, 4vw, 32px);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--rust);
+  border-radius: 2px;
+  background: transparent;
+  transition: all 0.2s;
+  font-family: var(--mono);
+  font-size: clamp(6px, 1.2vw, 8px);
+  letter-spacing: 0.5px;
+  color: var(--rust);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.header:hover .arx-logo {
+  border-color: var(--gold);
+}
+
+.header-title {
+  font-family: var(--display);
+  font-size: clamp(13px, 3vw, 16px);
+  color: var(--text);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+  flex: 1;
+  min-width: 0;
+}
+
+.header.collapsed .header-title {
+  opacity: 0;
+  width: 0;
+  flex: 0;
+}
+
+.header-right {
+  font-family: var(--mono);
+  font-size: clamp(7px, 1.5vw, 8px);
+  color: var(--text3);
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-toggle {
+  padding: clamp(3px, 1.5vw, 4px) clamp(6px, 1.5vw, 8px);
+  border: 1px solid var(--rust);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: clamp(7px, 1.5vw, 8px);
+  cursor: pointer;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.theme-toggle:hover {
+  background: var(--bg2);
+  border-color: var(--gold);
+}
+
+.tab-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 clamp(12px, 3vw, 16px);
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  position: sticky;
+  top: 52px;
+  z-index: 99;
+  width: 100%;
+  scroll-behavior: smooth;
+}
+
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab {
+  padding: clamp(8px, 2vw, 10px) clamp(12px, 2.5vw, 16px);
+  font-family: var(--mono);
+  font-size: clamp(8px, 1.8vw, 9px);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  user-select: none;
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+
+.tab:hover { color: var(--rust2); }
+.tab.active { color: var(--rust); border-bottom-color: var(--rust); }
+
+.panels {
+  position: relative;
+  z-index: 1;
+  padding: clamp(16px, 4vw, 24px) clamp(16px, 4vw, 20px) clamp(80px, 20vw, 120px);
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  overflow: hidden;
+  min-height: 400px;
+}
+
+.panel {
+  display: none;
+  opacity: 0;
+}
+
+.panel.active {
+  display: block;
+  animation: fadeUp 0.25s ease forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(10px, 2vw, 16px);
+  margin-bottom: clamp(16px, 3vw, 20px);
+  margin-top: clamp(20px, 4vw, 28px);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: clamp(10px, 2vw, 12px);
+}
+
+.sec-head:first-child { margin-top: 0; }
+
+.sec-num {
+  font-family: var(--mono);
+  font-size: clamp(12px, 2vw, 14px);
+  color: var(--gold);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.sec-title {
+  font-family: var(--serif);
+  font-size: clamp(18px, 4vw, 24px);
+  color: var(--rust);
+  font-weight: 600;
+}
+
+.body-text { margin-bottom: clamp(16px, 3vw, 24px); }
+.body-text p { margin-bottom: clamp(10px, 2vw, 12px); }
+.body-text strong { color: var(--rust); font-weight: 600; }
+
+.proj-card {
+  background: var(--bg2);
+  border-left: 4px solid var(--rust);
+  padding: clamp(12px, 3vw, 16px);
+  margin-bottom: clamp(12px, 2vw, 16px);
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.proj-card:hover {
+  border-left-color: var(--gold);
+  box-shadow: 0 2px 12px rgba(122,58,26,0.06);
+}
+
+.proj-card h4 {
+  color: var(--rust);
+  font-size: clamp(16px, 3vw, 18px);
+  margin-bottom: clamp(6px, 1.5vw, 8px);
+  font-weight: 600;
+}
+
+.proj-card p {
+  font-size: clamp(14px, 2.2vw, 16px);
+  color: var(--text2);
+  margin-bottom: clamp(8px, 1.5vw, 10px);
+}
+
+.proj-meta {
+  font-family: var(--mono);
+  font-size: clamp(11px, 1.8vw, 12px);
+  color: var(--text3);
+  letter-spacing: 0.5px;
+}
+
+.callout {
+  background: rgba(122, 58, 26, 0.08);
+  border-left: 4px solid var(--gold);
+  padding: clamp(12px, 2vw, 14px) clamp(14px, 2vw, 16px);
+  margin: clamp(20px, 3vw, 24px) 0;
+  font-size: clamp(14px, 2.2vw, 16px);
+  color: var(--text2);
+  font-style: italic;
+}
+
+.sem-footer {
+  margin-top: clamp(20px, 3vw, 24px);
+  padding-top: clamp(12px, 2vw, 14px);
+  border-top: 1px solid var(--border);
+}
+
+.sem-footer-label {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.8vw, 11px);
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: clamp(8px, 1.5vw, 10px);
+}
+
+.sem-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(6px, 1.5vw, 8px);
+}
+
+.sem-chip {
+  background: rgba(139, 105, 20, 0.15);
+  border: 1px solid var(--gold);
+  color: var(--text2);
+  padding: clamp(4px, 1vw, 5px) clamp(8px, 1.5vw, 10px);
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.5vw, 11px);
+  border-radius: 12px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.sem-chip:hover {
+  background: rgba(139, 105, 20, 0.25);
+  border-color: var(--rust);
+}
+
+body[data-theme="dark"] .sem-chip {
+  background: rgba(184, 145, 28, 0.2);
+  border-color: var(--gold);
+  color: var(--text2);
+}
+
+.nav-footer {
+  margin-top: clamp(40px, 5vw, 60px);
+  padding-top: clamp(20px, 3vw, 24px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: clamp(12px, 3vw, 16px);
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  padding: clamp(8px, 2vw, 10px) clamp(12px, 2.5vw, 16px);
+  font-family: var(--mono);
+  font-size: clamp(11px, 2vw, 12px);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text);
+  background: rgba(122, 58, 26, 0.08);
+  border: 1px solid var(--rust);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  touch-action: manipulation;
+  flex: 1;
+  min-width: 140px;
+}
+
+.nav-btn:hover {
+  background: rgba(122, 58, 26, 0.15);
+  border-color: var(--gold);
+  color: var(--rust);
+}
+
+.nav-btn:active { transform: scale(0.98); }
+
+/* Holdspace-specific: problem/solution two-column block */
+.split-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(12px, 2vw, 16px);
+  margin-bottom: clamp(16px, 3vw, 24px);
+}
+
+@media (max-width: 560px) {
+  .split-block { grid-template-columns: 1fr; }
+}
+
+.split-cell {
+  background: var(--bg2);
+  border-top: 3px solid var(--border);
+  padding: clamp(12px, 2vw, 16px);
+  border-radius: 2px;
+}
+
+.split-cell.problem { border-top-color: var(--indigo); }
+.split-cell.solution { border-top-color: var(--rust); }
+
+.split-label {
+  font-family: var(--mono);
+  font-size: clamp(9px, 1.5vw, 10px);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+
+.split-cell.problem .split-label { color: var(--indigo2); }
+.split-cell.solution .split-label { color: var(--rust2); }
+
+.split-cell p {
+  font-size: clamp(13px, 2vw, 15px);
+  color: var(--text2);
+  line-height: 1.65;
+}
+
+/* Layer stack diagram */
+.layer-stack {
+  margin: clamp(16px, 3vw, 24px) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.layer {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2vw, 16px);
+  background: var(--bg2);
+  border-left: 4px solid var(--border);
+  padding: clamp(10px, 2vw, 14px) clamp(12px, 2vw, 16px);
+  border-radius: 2px;
+  transition: border-color 0.2s;
+}
+
+.layer:hover { border-left-color: var(--rust); }
+.layer.l1 { border-left-color: var(--rust); }
+.layer.l2 { border-left-color: var(--gold); }
+.layer.l3 { border-left-color: var(--indigo); }
+
+.layer-num {
+  font-family: var(--mono);
+  font-size: clamp(9px, 1.5vw, 10px);
+  color: var(--text3);
+  letter-spacing: 1px;
+  min-width: 28px;
+  flex-shrink: 0;
+}
+
+.layer-name {
+  font-family: var(--mono);
+  font-size: clamp(12px, 2vw, 13px);
+  color: var(--rust);
+  font-weight: 500;
+  min-width: clamp(100px, 18vw, 160px);
+  flex-shrink: 0;
+}
+
+.layer-desc {
+  font-size: clamp(13px, 2vw, 15px);
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+/* Status badge inline */
+.badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: clamp(9px, 1.5vw, 10px);
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+.badge.seed { border-color: var(--gold); color: var(--gold); background: rgba(139,105,20,0.1); }
+.badge.active { border-color: var(--rust); color: var(--rust); background: rgba(122,58,26,0.1); }
+.badge.concept { border-color: var(--indigo2); color: var(--indigo2); background: rgba(45,42,94,0.08); }
+
+@media (max-width: 480px) {
+  .nav-footer { flex-direction: column; gap: 8px; }
+  .nav-btn { width: 100%; min-width: auto; }
+}
+
+@media (max-width: 768px) {
+  .panels { padding: 12px clamp(12px, 3vw, 16px) 80px; min-height: 300px; }
+  .header-right { gap: 4px; }
+  .layer-name { min-width: 90px; }
+}
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Up next</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Queued to build next.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=Holdspace%20—%20ARX%20Commons%20Infrastructure" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div id="progress"></div>
+
+<div id="main-header" class="header">
+  <div class="header-left">
+    <div class="arx-logo">ARX</div>
+    <div class="header-title">Holdspace — ARX Commons Infrastructure</div>
+  </div>
+  <div class="header-right">
+    <span style="display:none" class="header-meta">ARX #75 · Seed · May 2026</span>
+    <button id="theme-btn" class="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab" onclick="switchTab('tab1')">Overview</div>
+  <div class="tab" onclick="switchTab('tab2')">Layers</div>
+  <div class="tab" onclick="switchTab('tab3')">Architecture</div>
+  <div class="tab" onclick="switchTab('tab4')">Research</div>
+  <div class="tab" onclick="switchTab('tab5')">ARX Context</div>
+</div>
+
+<div class="panels">
+
+<!-- TAB 1: OVERVIEW -->
+<div class="panel" id="panel-tab1">
+
+  <div class="sec-head"><span class="sec-num">§ 01</span><span class="sec-title">Holdspace</span></div>
+  <div class="body-text">
+    <p><strong>Sovereign personal logistics infrastructure.</strong> Holdspace is the hypothesis that the warehouse-scale item tracking and last-mile routing infrastructure Amazon built for commerce can be restructured as a personal ownership utility — a place where your stuff lives, not a place you buy more stuff from.</p>
+    <p>You pay a per-item storage fee, not a flat unit rate. Your items have addresses. You can have them routed to wherever you are. You can opt into a library-economy layer and lend idle items within a trust network in exchange for storage credits. The technology stack is almost entirely solved. The only thing Amazon built that doesn't exist in this model is the seller.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 01.1</span><span class="sec-title">Origin & Current State</span></div>
+  <div class="body-text">
+    <p>Concept surfaced May 2026 during a conversation about van life logistics and the inefficiency of traditional self-storage. The core observation: self-storage charges retail margins on industrial cubic footage, provides zero routing capability, and treats every item the same regardless of size, access frequency, or value. Amazon's fulfillment infrastructure solves all three of those problems at scale — but gates access behind commerce.</p>
+    <p>This is a seed-stage concept. No code written, no organizational structure determined. The immediate value of this document is establishing the idea with enough precision to evaluate overlap with existing ARX workstreams and identify the first tractable build target.</p>
+  </div>
+
+  <div class="split-block">
+    <div class="split-cell problem">
+      <div class="split-label">Problem</div>
+      <p>You own things. Those things require physical space. Space is charged at retail rates via self-storage, penalizes mobility, provides no routing, and has zero item-level intelligence. For nomadic or semi-nomadic life — or anyone who accumulates meaningful physical assets — the current model is pure friction.</p>
+    </div>
+    <div class="split-cell solution">
+      <div class="split-label">Holdspace Hypothesis</div>
+      <p>Warehouse-grade item custody at cooperative cost-basis. Per-item storage fees, bin-level location tracking, on-demand routing to any address. Optional library-economy layer for idle items. Ownership never changes; logistics infrastructure serves the owner, not the platform.</p>
+    </div>
+  </div>
+
+  <div class="callout">Amazon already built this. The question is why it only works if you're buying something.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Status</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">ARX #75 · Seed</span>
+      <span class="sem-chip">Commons Infrastructure</span>
+      <span class="sem-chip">No Code Yet</span>
+      <span class="sem-chip">Concept Complete</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab2')">Next: Layers →</button>
+  </div>
+</div>
+
+<!-- TAB 2: LAYERS -->
+<div class="panel" id="panel-tab2">
+
+  <div class="sec-head"><span class="sec-num">§ 02</span><span class="sec-title">System Layers</span></div>
+  <div class="body-text">
+    <p>Holdspace is three distinct systems that can be built and deployed independently. Each layer adds capability to the one below it; none requires the layers above it to function.</p>
+  </div>
+
+  <div class="proj-card">
+    <h4>L1 — Custody Layer <span class="badge active">Core</span></h4>
+    <p>Sovereign personal warehousing. Items ingested at intake, photographed, weighed, dimensioned, assigned a bin address. Owner retains legal custody at all times. Storage billed per-item per-month based on cubic volume occupied, not flat unit rate. No minimum. No long-term contract. Routing requests trigger pick-pack-ship at cost-plus. This layer is functionally identical to Amazon FBA from a logistics standpoint, except the customer is the owner and the item is never for sale.</p>
+    <div class="proj-meta">Dependencies: None | Build complexity: High (physical ops) | Revenue model: Per-item storage + routing fees</div>
+  </div>
+
+  <div class="proj-card">
+    <h4>L2 — Library Economy Layer <span class="badge concept">Opt-in</span></h4>
+    <p>Trust-network item lending built on top of the custody layer. Owners opt specific items into a lending pool. Borrowers within the trust network (friends, community, verified strangers tiered by reputation) can request those items for defined loan periods. The owner earns storage credits when their idle items are borrowed. This is not a marketplace — items are never bought or sold. Lending is the mechanism; ownership is the invariant. Damage/loss is covered by a cooperative insurance pool funded by a small percentage of all storage fees.</p>
+    <div class="proj-meta">Dependencies: L1 | Build complexity: Medium (software + policy) | Revenue model: Storage credit differential + insurance pool</div>
+  </div>
+
+  <div class="proj-card">
+    <h4>L3 — Sovereignty Layer <span class="badge seed">Research</span></h4>
+    <p>Cooperative ownership of the physical infrastructure itself. Rather than a single operator owning the warehouses, the cooperative model distributes ownership to members proportionally to their storage footprint and tenure. Governance is on-chain or through a formal cooperative charter. The long-term thesis is that if the infrastructure itself is owned by its users, the extraction incentive that drove Amazon to build this only for commerce disappears by design. This is the hardest layer — it requires capital formation, real estate, and governance that doesn't yet exist.</p>
+    <div class="proj-meta">Dependencies: L1 + L2 | Build complexity: Very High (legal + capital + ops) | Revenue model: Cooperative surplus distribution</div>
+  </div>
+
+  <div class="callout">Build order: L1 as a single-operator pilot with cooperative intent baked into the charter. L2 unlocks once the first warehouse is operational and has 100+ active members. L3 is the 5–10 year target.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Layer Stack</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">L1 — Custody</span>
+      <span class="sem-chip">L2 — Library</span>
+      <span class="sem-chip">L3 — Cooperative Ownership</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab1')">← Overview</button>
+    <button class="nav-btn" onclick="switchTab('tab3')">Next: Architecture →</button>
+  </div>
+</div>
+
+<!-- TAB 3: ARCHITECTURE -->
+<div class="panel" id="panel-tab3">
+
+  <div class="sec-head"><span class="sec-num">§ 03</span><span class="sec-title">Technical Architecture</span></div>
+  <div class="body-text">
+    <p>The technical surface area of Holdspace is split between physical operations infrastructure and software. The physical ops layer requires real-world capital and partners; the software layer is fully buildable in ARX standard stack.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 03.1</span><span class="sec-title">Item Identity & Tracking</span></div>
+  <div class="body-text">
+    <p><strong>Intake protocol.</strong> Every item receives a unique ID on ingestion. Physical label (QR + barcode), photograph from 3 angles, weight, L×W×H dimensions, declared value, owner ID, and optional description. All stored in the item ledger. This is the foundation — without accurate item identity, nothing else works.</p>
+    <p><strong>Location addressing.</strong> Warehouse space is addressed hierarchically: facility → zone → row → bay → bin. Every item has a bin address at all times. Moves are logged. Pick lists are generated by bin address for routing fulfillment. This is standard WMS (Warehouse Management System) territory — open-source options exist (OpenBoxes, Odoo WMS module) that can be self-hosted on ARX infrastructure.</p>
+    <p><strong>Condition tracking.</strong> Photo-on-intake, photo-on-outbound. Condition delta is the liability surface. This is where most cooperative warehousing models break down — condition disputes between members. The insurance pool model insulates individual operators from this risk, but the condition documentation protocol has to be airtight at intake.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 03.2</span><span class="sec-title">Routing & Fulfillment</span></div>
+  <div class="body-text">
+    <p><strong>Owner-initiated routing.</strong> Owner submits a routing request via mobile interface: item ID(s), destination address, requested delivery window. System generates a pick list, item(s) are pulled from bin, packed, shipped via carrier API (EasyPost or Shippo for multi-carrier rate shopping), tracking number returned to owner. Cost = actual carrier rate + small labor overhead. No markup beyond sustainability margin.</p>
+    <p><strong>Temporary return custody.</strong> Owner can also request items be held at a local pickup point (partner USPS, UPS, or Holdspace-affiliated location near them) rather than shipped to a specific address. Critical for van life use case — destination may change between request and arrival.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 03.3</span><span class="sec-title">Trust & Lending Protocol</span></div>
+  <div class="body-text">
+    <p><strong>Trust tiers.</strong> Circle 0 = verified identity only. Circle 1 = vouched by existing member. Circle 2 = track record of 5+ successful loans. Each tier unlocks higher-value item categories for borrowing. Owners set their item's minimum trust tier at opt-in.</p>
+    <p><strong>Loan mechanics.</strong> Borrower requests item. Owner approves (or pre-approves by tier). Item is routed to borrower's address at borrower cost. Return shipping label included. Loan period is defined at request time; late return triggers graduated fee that credits the owner. Damage on return triggers insurance pool claim. Owner earns storage credit equal to the cost-basis storage of the loan period.</p>
+  </div>
+
+  <div class="layer-stack">
+    <div class="layer l1">
+      <div class="layer-num">L1</div>
+      <div class="layer-name">WMS Core</div>
+      <div class="layer-desc">Item identity, bin addressing, location tracking — OpenBoxes or Odoo, self-hosted Hetzner</div>
+    </div>
+    <div class="layer l1">
+      <div class="layer-num">L1</div>
+      <div class="layer-name">Routing API</div>
+      <div class="layer-desc">EasyPost / Shippo multi-carrier, owner-initiated pick-pack-ship pipeline</div>
+    </div>
+    <div class="layer l2">
+      <div class="layer-num">L2</div>
+      <div class="layer-name">Trust Graph</div>
+      <div class="layer-desc">Member identity, vouching, tier progression, loan history ledger</div>
+    </div>
+    <div class="layer l2">
+      <div class="layer-num">L2</div>
+      <div class="layer-name">Insurance Pool</div>
+      <div class="layer-desc">Cooperative damage/loss fund, funded by % of all storage fees, governed by member vote</div>
+    </div>
+    <div class="layer l3">
+      <div class="layer-num">L3</div>
+      <div class="layer-name">Cooperative Charter</div>
+      <div class="layer-desc">Member ownership proportional to storage footprint + tenure, governance layer TBD</div>
+    </div>
+  </div>
+
+  <div class="callout">The biggest unsolved problem isn't software — it's the cold-start logistics of getting members' items physically to the first facility. The pilot design needs to solve for intake volume before it solves for WMS sophistication.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Stack Candidates</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">OpenBoxes WMS</span>
+      <span class="sem-chip">EasyPost</span>
+      <span class="sem-chip">Hetzner VPS</span>
+      <span class="sem-chip">Docker Compose</span>
+      <span class="sem-chip">Tailscale</span>
+      <span class="sem-chip">Postgres</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab2')">← Layers</button>
+    <button class="nav-btn" onclick="switchTab('tab4')">Next: Research →</button>
+  </div>
+</div>
+
+<!-- TAB 4: RESEARCH -->
+<div class="panel" id="panel-tab4">
+
+  <div class="sec-head"><span class="sec-num">§ 04</span><span class="sec-title">Open Research Questions</span></div>
+
+  <div class="proj-card">
+    <h4>Cooperative Warehouse Economics</h4>
+    <p>What is the actual cost-per-cubic-foot at cooperative warehouse scale versus self-storage retail rates? How large does the member base need to be before per-item pricing undercuts a 5×5 storage unit in a major metro? Is there a viable single-city pilot size, or does this require multi-city density from day one?</p>
+    <div class="proj-meta">Papers: 0 | Status: Unstarted | Priority: High — gates everything downstream</div>
+  </div>
+
+  <div class="proj-card">
+    <h4>Precedents: Cooperative Physical Infrastructure</h4>
+    <p>REI (cooperative retail), credit unions (cooperative banking), housing cooperatives (cooperative real estate), tool libraries (cooperative tool custody). What governance models worked? Where did they fail to scale or capitulate to extraction pressure? The tool library model is the closest precedent for the L2 lending layer and deserves a deep read.</p>
+    <div class="proj-meta">Papers: 0 | Status: Unstarted | Priority: Medium — informs governance design</div>
+  </div>
+
+  <div class="proj-card">
+    <h4>Liability Surface Mapping</h4>
+    <p>When is the warehouse operator liable vs. the cooperative insurance pool vs. the borrowing member? What does existing bailee liability law look like for cooperative custody structures? Are there existing mutual insurance frameworks for peer-lending of physical goods (beyond Airbnb/Turo host protection) that could be adapted or referenced?</p>
+    <div class="proj-meta">Papers: 0 | Status: Unstarted | Priority: High — cannot build L2 without this resolved</div>
+  </div>
+
+  <div class="proj-card">
+    <h4>Urban Micro-Warehousing Landscape</h4>
+    <p>Last-mile logistics companies have been building urban micro-fulfillment centers since 2018. What does that real estate market look like? Are there underutilized commercial spaces (vacant retail, industrial loft conversions) that could serve as Holdspace pilot facilities at lower capital cost than purpose-built warehouses? What's the minimum viable footprint for a pilot that generates enough fee revenue to sustain itself?</p>
+    <div class="proj-meta">Papers: 0 | Status: Unstarted | Priority: Medium — pilot site selection research</div>
+  </div>
+
+  <div class="proj-card">
+    <h4>WMS Open Source Landscape</h4>
+    <p>OpenBoxes was built for humanitarian supply chains; it has deep item tracking and lot management but wasn't designed for consumer-owned inventory. Odoo's WMS module is more flexible but heavier. Is there an existing system worth forking, or does Holdspace need a custom WMS built on ARX standard stack? What does the minimum viable WMS look like for a 500-item pilot?</p>
+    <div class="proj-meta">Papers: 0 | Status: Unstarted | Priority: Medium — informs build vs. integrate decision</div>
+  </div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Research Domains</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">Cooperative Economics</span>
+      <span class="sem-chip">Logistics Infrastructure</span>
+      <span class="sem-chip">Bailee Liability Law</span>
+      <span class="sem-chip">Mutual Insurance</span>
+      <span class="sem-chip">WMS Systems</span>
+      <span class="sem-chip">Urban Real Estate</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab3')">← Architecture</button>
+    <button class="nav-btn" onclick="switchTab('tab5')">Next: ARX Context →</button>
+  </div>
+</div>
+
+<!-- TAB 5: ARX CONTEXT -->
+<div class="panel" id="panel-tab5">
+
+  <div class="sec-head"><span class="sec-num">§ 05</span><span class="sec-title">Position in the ARX Ecosystem</span></div>
+  <div class="body-text">
+    <p><strong>Holdspace is ARX project #75.</strong> It belongs to a cluster that doesn't have a formal name yet but is becoming visible across multiple projects: sovereign physical infrastructure — the application of the ARX anti-extraction thesis to the material world, not just software or hardware IP. Wayfinder (#74), CleanOps, and Waystone are all in this cluster.</p>
+    <p>The design ethos is the same across all of them: mature technology exists, the problem is an access model that gates that technology behind commerce or extraction. ARX's contribution is redesigning the access model, not rebuilding the technology stack.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 05.1</span><span class="sec-title">Overlap Analysis</span></div>
+  <div class="body-text">
+    <p><strong>Wayfinder (#74).</strong> Surface-level: both involve logistics and physical-world navigation. Actual overlap: design ethos only. Wayfinder is about where you can go and what resources exist at a location. Holdspace is about where your stuff is and how to get it to you. Different user flows, different tech stacks, different infrastructure requirements. They'd share a design language if both reach product stage.</p>
+    <p><strong>ARX CleanOps.</strong> Deeper overlap than Wayfinder. CleanOps restructures the economic access layer for cleaning services — same move Holdspace makes for storage. Both use a cooperative/commons model. Both have a "the technology is solved, the problem is ownership" thesis. CleanOps is further along (1,500+ line architecture doc, active pilot). Holdspace could borrow directly from CleanOps governance and insurance pool design.</p>
+    <p><strong>Waystone.</strong> Map-layer for public lands. Minimal functional overlap. Shared infrastructure target (Hetzner, Docker Compose, Tailscale) and design language.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 05.2</span><span class="sec-title">Van Life Use Case</span></div>
+  <div class="body-text">
+    <p>Holdspace was conceived during a period of active van life in Flux. The use case is immediate and personal: when you're mobile, you can't carry everything you own, but you don't want to surrender ownership or pay retail self-storage margins on items you need episodically. Holdspace as a service would mean: ship your winter gear to the warehouse when you hit summer latitudes, request it back when the season changes. Ship your photography equipment ahead to your destination. Keep your tools in custody while you're in the city, route them to you when you're at a build site.</p>
+    <p>This is the natural pilot demographic — nomadic workers, van lifers, people who've decoupled living space from stuff space. The trust-network lending layer adds a second axis: your gear earns its own storage costs while you're not using it.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 05.3</span><span class="sec-title">Dynasty Plan Fit</span></div>
+  <div class="body-text">
+    <p><strong>Holdspace is a long-horizon project.</strong> The L1 pilot requires physical infrastructure capital that doesn't exist in the current ARX budget. It's not a near-term revenue target. The value of scoping it now is establishing the idea precisely enough to recognize when the conditions for a pilot become available — a cooperative real estate opportunity, a capital partner, a city with density of nomadic workers, or a CleanOps-style sweat equity structure that makes the first facility viable without external funding.</p>
+    <p>The L2 library economy layer is potentially closer. A software-only MVP of the trust-network lending protocol — without warehouse infrastructure — could be piloted within an existing community (ARX collaborator network, a van life collective, a maker space) using members' own homes as distributed "custody." This compresses the capital requirement to zero and validates the trust model before committing to real estate.</p>
+  </div>
+
+  <div class="callout">The first tractable build target may not be a warehouse. It might be a distributed lending protocol that doesn't require one — and that proves the trust model before asking anyone to fund a building.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">ARX Cluster: Commons Infrastructure</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">ARX #74 Wayfinder</span>
+      <span class="sem-chip">ARX #75 Holdspace</span>
+      <span class="sem-chip">ARX CleanOps</span>
+      <span class="sem-chip">Waystone</span>
+      <span class="sem-chip">Van Life · Flux</span>
+      <span class="sem-chip">Dynasty Plan</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab4')">← Research</button>
+  </div>
+</div>
+
+</div><!-- /panels -->
+
+<script>
+const TAB_ORDER = ['tab1', 'tab2', 'tab3', 'tab4', 'tab5'];
+let isDarkMode = localStorage.getItem('arx-theme') === 'dark' || false;
+const mainHeader = document.getElementById('main-header');
+const themeBtn = document.getElementById('theme-btn');
+
+if (isDarkMode) {
+  document.body.setAttribute('data-theme', 'dark');
+  themeBtn.textContent = '☀ Light';
+}
+
+function toggleTheme() {
+  isDarkMode = !isDarkMode;
+  document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+  themeBtn.textContent = isDarkMode ? '☀ Light' : '🌙 Dark';
+  localStorage.setItem('arx-theme', isDarkMode ? 'dark' : 'light');
+}
+
+let isCollapsed = false;
+window.addEventListener('scroll', () => {
+  const should = window.scrollY > 40;
+  if (should !== isCollapsed) {
+    isCollapsed = should;
+    mainHeader.classList.toggle('collapsed', isCollapsed);
+  }
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  if (total > 0) {
+    document.getElementById('progress').style.width = (window.scrollY / total) * 100 + '%';
+  }
+}, { passive: true });
+
+function switchTab(tab) {
+  const tabEl = document.querySelector(`[onclick="switchTab('${tab}')"]`);
+  const panelEl = document.getElementById(`panel-${tab}`);
+  if (!tabEl || !panelEl) return;
+  panelEl.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => { if (p !== panelEl) p.classList.remove('active'); });
+  tabEl.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+document.querySelectorAll('.tab')[0].classList.add('active');
+document.getElementById('panel-tab1').classList.add('active');
+</script>
+
+</body>
+</html>

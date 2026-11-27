@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARX Tool Magnetism</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap');
+
+  :root {
+    --bg: #0a0a0b;
+    --panel: #111114;
+    --border: #1e1e24;
+    --accent: #00ff88;
+    --accent2: #ff4d00;
+    --accent3: #00b8ff;
+    --text: #e8e8ec;
+    --muted: #555560;
+    --epaper-bg: #e8e4d4;
+    --epaper-ink: #1a1814;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid noise texture */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: 
+      linear-gradient(rgba(0,255,136,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .header {
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .logo span { color: var(--muted); }
+
+  .status-bar {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .status-item {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  .dot.orange { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  .dot.blue { background: var(--accent3); box-shadow: 0 0 8px var(--accent3); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .main {
+    padding: 24px 32px;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    grid-template-rows: auto 1fr;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    min-height: calc(100vh - 70px);
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-family: 'Share Tech Mono', monospace;
+    margin-bottom: 16px;
+  }
+
+  /* Tool grid */
+  .tool-grid {
+    grid-column: 1;
+    grid-row: 1 / 3;
+  }
+
+  .tools {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .tool-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+  }
+
+  .tool-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .tool-card.missing { border-color: var(--accent2); }
+  .tool-card.near { border-color: #ffcc00; }
+
+  .tool-card-top {
+    padding: 14px 16px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .tool-name {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 1.1;
+  }
+
+  .tool-id {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    margin-top: 3px;
+  }
+
+  .tool-status-badge {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    font-family: 'Share Tech Mono', monospace;
+    padding: 3px 7px;
+    text-transform: uppercase;
+  }
+
+  .badge-home { background: rgba(0,255,136,0.1); color: var(--accent); }
+  .badge-missing { background: rgba(255,77,0,0.1); color: var(--accent2); animation: pulse 1.5s infinite; }
+  .badge-near { background: rgba(255,204,0,0.1); color: #ffcc00; }
+
+  /* E-paper display simulation */
+  .epaper {
+    background: var(--epaper-bg);
+    margin: 0 12px 12px;
+    padding: 10px;
+    position: relative;
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15), inset 2px 2px 4px rgba(0,0,0,0.08);
+  }
+
+  .epaper::before {
+    content: 'E-INK';
+    position: absolute;
+    top: 4px; right: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 7px;
+    color: rgba(26,24,20,0.3);
+    letter-spacing: 0.15em;
+  }
+
+  .epaper-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .arrow-display {
+    width: 52px; height: 52px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .arrow-display svg {
+    width: 100%; height: 100%;
+  }
+
+  .epaper-info {
+    flex: 1;
+  }
+
+  .epaper-distance {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 22px;
+    color: var(--epaper-ink);
+    line-height: 1;
+    font-weight: bold;
+  }
+
+  .epaper-slot {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: rgba(26,24,20,0.6);
+    letter-spacing: 0.15em;
+    margin-top: 4px;
+  }
+
+  .epaper-bearing {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: rgba(26,24,20,0.5);
+    margin-top: 2px;
+  }
+
+  .epaper.home-state {
+    background: #d4e8d4;
+  }
+
+  .home-icon {
+    width: 52px; height: 52px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Signal strength */
+  .signal-bars {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    height: 12px;
+  }
+
+  .bar {
+    width: 3px;
+    background: var(--border);
+    border-radius: 1px;
+  }
+
+  .bar.active { background: var(--accent); }
+  .bar:nth-child(1) { height: 4px; }
+  .bar:nth-child(2) { height: 7px; }
+  .bar:nth-child(3) { height: 10px; }
+  .bar:nth-child(4) { height: 12px; }
+
+  .tool-footer {
+    padding: 8px 16px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .battery {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* Right panel */
+  .right-panel {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .panel-block {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 18px;
+  }
+
+  /* Floorplan */
+  .floorplan {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #0d0d10;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .floorplan svg {
+    width: 100%; height: 100%;
+  }
+
+  /* Stats */
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-row:last-child { border-bottom: none; }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-value.green { color: var(--accent); }
+  .stat-value.red { color: var(--accent2); }
+  .stat-value.yellow { color: #ffcc00; }
+
+  /* Update ticker */
+  .ticker {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ticker-inner {
+    animation: scroll 20s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes scroll {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* UWB range ring animation on floorplan */
+  @keyframes ripple {
+    0% { r: 5; opacity: 0.8; }
+    100% { r: 40; opacity: 0; }
+  }
+
+  .ripple-circle {
+    animation: ripple 2s ease-out infinite;
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 0.5;
+  }
+
+  .ripple-circle:nth-child(2) { animation-delay: 0.67s; }
+  .ripple-circle:nth-child(3) { animation-delay: 1.33s; }
+
+  /* Tool path line animation */
+  @keyframes dash {
+    to { stroke-dashoffset: -20; }
+  }
+
+  .path-line {
+    stroke-dasharray: 4 4;
+    animation: dash 0.5s linear infinite;
+  }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    margin-bottom: 2px;
+  }
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Shelved</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Paused, not dead. Open to collaborators or funding.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=ARX%20Tool%20Magnetism" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div class="header">
+  <div>
+    <div class="logo">ARX FOUNDATION <span>// TOOL-MAGNETISM v0.4</span></div>
+  </div>
+  <div class="status-bar">
+    <div class="status-item"><div class="dot"></div> UWB MESH ACTIVE</div>
+    <div class="status-item"><div class="dot blue"></div> 4 ANCHORS</div>
+    <div class="status-item"><div class="dot orange"></div> 2 DISPLACED</div>
+    <div class="status-item" id="clock" style="font-size:13px; color: var(--text)">--:--:--</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="tool-grid">
+    <div class="section-label">// TOOL REGISTRY — 8 NODES ONLINE</div>
+    <div class="tools" id="tools"></div>
+  </div>
+
+  <div class="right-panel">
+    <div class="panel-block">
+      <div class="section-label">// WORKSHOP FLOORPLAN — UWB</div>
+      <div class="floorplan">
+        <svg id="floorplan-svg" viewBox="0 0 200 200">
+          <!-- Room outline -->
+          <rect x="5" y="5" width="190" height="190" fill="none" stroke="#1e1e24" stroke-width="1"/>
+          
+          <!-- Workbench -->
+          <rect x="10" y="10" width="80" height="18" fill="#111114" stroke="#1e1e24" stroke-width="0.5"/>
+          <text x="50" y="22" fill="#333" font-size="5" font-family="monospace" text-anchor="middle">WORKBENCH</text>
+
+          <!-- Tool storage wall -->
+          <rect x="160" y="10" width="30" height="80" fill="#111114" stroke="#1e1e24" stroke-width="0.5"/>
+          <text x="175" y="55" fill="#333" font-size="5" font-family="monospace" text-anchor="middle" transform="rotate(90,175,55)">TOOL WALL</text>
+
+          <!-- UWB anchors -->
+          <g id="anchors">
+            <circle cx="10" cy="10" r="3" fill="none" stroke="#00b8ff" stroke-width="1"/>
+            <circle cx="10" cy="10" r="1.5" fill="#00b8ff"/>
+            <circle cx="190" cy="10" r="3" fill="none" stroke="#00b8ff" stroke-width="1"/>
+            <circle cx="190" cy="10" r="1.5" fill="#00b8ff"/>
+            <circle cx="10" cy="190" r="3" fill="none" stroke="#00b8ff" stroke-width="1"/>
+            <circle cx="10" cy="190" r="1.5" fill="#00b8ff"/>
+            <circle cx="190" cy="190" r="3" fill="none" stroke="#00b8ff" stroke-width="1"/>
+            <circle cx="190" cy="190" r="1.5" fill="#00b8ff"/>
+          </g>
+
+          <!-- Tool home slots -->
+          <g id="home-slots"></g>
+
+          <!-- Tool current positions -->
+          <g id="tool-positions"></g>
+
+          <!-- Path lines -->
+          <g id="paths"></g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="panel-block">
+      <div class="section-label">// SYSTEM STATUS</div>
+      <div class="stat-row">
+        <div class="stat-label">HOMED</div>
+        <div class="stat-value green" id="stat-home">6</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">DISPLACED</div>
+        <div class="stat-value red" id="stat-disp">2</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">AVG DIST</div>
+        <div class="stat-value yellow" id="stat-dist">3.2m</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">UWB REFRESH</div>
+        <div class="stat-value" style="font-size:14px; font-family: monospace;">100Hz</div>
+      </div>
+    </div>
+
+    <div class="panel-block" style="padding: 12px 18px;">
+      <div class="section-label">// E-PAPER NODE LOG</div>
+      <div class="ticker">
+        <div class="ticker-inner" id="ticker-text">
+          DRILL-01 → HOME SLOT A3 @ 2.1m NW | WRENCH-04 DISPLACED 5.8m | IMPACT-02 HOME | LEVEL-01 → SLOT B1 @ 3.4m E | UWB RANGING ACTIVE | BATTERY OK ALL NODES |
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const tools = [
+  { id: 'DRILL-01', name: 'DRILL', slot: 'A1', status: 'missing', distance: 5.8, bearing: 312, pos: [80, 120], home: [170, 25], battery: 87, signal: 4 },
+  { id: 'IMPACT-02', name: 'IMPACT', slot: 'A2', status: 'home', distance: 0, bearing: 0, pos: [170, 35], home: [170, 35], battery: 62, signal: 3 },
+  { id: 'LEVEL-03', name: 'LEVEL', slot: 'A3', status: 'near', distance: 1.2, bearing: 45, pos: [155, 40], home: [170, 45], battery: 91, signal: 4 },
+  { id: 'WRENCH-04', name: 'WRENCH', slot: 'B1', status: 'missing', distance: 4.2, bearing: 228, pos: [60, 160], home: [170, 55], battery: 44, signal: 2 },
+  { id: 'SAW-05', name: 'SAW', slot: 'B2', status: 'home', distance: 0, bearing: 0, pos: [170, 65], home: [170, 65], battery: 78, signal: 4 },
+  { id: 'SQUARE-06', name: 'SQUARE', slot: 'B3', status: 'home', distance: 0, bearing: 0, pos: [170, 75], home: [170, 75], battery: 55, signal: 3 },
+  { id: 'CLAMP-07', name: 'CLAMP', slot: 'C1', status: 'home', distance: 0, bearing: 0, pos: [170, 85], home: [170, 85], battery: 93, signal: 4 },
+  { id: 'MULTMTR-08', name: 'MULTIMTR', slot: 'C2', status: 'home', distance: 0, bearing: 0, pos: [170, 95], home: [170, 95], battery: 30, signal: 2 },
+];
+
+function bearingToArrow(deg, status) {
+  if (status === 'home') return drawHomeCheck();
+  const rad = (deg - 90) * Math.PI / 180;
+  const cx = 26, cy = 26, r = 18;
+  const headX = cx + Math.cos(rad) * r;
+  const headY = cy + Math.sin(rad) * r;
+  const tailX = cx - Math.cos(rad) * r * 0.5;
+  const tailY = cy - Math.sin(rad) * r * 0.5;
+  const perpX = -Math.sin(rad) * 6;
+  const perpY = Math.cos(rad) * 6;
+  const color = status === 'near' ? '#887700' : '#1a1814';
+  return `<svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="26" cy="26" r="24" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.2"/>
+    <circle cx="${headX}" cy="${headY}" r="2.5" fill="${color}"/>
+    <line x1="${tailX}" y1="${tailY}" x2="${headX}" y2="${headY}" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>
+    <polygon points="${headX+perpX*0.8},${headY+perpY*0.8} ${headX-perpX*0.8},${headY-perpY*0.8} ${cx+Math.cos(rad)*r*1.35},${cy+Math.sin(rad)*r*1.35}" fill="${color}"/>
+    <circle cx="${tailX}" cy="${tailY}" r="3" fill="${color}" opacity="0.4"/>
+  </svg>`;
+}
+
+function drawHomeCheck() {
+  return `<svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="26" cy="26" r="24" fill="rgba(26,100,26,0.1)" stroke="#1a641a" stroke-width="1.5"/>
+    <polyline points="14,27 22,35 38,19" fill="none" stroke="#1a641a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+function renderTools() {
+  const container = document.getElementById('tools');
+  container.innerHTML = tools.map(t => {
+    const isHome = t.status === 'home';
+    const isMissing = t.status === 'missing';
+    const isNear = t.status === 'near';
+    
+    const badgeClass = isHome ? 'badge-home' : isMissing ? 'badge-missing' : 'badge-near';
+    const badgeText = isHome ? 'HOME' : isMissing ? 'MISSING' : 'NEAR';
+    const cardClass = isMissing ? 'missing' : isNear ? 'near' : '';
+
+    const epaperClass = isHome ? 'home-state' : '';
+    const distText = isHome ? '0.0m' : t.distance.toFixed(1) + 'm';
+    const dirText = isHome ? 'SLOTTED' : `BRG ${t.bearing}°`;
+
+    const signalBars = [1,2,3,4].map(i => 
+      `<div class="bar ${i <= t.signal ? 'active' : ''}"></div>`).join('');
+
+    const battColor = t.battery > 60 ? 'var(--accent)' : t.battery > 30 ? '#ffcc00' : 'var(--accent2)';
+
+    return `<div class="tool-card ${cardClass}" onclick="selectTool('${t.id}')">
+      <div class="tool-card-top">
+        <div>
+          <div class="tool-name">${t.name}</div>
+          <div class="tool-id">${t.id} · SLOT ${t.slot}</div>
+        </div>
+        <div class="tool-status-badge ${badgeClass}">${badgeText}</div>
+      </div>
+      <div class="epaper ${epaperClass}">
+        <div class="epaper-content">
+          <div class="arrow-display">${bearingToArrow(t.bearing, t.status)}</div>
+          <div class="epaper-info">
+            <div class="epaper-distance">${distText}</div>
+            <div class="epaper-slot">→ SLOT ${t.slot}</div>
+            <div class="epaper-bearing">${dirText}</div>
+          </div>
+        </div>
+      </div>
+      <div class="tool-footer">
+        <div class="battery" style="color:${battColor}">⬡ ${t.battery}%</div>
+        <div class="signal-bars">${signalBars}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderFloorplan() {
+  const homeSlots = document.getElementById('home-slots');
+  const positions = document.getElementById('tool-positions');
+  const paths = document.getElementById('paths');
+
+  homeSlots.innerHTML = tools.map(t => `
+    <rect x="${t.home[0]-4}" y="${t.home[1]-4}" width="8" height="8" 
+      fill="none" stroke="rgba(0,255,136,0.3)" stroke-width="0.5" stroke-dasharray="2,1"/>
+    <text x="${t.home[0]}" y="${t.home[1]+1}" fill="rgba(0,255,136,0.4)" 
+      font-size="3" font-family="monospace" text-anchor="middle">${t.slot}</text>
+  `).join('');
+
+  paths.innerHTML = tools.filter(t => t.status !== 'home').map(t => `
+    <line x1="${t.pos[0]}" y1="${t.pos[1]}" x2="${t.home[0]}" y2="${t.home[1]}"
+      stroke="${t.status === 'missing' ? 'rgba(255,77,0,0.3)' : 'rgba(255,204,0,0.3)'}" 
+      stroke-width="0.8" class="path-line" stroke-dasharray="3,3"/>
+  `).join('');
+
+  positions.innerHTML = tools.map(t => {
+    const color = t.status === 'home' ? '#00ff88' : t.status === 'near' ? '#ffcc00' : '#ff4d00';
+    const rippleGroup = t.status !== 'home' ? `
+      <circle cx="${t.pos[0]}" cy="${t.pos[1]}" r="5" fill="none" stroke="${color}" stroke-width="0.5" class="ripple-circle" style="animation-delay:0s"/>
+      <circle cx="${t.pos[0]}" cy="${t.pos[1]}" r="5" fill="none" stroke="${color}" stroke-width="0.5" class="ripple-circle" style="animation-delay:0.67s"/>
+    ` : '';
+    return `${rippleGroup}
+    <circle cx="${t.pos[0]}" cy="${t.pos[1]}" r="3.5" fill="${color}" opacity="0.9"/>
+    <text x="${t.pos[0]}" y="${t.pos[1]-5}" fill="${color}" font-size="4" font-family="monospace" text-anchor="middle" opacity="0.8">${t.id.split('-')[0]}</text>`;
+  }).join('');
+}
+
+function selectTool(id) {
+  // Visual pulse feedback
+  document.querySelectorAll('.tool-card').forEach(c => c.style.outline = '');
+  const idx = tools.findIndex(t => t.id === id);
+  if (idx >= 0) {
+    document.querySelectorAll('.tool-card')[idx].style.outline = '1px solid var(--accent)';
+  }
+}
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toTimeString().split(' ')[0];
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Simulate slight position drift
+let t = 0;
+function simulate() {
+  t += 0.01;
+  tools.forEach(tool => {
+    if (tool.status !== 'home') {
+      tool.pos[0] += Math.sin(t + tool.bearing) * 0.08;
+      tool.pos[1] += Math.cos(t + tool.bearing * 0.7) * 0.06;
+      tool.distance = Math.max(0.1, tool.distance + Math.sin(t * 0.5) * 0.01);
+      tool.bearing = (tool.bearing + 0.05) % 360;
+    }
+  });
+  renderFloorplan();
+  // Update distance displays
+  document.querySelectorAll('.epaper-distance').forEach((el, i) => {
+    if (tools[i].status !== 'home') {
+      el.textContent = tools[i].distance.toFixed(1) + 'm';
+    }
+  });
+  document.querySelectorAll('.epaper-bearing').forEach((el, i) => {
+    if (tools[i].status !== 'home') {
+      el.textContent = `BRG ${Math.round(tools[i].bearing)}°`;
+    }
+  });
+  requestAnimationFrame(simulate);
+}
+
+renderTools();
+renderFloorplan();
+simulate();
+</script>
+</body>
+</html>

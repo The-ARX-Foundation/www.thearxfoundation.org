@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>BLKMRR — Black Mirror Mesh Protocol · ARX Foundation</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --bg: #0a0c0b;
+  --bg2: #111410;
+  --bg3: #181c16;
+  --border: #2a3028;
+  --border2: #3a4438;
+  --text: #d4cdb8;
+  --text2: #8a9080;
+  --text3: #4a5448;
+  --amber: #c8860a;
+  --amber2: #e09820;
+  --amber-dim: rgba(200, 134, 10, 0.12);
+  --amber-glow: rgba(200, 134, 10, 0.06);
+  --rust: #8b3a1a;
+  --rust2: #b04820;
+  --green: #2a4a2e;
+  --green2: #3a6040;
+  --green-text: #6a9870;
+  --red: #6a2020;
+  --red-text: #c06050;
+  --serif: 'Crimson Pro', serif;
+  --display: 'IM Fell English', serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: clamp(15px, 2.5vw, 17px);
+  line-height: 1.75;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Scanline overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.04) 2px,
+    rgba(0,0,0,0.04) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Noise texture */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.4;
+}
+
+/* Progress bar */
+#progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--amber);
+  width: 0%;
+  z-index: 10001;
+  transition: width 0.1s;
+  box-shadow: 0 0 8px var(--amber);
+}
+
+/* Header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(10, 12, 11, 0.96);
+  border-bottom: 1px solid var(--border);
+  padding: clamp(10px, 2vw, 14px) clamp(16px, 4vw, 32px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  backdrop-filter: blur(8px);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2vw, 16px);
+  min-width: 0;
+}
+
+.arx-logo {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.8vw, 11px);
+  font-weight: 500;
+  letter-spacing: 2px;
+  color: var(--amber);
+  border: 1px solid var(--amber);
+  padding: 3px 7px;
+  flex-shrink: 0;
+  text-shadow: 0 0 8px rgba(200, 134, 10, 0.5);
+}
+
+.header-title {
+  font-family: var(--mono);
+  font-size: clamp(11px, 2vw, 13px);
+  color: var(--text2);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.status-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 2px;
+  border: 1px solid var(--green2);
+  color: var(--green-text);
+  background: rgba(42, 74, 46, 0.2);
+  animation: pulse-badge 3s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Tab bar */
+.tab-bar {
+  position: sticky;
+  top: clamp(49px, 8vw, 57px);
+  z-index: 999;
+  background: rgba(10, 12, 11, 0.96);
+  border-bottom: 1px solid var(--border);
+  padding: 0 clamp(16px, 4vw, 32px);
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  backdrop-filter: blur(8px);
+}
+
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.8vw, 11px);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: clamp(10px, 2vw, 13px) clamp(12px, 2.5vw, 18px);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.tab:hover { color: var(--text2); }
+
+.tab.active {
+  color: var(--amber);
+  border-bottom-color: var(--amber);
+  text-shadow: 0 0 12px rgba(200, 134, 10, 0.4);
+}
+
+/* Panels */
+.panels {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 48px) clamp(16px, 4vw, 32px) 120px;
+  min-height: 500px;
+}
+
+.panel { display: none; animation: fadeIn 0.2s ease; }
+.panel.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Section headers */
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: clamp(28px, 5vw, 40px) 0 clamp(12px, 2.5vw, 16px);
+  padding-bottom: clamp(8px, 1.5vw, 10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.sec-head:first-child { margin-top: 0; }
+
+.sec-num {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.8vw, 11px);
+  color: var(--amber);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.sec-title {
+  font-family: var(--display);
+  font-size: clamp(16px, 3vw, 20px);
+  color: var(--text);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.3px;
+}
+
+/* Body text */
+.body-text {
+  margin-bottom: clamp(16px, 3vw, 20px);
+  color: var(--text);
+}
+
+.body-text p { margin-bottom: clamp(10px, 2vw, 14px); }
+.body-text p:last-child { margin-bottom: 0; }
+
+.body-text strong { color: var(--amber2); font-weight: 600; }
+
+/* Callout */
+.callout {
+  background: var(--amber-dim);
+  border-left: 3px solid var(--amber);
+  padding: clamp(12px, 2vw, 16px) clamp(16px, 3vw, 20px);
+  margin: clamp(20px, 4vw, 28px) 0;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: clamp(15px, 2.8vw, 18px);
+  color: var(--text);
+  line-height: 1.6;
+  box-shadow: inset 0 0 40px rgba(200, 134, 10, 0.04);
+}
+
+/* Terminal block */
+.terminal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  padding: clamp(14px, 2.5vw, 18px) clamp(16px, 3vw, 20px);
+  margin: clamp(16px, 3vw, 20px) 0;
+  font-family: var(--mono);
+  font-size: clamp(11px, 1.8vw, 12px);
+  line-height: 1.8;
+  color: var(--text2);
+  border-radius: 2px;
+  overflow-x: auto;
+  position: relative;
+}
+
+.terminal::before {
+  content: attr(data-label);
+  position: absolute;
+  top: 0; right: 0;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 3px 8px;
+  border-left: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.terminal .ln { color: var(--text3); user-select: none; margin-right: 16px; }
+.terminal .kw { color: var(--amber); }
+.terminal .cm { color: var(--text3); font-style: italic; }
+.terminal .val { color: var(--green-text); }
+.terminal .err { color: var(--red-text); }
+
+/* Project cards */
+.proj-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: clamp(14px, 2.5vw, 18px) clamp(16px, 3vw, 20px);
+  margin-bottom: clamp(10px, 2vw, 12px);
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+}
+
+.proj-card:hover {
+  border-color: var(--border2);
+  background: var(--bg3);
+}
+
+.proj-card h4 {
+  font-family: var(--mono);
+  font-size: clamp(11px, 2vw, 13px);
+  font-weight: 500;
+  color: var(--amber2);
+  letter-spacing: 0.5px;
+  margin-bottom: clamp(6px, 1.5vw, 8px);
+  text-transform: uppercase;
+}
+
+.proj-card p {
+  font-size: clamp(14px, 2.2vw, 15px);
+  color: var(--text2);
+  line-height: 1.65;
+  margin-bottom: clamp(8px, 1.5vw, 10px);
+}
+
+.proj-card p:last-of-type { margin-bottom: 0; }
+
+.proj-meta {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.5vw, 11px);
+  color: var(--text3);
+  letter-spacing: 0.3px;
+  margin-top: clamp(8px, 1.5vw, 10px);
+  padding-top: clamp(8px, 1.5vw, 10px);
+  border-top: 1px solid var(--border);
+}
+
+/* Tier badges */
+.tier {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 2px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.tier-concept { border: 1px solid var(--text3); color: var(--text3); }
+.tier-buildable { border: 1px solid var(--amber); color: var(--amber); background: var(--amber-dim); }
+.tier-active { border: 1px solid var(--green2); color: var(--green-text); background: rgba(42, 74, 46, 0.2); }
+.tier-fundable { border: 1px solid var(--rust2); color: #d08060; background: rgba(139, 58, 26, 0.15); }
+
+/* Phase cards */
+.phase-card {
+  border-left: 2px solid var(--border2);
+  padding: clamp(12px, 2vw, 16px) clamp(16px, 3vw, 20px);
+  margin-bottom: clamp(12px, 2.5vw, 16px);
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.phase-card:hover { border-left-color: var(--amber); }
+
+.phase-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+
+.phase-title {
+  font-family: var(--display);
+  font-size: clamp(15px, 2.5vw, 17px);
+  font-style: italic;
+  color: var(--text);
+  margin-bottom: clamp(6px, 1.5vw, 8px);
+}
+
+.phase-desc {
+  font-size: clamp(13px, 2vw, 14px);
+  color: var(--text2);
+  line-height: 1.65;
+}
+
+/* Sem footer chips */
+.sem-footer {
+  margin-top: clamp(20px, 3vw, 28px);
+  padding-top: clamp(12px, 2vw, 14px);
+  border-top: 1px solid var(--border);
+}
+
+.sem-footer-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: clamp(8px, 1.5vw, 10px);
+}
+
+.sem-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(6px, 1.5vw, 8px);
+}
+
+.sem-chip {
+  background: var(--amber-glow);
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  padding: clamp(3px, 0.8vw, 4px) clamp(8px, 1.5vw, 10px);
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.5vw, 11px);
+  border-radius: 2px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.sem-chip:hover {
+  background: var(--amber-dim);
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+/* Nav footer */
+.nav-footer {
+  margin-top: clamp(40px, 5vw, 60px);
+  padding-top: clamp(20px, 3vw, 24px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: clamp(12px, 3vw, 16px);
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  padding: clamp(8px, 2vw, 10px) clamp(12px, 2.5vw, 16px);
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.8vw, 11px);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text2);
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  touch-action: manipulation;
+  flex: 1;
+  min-width: 140px;
+}
+
+.nav-btn:hover {
+  background: var(--amber-dim);
+  border-color: var(--amber);
+  color: var(--amber);
+  box-shadow: 0 0 12px rgba(200, 134, 10, 0.1);
+}
+
+.nav-btn:active { transform: scale(0.98); }
+
+/* Diagram box */
+.diagram {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  padding: clamp(16px, 3vw, 24px);
+  margin: clamp(16px, 3vw, 20px) 0;
+  font-family: var(--mono);
+  font-size: clamp(11px, 1.6vw, 12px);
+  line-height: 2;
+  color: var(--text2);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.diagram .hi { color: var(--amber2); }
+.diagram .lo { color: var(--text3); }
+.diagram .ok { color: var(--green-text); }
+
+/* Warning block */
+.warn {
+  background: rgba(106, 32, 32, 0.15);
+  border-left: 3px solid var(--red-text);
+  padding: clamp(10px, 2vw, 14px) clamp(14px, 2.5vw, 18px);
+  margin: clamp(14px, 2.5vw, 18px) 0;
+  font-size: clamp(13px, 2vw, 14px);
+  color: var(--red-text);
+  font-family: var(--mono);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .panels { padding: 16px clamp(12px, 3vw, 16px) 80px; }
+  .diagram { font-size: 10px; }
+}
+
+@media (max-width: 480px) {
+  .nav-footer { flex-direction: column; gap: 8px; }
+  .nav-btn { width: 100%; min-width: auto; }
+}
+
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Up next</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Queued to build next.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=BLKMRR%20—%20Black%20Mirror%20Mesh%20Protocol" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div id="progress"></div>
+
+<div class="header">
+  <div class="header-left">
+    <div class="arx-logo">ARX</div>
+    <div class="header-title">BLKMRR — Black Mirror Mesh Protocol</div>
+  </div>
+  <div class="header-right">
+    <span class="status-badge">● Concept</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('tab1')">§ Thesis</div>
+  <div class="tab" onclick="switchTab('tab2')">§ Architecture</div>
+  <div class="tab" onclick="switchTab('tab3')">§ Node Spec</div>
+  <div class="tab" onclick="switchTab('tab4')">§ Protocol</div>
+  <div class="tab" onclick="switchTab('tab5')">§ Roadmap</div>
+</div>
+
+<div class="panels">
+
+<!-- TAB 1: THESIS -->
+<div class="panel active" id="panel-tab1">
+
+  <div class="sec-head"><span class="sec-num">§ 01</span><span class="sec-title">Black Mirror Mesh — BLKMRR</span></div>
+  <div class="body-text">
+    <p><strong>The HDMI port is infrastructure nobody is using.</strong> Every TV in every home has one. Every TV is already plugged into power, already on a network, already trusted. BLKMRR treats that port as a community node onboarding interface — plug in a Pi Zero 2W, connect to mesh, done. No new device to explain. No new habit to form. The TV is already there.</p>
+    <p>BLKMRR is a permission-based community mesh protocol built on commodity hardware. Each node runs media serving, peer sync, federated social, and mesh routing simultaneously. The goal is local-first community infrastructure that doesn't require anyone to own a computer — just a TV.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 01.1</span><span class="sec-title">The Deployment Problem No One Is Solving</span></div>
+  <div class="body-text">
+    <p>Every distributed mesh project fails at the same point: onboarding. Running a node requires technical literacy, dedicated hardware, and ongoing maintenance. The result is that mesh networks stay small, stay technical, and stay irrelevant to the communities that need them most.</p>
+    <p>BLKMRR inverts this. The node <em>is</em> the TV adapter. If you already have a TV, your onboarding cost is the price of a Pi Zero 2W and a LibreELEC image. The same device that gives you Jellyfin and Kodi also routes your neighbor's traffic, syncs community media, and keeps a local copy of the shared knowledge base. Infrastructure that pays for itself in the same moment you install it.</p>
+  </div>
+
+  <div class="callout">Nobody uses computers anymore. But everyone has a TV. The HDMI port is the new ethernet jack.</div>
+
+  <div class="sec-head"><span class="sec-num">§ 01.2</span><span class="sec-title">ARX Lineage</span></div>
+  <div class="body-text">
+    <p><strong>FuelMesh (#72)</strong> proved the ambient sync model — devices encountering each other passively and exchanging data without user action. BLKMRR applies the same pattern at home scale: stationary nodes that sync continuously instead of opportunistically.</p>
+    <p><strong>ARX Mesh Net</strong> (BLE local discovery, React prototype) is the event-scale version. BLKMRR is the residential-scale version. Same philosophical layer, different deployment context.</p>
+    <p><strong>SoundWeave / ARX Open Music</strong> is the media layer. BLKMRR is the distribution substrate it runs on. The signal needs infrastructure. This is it.</p>
+    <p><strong>DSWM</strong> (Decentralized Semantic Web Mirror) slots in as the knowledge layer — local knowledge graphs queryable without cloud. BLKMRR nodes cache DSWM snapshots and serve them to devices on the local network.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 01.3</span><span class="sec-title">Name</span></div>
+  <div class="body-text">
+    <p><strong>BLKMRR</strong> — Black Mirror. The TV screen, dark and idle, hiding a node that routes your neighbor's traffic and hosts your community's media. The thing you stare at is also the thing watching the network. Not surveillance — witness. The mirror sees everything and sends nothing out.</p>
+  </div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Status Tags</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">Concept — ARX #TBD</span>
+      <span class="sem-chip">Permission-Based</span>
+      <span class="sem-chip">Open Source</span>
+      <span class="sem-chip">Local-First</span>
+      <span class="sem-chip">No Cloud Required</span>
+      <span class="sem-chip">FOSS Stack</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab2')">Next: Architecture →</button>
+  </div>
+</div>
+
+<!-- TAB 2: ARCHITECTURE -->
+<div class="panel" id="panel-tab2">
+
+  <div class="sec-head"><span class="sec-num">§ 02</span><span class="sec-title">System Architecture</span></div>
+  <div class="body-text">
+    <p>Each BLKMRR node is a Pi Zero 2W running LibreELEC with a custom service layer on top. The node stack has four jobs: <strong>serve media locally</strong>, <strong>sync with peer nodes</strong>, <strong>route mesh traffic</strong>, and <strong>cache community knowledge</strong>. These run simultaneously, independently, and survive partial failures without breaking the others.</p>
+  </div>
+
+  <div class="diagram"><span class="hi">BLKMRR NODE ARCHITECTURE</span>
+<span class="lo">─────────────────────────────────────────────</span>
+
+<span class="hi">  [ TV / Display ]</span>
+       │  HDMI
+  <span class="hi">[ Pi Zero 2W ]</span>  ←─── USB power from TV
+       │
+  <span class="lo">┌────┴────────────────────────────────────┐</span>
+  <span class="lo">│</span>  <span class="hi">LibreELEC</span>  (base OS, read-only root)    <span class="lo">│</span>
+  <span class="lo">│  ┌──────────┐  ┌──────────┐  ┌───────┐ │</span>
+  <span class="lo">│  │</span><span class="ok"> Jellyfin </span><span class="lo">│  │</span><span class="ok">Syncthing</span><span class="lo">│  │</span><span class="ok"> Yggd. </span><span class="lo">│ │</span>
+  <span class="lo">│  │</span><span class="lo"> media srv</span><span class="lo">│  │</span><span class="lo"> peer sync</span><span class="lo">│  │</span><span class="lo"> mesh  </span><span class="lo">│ │</span>
+  <span class="lo">│  └──────────┘  └──────────┘  └───────┘ │</span>
+  <span class="lo">│  ┌──────────────────┐  ┌─────────────┐ │</span>
+  <span class="lo">│  │</span><span class="ok">  Kiwix / ZIM srv  </span><span class="lo">│  │</span><span class="ok"> Pixelfed/  </span><span class="lo">│ │</span>
+  <span class="lo">│  │</span><span class="lo">  knowledge cache  </span><span class="lo">│  │</span><span class="lo"> Mastodon   </span><span class="lo">│ │</span>
+  <span class="lo">│  └──────────────────┘  └─────────────┘ │</span>
+  <span class="lo">└─────────────────────────────────────────┘</span>
+       │ WiFi (2.4GHz)
+  <span class="hi">[ Mesh Network ]</span>
+  <span class="lo">peer1 ←──→ peer2 ←──→ peer3 ←──→ peerN</span>
+  <span class="lo">no central server. no required internet.</span></div>
+
+  <div class="sec-head"><span class="sec-num">§ 02.1</span><span class="sec-title">Service Layer</span></div>
+
+  <div class="proj-card">
+    <h4>Jellyfin <span class="tier tier-active">Active in ARX Stack</span></h4>
+    <p>Self-hosted media server. Serves video, music, and photos to any device on the local network via browser or app. No account required, no telemetry, FOSS. The media layer the node is visible for — this is what the person installing it actually cares about in the first transaction.</p>
+    <div class="proj-meta">Stack: Jellyfin + LibreELEC | Port: 8096 | Auth: optional local accounts</div>
+  </div>
+
+  <div class="proj-card">
+    <h4>Syncthing <span class="tier tier-active">Active in ARX Stack</span></h4>
+    <p>Peer-to-peer file sync. Community media (music, documents, ZIM files) propagates node-to-node without a central server. When a new node comes online, it discovers peers via the mesh and begins syncing designated community folders. No coordinator, no upload limit, no cost.</p>
+    <div class="proj-meta">Stack: Syncthing | Discovery: local broadcast + mesh peer list | Conflict: last-write-wins by default</div>
+  </div>
+
+  <div class="proj-card">
+    <h4>Yggdrasil Network <span class="tier tier-buildable">Buildable</span></h4>
+    <p>End-to-end encrypted mesh routing protocol. Each node gets a cryptographic IPv6 address derived from its public key — address is permanent regardless of physical location or network. Traffic between nodes is encrypted in transit. No central directory. Scales from 2 nodes to global.</p>
+    <div class="proj-meta">Stack: Yggdrasil 0.5.x | Address space: 200::/7 IPv6 | Peering: WiFi Direct + known peer list</div>
+  </div>
+
+  <div class="proj-card">
+    <h4>Kiwix / ZIM Cache <span class="tier tier-buildable">Buildable</span></h4>
+    <p>Offline knowledge base. ZIM files (compressed Wikipedia, MDN, WikiMed, Project Gutenberg) cached locally and served over HTTP. No internet required to access. Nodes sync ZIM snapshots via Syncthing. The community's shared library lives on every node simultaneously.</p>
+    <div class="proj-meta">Stack: Kiwix-serve | Snapshots: Wikipedia EN ~22GB, WikiMed ~2GB, MDN ~1GB | Update cadence: monthly via cron</div>
+  </div>
+
+  <div class="proj-card">
+    <h4>Federated Social Layer <span class="tier tier-concept">Concept</span></h4>
+    <p>Pixelfed (federated photo/video, Instagram-compatible) or Mastodon (federated microblogging) running as a community instance on the mesh. Each BLKMRR community runs their own instance — federation means cross-community visibility without cross-community data ownership. Pi Zero is too weak for full Mastodon; lightweight alternatives (Pleroma, Snac2) are viable at this scale.</p>
+    <div class="proj-meta">Candidates: Snac2 (single-binary, ~10MB RAM), Pleroma | Constraint: Pi Zero 2W has 512MB RAM — Mastodon/Pixelfed need 1GB+ | Alt: shared instance on Hetzner, nodes relay</div>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 02.2</span><span class="sec-title">Network Topology</span></div>
+  <div class="body-text">
+    <p><strong>No star topology.</strong> No central server that, when it goes down, breaks everything. Each node is a full peer. If one drops, traffic reroutes around it automatically via Yggdrasil's mesh routing. The network is resilient by design — it assumes nodes will disappear and come back.</p>
+    <p><strong>Internet optional.</strong> The mesh functions without internet access. Jellyfin serves local media, Syncthing syncs local content, Kiwix serves local knowledge. Internet connectivity adds upstream federation and external peering but is never required for the core use case.</p>
+    <p><strong>Permission-based onboarding.</strong> Joining the mesh requires an invitation — a signed peer token distributed by an existing node operator. No open registration. Community decides who runs nodes. This is not a technical constraint, it's a social one. The protocol enforces it cryptographically via Yggdrasil key pairs.</p>
+  </div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Protocol Stack</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">LibreELEC</span>
+      <span class="sem-chip">Yggdrasil</span>
+      <span class="sem-chip">Jellyfin</span>
+      <span class="sem-chip">Syncthing</span>
+      <span class="sem-chip">Kiwix</span>
+      <span class="sem-chip">Docker Compose</span>
+      <span class="sem-chip">Snac2 / Pleroma</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab1')">← Thesis</button>
+    <button class="nav-btn" onclick="switchTab('tab3')">Next: Node Spec →</button>
+  </div>
+</div>
+
+<!-- TAB 3: NODE SPEC -->
+<div class="panel" id="panel-tab3">
+
+  <div class="sec-head"><span class="sec-num">§ 03</span><span class="sec-title">Node Hardware Specification</span></div>
+  <div class="body-text">
+    <p>The BLKMRR node is a <strong>Raspberry Pi Zero 2W</strong> running LibreELEC, installed via custom image. Form factor: credit card. Power: USB from TV. Video: mini HDMI to TV. Network: 2.4GHz WiFi onboard. No ethernet required, no external power brick, no visible cables beyond the HDMI plug itself.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 03.1</span><span class="sec-title">Bill of Materials</span></div>
+
+  <div class="terminal" data-label="BOM">
+<span class="kw">Pi Zero 2W</span>          ~$15    // ARM Cortex-A53 quad-core 1GHz, 512MB RAM
+<span class="kw">Mini HDMI adapter</span>   ~$4     // or right-angle for flush profile
+<span class="kw">MicroSD (32GB+)</span>     ~$8     // BLKMRR image + ZIM cache
+<span class="kw">USB-A to micro-USB</span>  ~$3     // power from TV USB port
+<span class="cm">// Optional:</span>
+<span class="kw">USB WiFi dongle</span>     ~$8     // if 2.4GHz congested; dual-band via dongle
+<span class="kw">3D printed enclosure</span> ~$2    // PETG, flush TV mount, gravity-weighted
+<span class="kw">MicroSD extension</span>   ~$5     // cable to relocate SD slot for accessibility
+<span class="lo">────────────────────────────────────────</span>
+<span class="val">Total: ~$35–40 per node</span>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 03.2</span><span class="sec-title">Enclosure Design</span></div>
+  <div class="body-text">
+    <p>The enclosure is a gravity-balanced flush mount designed for the back of a TV. The Pi Zero's mini HDMI sits on the short edge — a right-angle mini HDMI adapter rotates the board parallel to the TV face, enabling a thin (~15mm deep) profile that disappears behind the bezel.</p>
+    <p><strong>Key design constraints:</strong> center of mass behind the HDMI plug axis (reduces rotational stress on port), passive vent slots on vertical faces (convection cooling without fans), micro-USB power port accessible without disassembly, optional neodymium magnet + steel plate mount for tool-free removal.</p>
+    <p><strong>Print spec:</strong> PETG preferred over PLA for thermal tolerance near warm TVs. Textured outer surface. Two-piece snap-fit design (top cap + base). Estimated print time: 90 minutes.</p>
+  </div>
+
+  <div class="terminal" data-label="OpenSCAD sketch">
+<span class="cm">// BLKMRR enclosure — parametric</span>
+<span class="cm">// Edit these values, everything else scales</span>
+<span class="kw">wall</span>     = <span class="val">2.0</span>;   <span class="cm">// mm wall thickness</span>
+<span class="kw">board_w</span>  = <span class="val">65.0</span>;  <span class="cm">// Pi Zero 2W board width</span>
+<span class="kw">board_h</span>  = <span class="val">30.0</span>;  <span class="cm">// Pi Zero 2W board height</span>
+<span class="kw">depth</span>    = <span class="val">15.0</span>;  <span class="cm">// enclosure depth (flush to TV face)</span>
+<span class="kw">tol</span>      = <span class="val">0.3</span>;   <span class="cm">// print tolerance</span>
+<span class="kw">vent_w</span>   = <span class="val">1.2</span>;   <span class="cm">// vent slot width</span>
+<span class="kw">vent_gap</span> = <span class="val">3.0</span>;   <span class="cm">// spacing between vent slots</span>
+
+<span class="cm">// port cutouts: mini HDMI, micro USB power, SD slot</span>
+<span class="cm">// snap-fit tabs on lid: 4x corners, 0.4mm interference</span>
+<span class="cm">// magnet pockets: 4x 6mm diameter, 2mm deep, rear face</span>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 03.3</span><span class="sec-title">Performance Reality Check</span></div>
+
+  <div class="warn">Pi Zero 2W is 512MB RAM, quad-core 1GHz. It will not run Mastodon, Nextcloud, or anything Java-based. Stay lean: Jellyfin transcoding is too heavy — serve original files only (direct play). Kiwix is fine. Syncthing is fine. Yggdrasil is fine. Snac2 is fine.</div>
+
+  <div class="body-text">
+    <p><strong>What fits:</strong> Yggdrasil mesh routing (~15MB RAM), Syncthing file sync (~30MB RAM), Kiwix-serve for offline knowledge (~20MB RAM), Jellyfin direct-play only (no transcoding, ~80MB RAM), Snac2 federated social (~8MB RAM). Total: ~160MB, leaving 350MB headroom.</p>
+    <p><strong>What doesn't fit:</strong> Transcoding video in Jellyfin (CPU-bound, Pi Zero will drop frames), Mastodon (Rails app, needs 1GB+), Nextcloud (PHP + database, too heavy), anything requiring GPU acceleration.</p>
+    <p><strong>Upgrade path:</strong> Pi 4 or Pi 5 as community anchor nodes — one per neighborhood, handles heavier services. Pi Zero nodes federate up to anchor nodes. Two-tier topology: Zero = leaf, Pi 4/5 = regional backbone.</p>
+  </div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Hardware Tags</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">Pi Zero 2W</span>
+      <span class="sem-chip">LibreELEC</span>
+      <span class="sem-chip">~$35 BOM</span>
+      <span class="sem-chip">3D Printed Enclosure</span>
+      <span class="sem-chip">OpenSCAD / FreeCAD</span>
+      <span class="sem-chip">PETG</span>
+      <span class="sem-chip">Passive Cooling</span>
+      <span class="sem-chip">USB-powered</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab2')">← Architecture</button>
+    <button class="nav-btn" onclick="switchTab('tab4')">Next: Protocol →</button>
+  </div>
+</div>
+
+<!-- TAB 4: PROTOCOL -->
+<div class="panel" id="panel-tab4">
+
+  <div class="sec-head"><span class="sec-num">§ 04</span><span class="sec-title">BLKMRR Protocol Spec</span></div>
+  <div class="body-text">
+    <p>BLKMRR is a protocol layer on top of existing open tools, not a ground-up implementation. The ARX contribution is the composition: how these tools are configured, how nodes discover each other, how community permissions are managed, and how the image is distributed and maintained. The protocol spec defines the interfaces between layers.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 04.1</span><span class="sec-title">Node Identity & Permissions</span></div>
+  <div class="body-text">
+    <p><strong>Each node has a keypair.</strong> Yggdrasil derives the node's IPv6 address from its public key — the address <em>is</em> the identity. No central directory. No DNS dependency. Node announces itself to the mesh via a signed beacon containing: public key, node version, service manifest (which services are running), and community ID.</p>
+    <p><strong>Permission token.</strong> Joining a community mesh requires a signed invitation token from an existing node operator. The token encodes: community ID, issuing node public key, timestamp, and expiry. New nodes present the token on first connect; mesh peers validate the signature. Invalid or expired tokens are rejected.</p>
+    <p><strong>Community ID.</strong> A human-readable string + UUID pair identifying a mesh community. Nodes can belong to multiple communities (e.g., a household node + a neighborhood node + a regional ARX node). Each community has its own Syncthing share folders, Jellyfin library, and social instance.</p>
+  </div>
+
+  <div class="terminal" data-label="peer beacon">
+<span class="cm">// BLKMRR peer beacon — broadcast on join</span>
+{
+  <span class="kw">"node_id"</span>:      <span class="val">"200:1a2b:3c4d:..."</span>,   <span class="cm">// Yggdrasil IPv6</span>
+  <span class="kw">"pubkey"</span>:       <span class="val">"ed25519:aabbcc..."</span>,
+  <span class="kw">"version"</span>:      <span class="val">"blkmrr/0.1.0"</span>,
+  <span class="kw">"community"</span>:    <span class="val">"neighborhood-x/uuid"</span>,
+  <span class="kw">"services"</span>: [
+    <span class="val">"jellyfin"</span>, <span class="val">"syncthing"</span>, <span class="val">"kiwix"</span>, <span class="val">"yggdrasil"</span>
+  ],
+  <span class="kw">"invite_token"</span>: <span class="val">"sig:base64..."</span>,
+  <span class="kw">"timestamp"</span>:    <span class="val">1746000000</span>
+}
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 04.2</span><span class="sec-title">Content Sync</span></div>
+  <div class="body-text">
+    <p><strong>Community folders.</strong> Each community defines shared Syncthing folders: <code>/media/community</code> (music, video, documents added by any node), <code>/knowledge/zim</code> (ZIM snapshots, synced monthly), <code>/media/local</code> (node-specific, not synced). Folder membership = community membership.</p>
+    <p><strong>Conflict resolution.</strong> Syncthing's built-in conflict handling (version vectors + last-write-wins) handles most cases. Community-defined curation rules (a simple JSON file listing trusted curators per folder) add a lightweight moderation layer without a central authority.</p>
+    <p><strong>ARX Open Music integration.</strong> SoundWeave tracks tagged with the ARX Open Music license are marked as <code>community:free</code> and auto-sync to all nodes in a community mesh. No one owns the signal — every node carries it.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 04.3</span><span class="sec-title">FuelMesh Crossover</span></div>
+  <div class="body-text">
+    <p>BLKMRR nodes that are also mobile (van life, travel) can carry the FuelMesh observation cache and sync it when they dock at a stationary BLKMRR node. Stationary nodes become FuelMesh aggregation points — when you get home, your van's observations flush to the home node, which syncs to the community mesh, which eventually reaches OSM upstream. Passive data contribution with zero user action after initial setup.</p>
+  </div>
+
+  <div class="callout">The protocol is not clever. The protocol is the composition. Anyone can run these tools. BLKMRR is the image, the configuration, the permission model, and the community contract that makes them into infrastructure.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Protocol Primitives</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">Ed25519 keypairs</span>
+      <span class="sem-chip">Yggdrasil IPv6</span>
+      <span class="sem-chip">Signed invite tokens</span>
+      <span class="sem-chip">Community IDs</span>
+      <span class="sem-chip">Syncthing folders</span>
+      <span class="sem-chip">Curator JSON</span>
+      <span class="sem-chip">FuelMesh relay</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab3')">← Node Spec</button>
+    <button class="nav-btn" onclick="switchTab('tab5')">Next: Roadmap →</button>
+  </div>
+</div>
+
+<!-- TAB 5: ROADMAP -->
+<div class="panel" id="panel-tab5">
+
+  <div class="sec-head"><span class="sec-num">§ 05</span><span class="sec-title">Build Phases</span></div>
+  <div class="body-text">
+    <p>BLKMRR builds in layers. Each phase is independently useful — the mesh doesn't need to be complete to deliver value. Phase 0 is literally just a Pi Zero running LibreELEC + Jellyfin. Everything after that is additive.</p>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 0 — Proof</div>
+    <div class="phase-title">TV Adapter as Media Node</div>
+    <div class="phase-desc">Pi Zero 2W + LibreELEC + Jellyfin. Enclosure designed and printed. USB-powered from TV. Hidden behind bezel. Serves local media to any device on the home network. This is the value proposition that gets people to install it — give them something they want before asking them to run infrastructure. Complete: Q3 2026.</div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 1 — Sync</div>
+    <div class="phase-title">Peer-to-Peer Content Sync</div>
+    <div class="phase-desc">Add Syncthing to the image. Two nodes on the same WiFi network discover each other and sync community folders. Community music (SoundWeave / ARX Open Music tagged content) propagates automatically. No user action after pairing. First real mesh behavior — content exists in multiple places simultaneously.</div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 2 — Mesh</div>
+    <div class="phase-title">Yggdrasil Encrypted Routing</div>
+    <div class="phase-desc">Add Yggdrasil mesh routing. Nodes get persistent cryptographic addresses. Traffic between nodes is encrypted end-to-end. Permission token system implemented — joining requires an invitation. Community ID system. This is the point where BLKMRR becomes an actual mesh network rather than just a sync setup.</div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 3 — Knowledge</div>
+    <div class="phase-title">Offline Knowledge Cache</div>
+    <div class="phase-desc">Add Kiwix-serve + ZIM snapshots (Wikipedia, WikiMed, MDN). Nodes cache community-selected knowledge bases and serve them to any browser on the local network. Monthly update cron. Community decides which ZIMs to carry. The mesh becomes a library.</div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 4 — Social</div>
+    <div class="phase-title">Federated Community Layer</div>
+    <div class="phase-desc">Snac2 or Pleroma instance on anchor nodes (Pi 4/5). Zero nodes federate up to anchor. Community has a social feed that's self-hosted, self-moderated, and federated with the broader Fediverse when internet is available. Two-tier topology: Zero leaf nodes + Pi 4/5 anchor nodes per neighborhood.</div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-label">Phase 5 — Protocol</div>
+    <div class="phase-title">BLKMRR as Open Spec</div>
+    <div class="phase-desc">BLKMRR node image published as open source (AGPLv3). Protocol spec published as CC BY-SA. Third parties can build compatible nodes on different hardware. FuelMesh relay integration documented. ARX publishes reference hardware guide (BOM + enclosure files + image). The protocol becomes infrastructure — like FuelMesh, not like a product.</div>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 05.1</span><span class="sec-title">Crossover Map</span></div>
+  <div class="body-text">
+    <p>BLKMRR is the substrate. These ARX projects run on top of it or feed into it:</p>
+  </div>
+
+  <div class="terminal" data-label="dependency graph">
+<span class="hi">SoundWeave / ARX Open Music</span>  →  content synced via BLKMRR Syncthing
+<span class="hi">FuelMesh</span>                     →  observation cache relayed via BLKMRR nodes
+<span class="hi">DSWM</span>                         →  knowledge graph cached as ZIM on BLKMRR
+<span class="hi">ARX Mesh Net (BLE)</span>           →  event-scale version; BLKMRR is residential-scale
+<span class="hi">BEADS</span>                        →  sensor data routed over Yggdrasil to home node
+<span class="hi">Glyphkeeper</span>                  →  ZIM-bundled curriculum on every BLKMRR node
+<span class="hi">Jellyfin</span>                     →  already in ARX Hetzner stack; BLKMRR is edge layer
+<span class="hi">Syncthing</span>                    →  already in ARX Hetzner stack; same sync protocol
+  </div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Milestones</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">Phase 0: Q3 2026</span>
+      <span class="sem-chip">Phase 1: Q4 2026</span>
+      <span class="sem-chip">Phase 2: Q1 2027</span>
+      <span class="sem-chip">Phase 3: Q2 2027</span>
+      <span class="sem-chip">Phase 4: 2027</span>
+      <span class="sem-chip">Phase 5: 2028+</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab4')">← Protocol</button>
+    <button class="nav-btn" onclick="switchTab('tab1')">↑ Back to Thesis</button>
+  </div>
+</div>
+
+</div><!-- end .panels -->
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', 'tab' + (i+1) === id);
+  });
+  document.querySelectorAll('.panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'panel-' + id);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Progress bar
+window.addEventListener('scroll', () => {
+  const doc = document.documentElement;
+  const scrolled = doc.scrollTop / (doc.scrollHeight - doc.clientHeight);
+  document.getElementById('progress').style.width = (scrolled * 100) + '%';
+});
+</script>
+
+</body>
+</html>

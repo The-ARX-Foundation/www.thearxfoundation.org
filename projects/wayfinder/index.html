@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>Wayfinder — ARX Foundation #74</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --theme: light;
+  --bg: #F5EFE4;
+  --bg2: #EDE5D6;
+  --border: #C8BEA8;
+  --text: #2A1F14;
+  --text2: #5A4030;
+  --text3: #8A7060;
+  --rust: #7A3A1A;
+  --rust2: #9B4A22;
+  --gold: #8B6914;
+  --indigo: #2D2A5E;
+  --indigo2: #4A4690;
+  --serif: 'Crimson Pro', serif;
+  --display: 'IM Fell English', serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+body[data-theme="dark"] {
+  --bg: #0e0e0e;
+  --bg2: #181818;
+  --border: #2a2a2a;
+  --text: #e8dcc8;
+  --text2: #b0a090;
+  --text3: #666050;
+  --rust: #c87040;
+  --rust2: #e08050;
+  --gold: #a08020;
+  --indigo: #4a5e6d;
+  --indigo2: #6a8fb8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: clamp(15px, 2.5vw, 17px);
+  line-height: 1.75;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+#progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--rust);
+  z-index: 101;
+  transition: width 0.1s linear;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--bg2);
+  border-bottom: 2px solid var(--rust);
+  padding: clamp(10px, 3vw, 14px) clamp(16px, 4vw, 20px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(122,58,26,0.08);
+  min-height: 52px;
+  width: 100%;
+  gap: 12px;
+  transition: all 0.15s ease;
+}
+
+.header.collapsed {
+  padding: 6px clamp(12px, 3vw, 16px);
+  min-height: 36px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 2vw, 10px);
+  flex: 1;
+  min-width: 0;
+}
+
+.arx-logo {
+  width: clamp(24px, 4vw, 32px);
+  height: clamp(24px, 4vw, 32px);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--rust);
+  border-radius: 2px;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: clamp(6px, 1.2vw, 8px);
+  letter-spacing: 0.5px;
+  color: var(--rust);
+  text-transform: uppercase;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.header:hover .arx-logo {
+  border-color: var(--gold);
+}
+
+.header-title {
+  font-family: var(--display);
+  font-size: clamp(13px, 3vw, 16px);
+  color: var(--text);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+  flex: 1;
+  min-width: 0;
+}
+
+.header.collapsed .header-title {
+  opacity: 0;
+  width: 0;
+  flex: 0;
+}
+
+.header-right {
+  font-family: var(--mono);
+  font-size: clamp(7px, 1.5vw, 8px);
+  color: var(--text3);
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-toggle {
+  padding: clamp(3px, 1.5vw, 4px) clamp(6px, 1.5vw, 8px);
+  border: 1px solid var(--rust);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: clamp(7px, 1.5vw, 8px);
+  cursor: pointer;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.theme-toggle:hover {
+  background: var(--bg2);
+  border-color: var(--gold);
+}
+
+/* ── TABS ── */
+.tab-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 clamp(12px, 3vw, 16px);
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  position: sticky;
+  top: 52px;
+  z-index: 99;
+  width: 100%;
+  scroll-behavior: smooth;
+}
+
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab {
+  padding: clamp(8px, 2vw, 10px) clamp(12px, 2.5vw, 16px);
+  font-family: var(--mono);
+  font-size: clamp(8px, 1.8vw, 9px);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  user-select: none;
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+
+.tab:hover { color: var(--rust2); }
+.tab.active { color: var(--rust); border-bottom-color: var(--rust); }
+
+/* ── PANELS ── */
+.panels {
+  position: relative;
+  z-index: 1;
+  padding: clamp(16px, 4vw, 24px) clamp(16px, 4vw, 20px) clamp(80px, 20vw, 120px);
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  overflow: hidden;
+  min-height: 400px;
+}
+
+.panel { display: none; opacity: 0; }
+.panel.active { display: block; animation: fadeUp 0.25s ease forwards; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SECTION HEADS ── */
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(10px, 2vw, 16px);
+  margin-bottom: clamp(16px, 3vw, 20px);
+  margin-top: clamp(20px, 4vw, 28px);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: clamp(10px, 2vw, 12px);
+}
+
+.sec-head:first-child { margin-top: 0; }
+
+.sec-num {
+  font-family: var(--mono);
+  font-size: clamp(12px, 2vw, 14px);
+  color: var(--gold);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.sec-title {
+  font-family: var(--serif);
+  font-size: clamp(18px, 4vw, 24px);
+  color: var(--rust);
+  font-weight: 600;
+}
+
+.body-text { margin-bottom: clamp(16px, 3vw, 24px); }
+.body-text p { margin-bottom: clamp(10px, 2vw, 12px); }
+.body-text strong { color: var(--rust); font-weight: 600; }
+
+/* ── CARDS ── */
+.proj-card {
+  background: var(--bg2);
+  border-left: 4px solid var(--rust);
+  padding: clamp(12px, 3vw, 16px);
+  margin-bottom: clamp(12px, 2vw, 16px);
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.proj-card:hover {
+  border-left-color: var(--gold);
+  box-shadow: 0 2px 12px rgba(122,58,26,0.06);
+}
+
+.proj-card h4 {
+  color: var(--rust);
+  font-size: clamp(16px, 3vw, 18px);
+  margin-bottom: clamp(6px, 1.5vw, 8px);
+  font-weight: 600;
+}
+
+.proj-card p {
+  font-size: clamp(14px, 2.2vw, 16px);
+  color: var(--text2);
+  margin-bottom: clamp(8px, 1.5vw, 10px);
+}
+
+.proj-meta {
+  font-family: var(--mono);
+  font-size: clamp(11px, 1.8vw, 12px);
+  color: var(--text3);
+  letter-spacing: 0.5px;
+}
+
+/* ── CALLOUT ── */
+.callout {
+  background: rgba(122, 58, 26, 0.08);
+  border-left: 4px solid var(--gold);
+  padding: clamp(12px, 2vw, 14px) clamp(14px, 2vw, 16px);
+  margin: clamp(20px, 3vw, 24px) 0;
+  font-size: clamp(14px, 2.2vw, 16px);
+  color: var(--text2);
+  font-style: italic;
+}
+
+/* ── SEMANTIC FOOTER ── */
+.sem-footer {
+  margin-top: clamp(20px, 3vw, 24px);
+  padding-top: clamp(12px, 2vw, 14px);
+  border-top: 1px solid var(--border);
+}
+
+.sem-footer-label {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.8vw, 11px);
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: clamp(8px, 1.5vw, 10px);
+}
+
+.sem-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(6px, 1.5vw, 8px);
+}
+
+.sem-chip {
+  background: rgba(139, 105, 20, 0.15);
+  border: 1px solid var(--gold);
+  color: var(--text2);
+  padding: clamp(4px, 1vw, 5px) clamp(8px, 1.5vw, 10px);
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.5vw, 11px);
+  border-radius: 12px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.sem-chip:hover {
+  background: rgba(139, 105, 20, 0.25);
+  border-color: var(--rust);
+}
+
+body[data-theme="dark"] .sem-chip {
+  background: rgba(184, 145, 28, 0.2);
+  border-color: var(--gold);
+  color: var(--text2);
+}
+
+/* ── NAV FOOTER ── */
+.nav-footer {
+  margin-top: clamp(40px, 5vw, 60px);
+  padding-top: clamp(20px, 3vw, 24px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: clamp(12px, 3vw, 16px);
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  padding: clamp(8px, 2vw, 10px) clamp(12px, 2.5vw, 16px);
+  font-family: var(--mono);
+  font-size: clamp(11px, 2vw, 12px);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text);
+  background: rgba(122, 58, 26, 0.08);
+  border: 1px solid var(--rust);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  touch-action: manipulation;
+  flex: 1;
+  min-width: 140px;
+}
+
+.nav-btn:hover {
+  background: rgba(122, 58, 26, 0.15);
+  border-color: var(--gold);
+  color: var(--rust);
+}
+
+.nav-btn:active { transform: scale(0.98); }
+
+/* ── WAYFINDER-SPECIFIC: DEVICE MOCKUP ── */
+.device-frame {
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  padding: clamp(16px, 3vw, 20px);
+  margin: clamp(20px, 3vw, 28px) 0;
+  background: var(--bg2);
+  font-family: var(--mono);
+  font-size: clamp(11px, 2vw, 13px);
+  color: var(--text2);
+  position: relative;
+}
+
+.device-frame::before {
+  content: 'WAYFINDER OS — PROTOTYPE UI';
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  background: var(--bg2);
+  padding: 0 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+.device-screen {
+  background: #0a0a0a;
+  color: #d4c8b0;
+  border-radius: 2px;
+  padding: clamp(12px, 2vw, 16px);
+  font-family: var(--mono);
+  font-size: clamp(12px, 2vw, 13px);
+  line-height: 1.8;
+}
+
+body[data-theme="dark"] .device-screen {
+  background: #050505;
+  border: 1px solid #222;
+}
+
+.device-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #1a1a1a;
+  cursor: default;
+  transition: background 0.1s;
+}
+
+.device-row:last-child { border-bottom: none; }
+.device-row:hover { background: rgba(255,255,255,0.03); }
+
+.device-row-label {
+  color: #a09080;
+  font-size: clamp(11px, 1.8vw, 12px);
+}
+
+.device-row-value {
+  color: #c8b890;
+  font-size: clamp(11px, 1.8vw, 12px);
+  text-align: right;
+}
+
+.device-row-value.active {
+  color: #80c878;
+}
+
+.device-header-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #222;
+  font-size: 10px;
+  color: #504840;
+  letter-spacing: 0.5px;
+}
+
+/* ── SPEC TABLE ── */
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: clamp(11px, 2vw, 13px);
+  margin: clamp(16px, 3vw, 24px) 0;
+}
+
+.spec-table tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.spec-table tr:last-child { border-bottom: none; }
+
+.spec-table td {
+  padding: clamp(8px, 1.5vw, 10px) clamp(6px, 1.5vw, 8px);
+  vertical-align: top;
+}
+
+.spec-table td:first-child {
+  color: var(--gold);
+  white-space: nowrap;
+  width: 38%;
+  font-size: clamp(10px, 1.8vw, 11px);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.spec-table td:last-child {
+  color: var(--text2);
+}
+
+/* ── PHASE TIMELINE ── */
+.phase-list {
+  list-style: none;
+  margin: clamp(12px, 2vw, 16px) 0;
+}
+
+.phase-item {
+  display: flex;
+  gap: clamp(12px, 2vw, 16px);
+  align-items: flex-start;
+  padding: clamp(10px, 2vw, 14px) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.phase-item:last-child { border-bottom: none; }
+
+.phase-num {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.8vw, 11px);
+  color: var(--rust);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  padding-top: 2px;
+  min-width: 60px;
+}
+
+.phase-body {}
+.phase-title {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  font-size: clamp(14px, 2.5vw, 16px);
+}
+
+.phase-desc {
+  color: var(--text2);
+  font-size: clamp(13px, 2.2vw, 15px);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 480px) {
+  .nav-footer { flex-direction: column; gap: 8px; }
+  .nav-btn { width: 100%; min-width: auto; }
+}
+
+@media (max-width: 768px) {
+  .panels {
+    padding: 12px clamp(12px, 3vw, 16px) 80px;
+    min-height: 300px;
+  }
+  .header-right { gap: 4px; }
+}
+
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Shelved</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">Paused, not dead. Open to collaborators or funding.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=Wayfinder" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div id="progress"></div>
+
+<div id="main-header" class="header">
+  <div class="header-left">
+    <div class="arx-logo">ARX</div>
+    <div class="header-title">Wayfinder — ARX Foundation #74</div>
+  </div>
+  <div class="header-right">
+    <span style="font-family:var(--mono);font-size:clamp(7px,1.5vw,8px);color:var(--text3);letter-spacing:.5px">arx.foundation</span>
+    <button id="theme-btn" class="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab" onclick="switchTab('tab1')">Overview</div>
+  <div class="tab" onclick="switchTab('tab2')">Hardware</div>
+  <div class="tab" onclick="switchTab('tab3')">Software</div>
+  <div class="tab" onclick="switchTab('tab4')">Distribution</div>
+  <div class="tab" onclick="switchTab('tab5')">Context</div>
+</div>
+
+<div class="panels">
+
+<!-- TAB 1: OVERVIEW -->
+<div class="panel" id="panel-tab1">
+
+  <div class="sec-head"><span class="sec-num">§ 01</span><span class="sec-title">Wayfinder</span></div>
+  <div class="body-text">
+    <p><strong>A sovereign navigation and resource-access device built on e-waste hardware for people with nothing.</strong> Wayfinder is a stripped, hardened operating system deployed on refurbished end-of-life smartphones — devices that would otherwise rot in a landfill — reoriented as a single-purpose tool: help someone find shelter, food, water, services, and each other.</p>
+    <p>No ads. No accounts. No data collection. No planned obsolescence. The device does one thing well and keeps doing it. It does not need you to engage with it beyond your immediate need. It is not a product. It is infrastructure.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 01.1</span><span class="sec-title">Origin</span></div>
+  <div class="body-text">
+    <p>Conceived May 2026 after a conversation about homelessness, the Culture series, and whether any of this is fixable. The premise: the resource problem is solved. Housing First data exists. The political will doesn't. But devices do — billions of them in drawers and bins and e-waste streams, technically functional, already manufactured, already a sunk cost to the planet.</p>
+    <p>If the software is lean enough and the distribution problem is solved, there is no reason someone sleeping under a bridge can't have reliable GPS, emergency contacts, and a map to the nearest shelter. The gap is not hardware. The gap is attention.</p>
+  </div>
+
+  <div class="device-frame">
+    <div class="device-screen">
+      <div class="device-header-bar">
+        <span>WAYFINDER v0.1</span>
+        <span>☀ 62%</span>
+      </div>
+      <div class="device-row">
+        <span class="device-row-label">→ SHELTERS NEARBY</span>
+        <span class="device-row-value active">3 within 1.2mi</span>
+      </div>
+      <div class="device-row">
+        <span class="device-row-label">→ FOOD / WATER</span>
+        <span class="device-row-value active">Open now — 0.4mi</span>
+      </div>
+      <div class="device-row">
+        <span class="device-row-label">→ MEDICAL</span>
+        <span class="device-row-value">Free clinic — 2.1mi</span>
+      </div>
+      <div class="device-row">
+        <span class="device-row-label">→ EMERGENCY</span>
+        <span class="device-row-value">911 / 988</span>
+      </div>
+      <div class="device-row">
+        <span class="device-row-label">→ MESH NODES</span>
+        <span class="device-row-value active">2 peers visible</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">The device already exists. It's in a bin somewhere. It just needs different software and someone to hand it to the right person.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Status</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">Concept Phase</span>
+      <span class="sem-chip">ARX #74</span>
+      <span class="sem-chip">Open Source</span>
+      <span class="sem-chip">Civic Infrastructure</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab2')">Hardware Spec →</button>
+  </div>
+</div>
+
+<!-- TAB 2: HARDWARE -->
+<div class="panel" id="panel-tab2">
+
+  <div class="sec-head"><span class="sec-num">§ 02</span><span class="sec-title">Hardware Architecture</span></div>
+  <div class="body-text">
+    <p><strong>Source material: e-waste.</strong> Android flagships from 2015–2020 — Galaxy S7/S8, Moto G-series, OnePlus 3/5, Pixel 2/3 — represent hundreds of millions of functional devices with working GPS, Bluetooth, and cellular radios. They are difficult to recycle, often non-functional only due to cracked screens or dead batteries (both replaceable), and currently destined for landfill.</p>
+    <p>Wayfinder does not require new manufacturing. It requires a refurbishment pipeline and a software image.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 02.1</span><span class="sec-title">Power Strategy</span></div>
+  <div class="body-text">
+    <p><strong>Solar-assisted passive charging via rear panel cells.</strong> Small-format flexible photovoltaic panels (50–80mm × 100mm, ~1–2W output) bonded to rear housing. At full sun, charges ~10–20% over 6–8 hours when idle — sufficient for daily top-up if device is in a pocket or pack facing up. Not a replacement for grid charging. A fallback.</p>
+    <p>The OS is tuned for aggressive power management: screen off by default, radios duty-cycled, location polled on demand only. Target idle draw under 30mA. A 3000mAh battery at that draw is 4+ days standby — realistic for field conditions.</p>
+    <p><strong>Charging port strategy:</strong> Retain USB-C for grid/solar-bank charging. Wireless Qi coil optional for sealed builds. The argument for sealing the port (weatherproofing) is real but trades repairability — in the v0 prototype, keep the port. Users are not the threat; water is the threat. Solve with port cover, not welding.</p>
+  </div>
+
+  <table class="spec-table">
+    <tr><td>Target Hardware</td><td>Android 2015–2020 flagships, 3GB+ RAM, Snapdragon 6xx/8xx or Exynos equivalent</td></tr>
+    <tr><td>Display</td><td>5–6" 1080p. Cracked = acceptable. Dead = recycle. Sunlight legibility is priority — AMOLED preferred (deeper black, lower draw)</td></tr>
+    <tr><td>Battery</td><td>Replace if under 60% health. Target: 3000mAh+ original or third-party cell</td></tr>
+    <tr><td>Solar</td><td>Flexible PERC cell, ~1–2W, bonded to rear with UV-resistant adhesive. Direct solar passthrough to charge circuit.</td></tr>
+    <tr><td>Radios</td><td>WiFi + Bluetooth mandatory. Cellular optional (SIM-less eSIM-less operation viable for offline-first builds). GPS mandatory.</td></tr>
+    <tr><td>Weatherproofing</td><td>Port cover + conformal coating on PCB. Target IPX4 (splash resistant). IPX7 (submersion) possible with sealed build.</td></tr>
+    <tr><td>Connectivity</td><td>Bluetooth mesh (Meshtastic protocol) for peer-to-peer data sync when no cell/wifi available</td></tr>
+  </table>
+
+  <div class="callout">The design constraint is: what survives being owned by someone who has no tools, no charger, no roof? That is the design target. Not a fragile glass slab. A brick that boots and finds you water.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Hardware Domains</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">E-Waste Reclamation</span>
+      <span class="sem-chip">Solar</span>
+      <span class="sem-chip">Meshtastic</span>
+      <span class="sem-chip">Right to Repair</span>
+      <span class="sem-chip">LiFePO4</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab1')">← Overview</button>
+    <button class="nav-btn" onclick="switchTab('tab3')">Software →</button>
+  </div>
+</div>
+
+<!-- TAB 3: SOFTWARE -->
+<div class="panel" id="panel-tab3">
+
+  <div class="sec-head"><span class="sec-num">§ 03</span><span class="sec-title">Software Stack</span></div>
+  <div class="body-text">
+    <p><strong>PostmarketOS or LineageOS as base.</strong> Both are maintained, privacy-respecting Android-compatible distributions with broad device support. PostmarketOS is Alpine-based and more minimal; LineageOS has broader hardware support. Device coverage determines the pick — for maximum e-waste compatibility, LineageOS wins the first iteration.</p>
+    <p>No Google Play Services. No Google anything. All dependencies must be F-Droid installable or compiled from source. The threat model is: this device should not be able to be remotely accessed, tracked, or data-harvested by any third party including the people who built it.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 03.1</span><span class="sec-title">Wayfinder OS Interface</span></div>
+  <div class="body-text">
+    <p><strong>Single-purpose launcher.</strong> Boots directly into the Wayfinder app. No app drawer. No widgets. No home screen chrome. Five functions accessible from the first screen: Find Resources, Navigation, Emergency, Mesh / Peers, Settings. Nothing else is visible unless explicitly enabled by the user.</p>
+    <p>Typography: large, high-contrast, monospaced. Optimized for outdoor visibility, low ambient light, and users who may have visual impairments or limited smartphone literacy. UI is not pretty. UI is legible.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 03.2</span><span class="sec-title">Resource Directory</span></div>
+  <div class="body-text">
+    <p><strong>Offline-first, GPS-indexed resource database.</strong> Data sourced from 211.org, OpenStreetMap humanitarian layers, local government open data, and community-submitted entries. Cached locally on the device. Synced via WiFi or Meshtastic mesh when available — no cell data required for core function.</p>
+    <p>Categories: shelter (beds available / full), food (hours, restrictions), water (fountains, fill stations), medical (free clinics, ERs, pharmacies), legal aid, mental health / crisis lines, hygiene (showers, laundry). Each entry shows distance, hours, and whether it is currently open.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 03.3</span><span class="sec-title">Mesh Layer</span></div>
+  <div class="body-text">
+    <p><strong>Meshtastic-based Bluetooth/LoRa mesh.</strong> Wayfinder devices within range of each other form an automatic peer mesh. Uses: propagate resource updates without cell access, send short status messages (I'm okay / I need help), sync location data for community check-ins, relay alerts (shelter full, service closed).</p>
+    <p>Privacy default: location sharing is opt-in per session. Device IDs are locally-generated and not registered anywhere. The mesh does not phone home.</p>
+  </div>
+
+  <div class="callout">The software philosophy is the same as the hardware philosophy: does it work when you have nothing? That is the only benchmark.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Stack</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">LineageOS</span>
+      <span class="sem-chip">postmarketOS</span>
+      <span class="sem-chip">Meshtastic</span>
+      <span class="sem-chip">OpenStreetMap</span>
+      <span class="sem-chip">F-Droid</span>
+      <span class="sem-chip">Offline-First</span>
+      <span class="sem-chip">No Google</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab2')">← Hardware</button>
+    <button class="nav-btn" onclick="switchTab('tab4')">Distribution →</button>
+  </div>
+</div>
+
+<!-- TAB 4: DISTRIBUTION -->
+<div class="panel" id="panel-tab4">
+
+  <div class="sec-head"><span class="sec-num">§ 04</span><span class="sec-title">Distribution Model</span></div>
+  <div class="body-text">
+    <p><strong>The distribution problem is harder than the software problem.</strong> A device that reaches no one is not infrastructure. Wayfinder's value is entirely dependent on getting working units into the hands of people who need them, maintaining enough of a support ecosystem that devices stay functional, and keeping the resource database current enough to be trusted.</p>
+    <p>Three distribution vectors are being scoped: direct handoff through mutual aid networks, partnerships with shelters and service organizations for on-site device access, and community repair hubs that refurbish e-waste locally and deploy Wayfinder images.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 04.1</span><span class="sec-title">Refurbishment Pipeline</span></div>
+  <div class="body-text">
+    <p><strong>Community repair hub model.</strong> Partner with existing repair spaces, makerspaces, and libraries to establish local e-waste intake → battery replacement → Wayfinder flash → deploy pipelines. Each hub receives a flashing kit (a single Raspberry Pi with the Wayfinder image and a guide), replaces batteries where needed using third-party cells (~$8–15 each), and maintains a small local inventory of ready units.</p>
+    <p>Target unit cost after refurbishment: under $25. For comparison, a TracFone burner is $20 with less capability and no mesh layer.</p>
+  </div>
+
+  <ul class="phase-list">
+    <li class="phase-item">
+      <div class="phase-num">PHASE 0</div>
+      <div class="phase-body">
+        <div class="phase-title">Prototype Build</div>
+        <div class="phase-desc">Flash one device. Validate postmarketOS/LineageOS on target hardware. Build Wayfinder launcher MVP. Test offline resource lookup + GPS. Document the process end to end.</div>
+      </div>
+    </li>
+    <li class="phase-item">
+      <div class="phase-num">PHASE 1</div>
+      <div class="phase-body">
+        <div class="phase-title">Pilot City</div>
+        <div class="phase-desc">Deploy 10–25 units in one city with a partner shelter or mutual aid org. Gather feedback. Validate mesh functionality. Refine the resource database schema. Fix what breaks.</div>
+      </div>
+    </li>
+    <li class="phase-item">
+      <div class="phase-num">PHASE 2</div>
+      <div class="phase-body">
+        <div class="phase-title">Hub Network</div>
+        <div class="phase-desc">Open-source the flashing process. Enable community replication. Each hub self-manages. ARX maintains the OS image and resource data schema. Local orgs populate local data.</div>
+      </div>
+    </li>
+    <li class="phase-item">
+      <div class="phase-num">PHASE 3</div>
+      <div class="phase-body">
+        <div class="phase-title">Solar Integration + Charging Infrastructure</div>
+        <div class="phase-desc">Deploy public solar charging stations co-located with resource sites. Weatherproof enclosures with multi-port USB charging, Wayfinder mesh relay node built in. The charging station is also a mesh node.</div>
+      </div>
+    </li>
+  </ul>
+
+  <div class="callout">Wayfinder charging stations double as Meshtastic relay nodes. The infrastructure for charging and the infrastructure for communication are the same infrastructure. One build, two functions.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Partners Needed</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">Mutual Aid Networks</span>
+      <span class="sem-chip">Repair Hubs</span>
+      <span class="sem-chip">Shelters</span>
+      <span class="sem-chip">Libraries</span>
+      <span class="sem-chip">Makerspaces</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab3')">← Software</button>
+    <button class="nav-btn" onclick="switchTab('tab5')">Context →</button>
+  </div>
+</div>
+
+<!-- TAB 5: CONTEXT / VISION -->
+<div class="panel" id="panel-tab5">
+
+  <div class="sec-head"><span class="sec-num">§ 05</span><span class="sec-title">Why This Exists</span></div>
+  <div class="body-text">
+    <p><strong>Homelessness is a solved problem that we have chosen not to solve.</strong> Housing First programs consistently demonstrate that unconditional housing reduces chronic homelessness, lowers emergency service costs, and improves long-term outcomes. The data is not contested. The political will is.</p>
+    <p>Wayfinder is not a substitute for that political will. It is a stopgap that acknowledges the gap will persist and tries to make surviving it less brutal. It does not fix homelessness. It helps someone sleeping under a bridge find water and a bed tonight.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 05.1</span><span class="sec-title">The E-Waste Frame</span></div>
+  <div class="body-text">
+    <p>The world generates approximately 50 million metric tons of e-waste annually. A significant fraction is functional smartphones discarded because they are no longer supported by manufacturers — not because they stopped working, but because planned obsolescence rendered them inconvenient. Wayfinder reclaims that waste and redirects it toward the people who most need access to information.</p>
+    <p>There is something appropriate about this. The same economic system that produces homelessness also produces the e-waste. The device that ended up in a bin because someone upgraded to the new model becomes the device that helps someone find a meal. That loop should close.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 05.2</span><span class="sec-title">The Culture Reference</span></div>
+  <div class="body-text">
+    <p>Iain M. Banks described a post-scarcity civilization in the Culture series where material want had been eliminated and humans were free to pursue meaning rather than survival. The Minds handled optimization. Humans got to live.</p>
+    <p>We are not there. We have the tools to eliminate scarcity and have chosen not to use them that way. Wayfinder operates in that gap — using the tools that exist, for the people the system has discarded, in the world we actually live in rather than the one we should have built by now.</p>
+  </div>
+
+  <div class="sec-head"><span class="sec-num">§ 05.3</span><span class="sec-title">ARX Foundation</span></div>
+  <div class="body-text">
+    <p>Wayfinder is ARX project #74. ARX Foundation builds open-source infrastructure for the world it wants to exist in — civic tools, hardware standards, open media, and research that treats people as the point rather than the resource. Wayfinder is the most direct expression of that mission: technology that exists purely to help people who have been failed by every other system find what they need to survive.</p>
+  </div>
+
+  <div class="callout">A world worth being born into doesn't have people sleeping under bridges with no way to find water. We're not there yet. Build toward it anyway.</div>
+
+  <div class="sem-footer">
+    <div class="sem-footer-label">Current Focus</div>
+    <div class="sem-cloud">
+      <span class="sem-chip">Prototype Build</span>
+      <span class="sem-chip">ARX Foundation</span>
+      <span class="sem-chip">Civic Infrastructure</span>
+      <span class="sem-chip">Anti-Extraction</span>
+      <span class="sem-chip">Open Source</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" onclick="switchTab('tab4')">← Distribution</button>
+  </div>
+</div>
+
+</div><!-- /panels -->
+
+<script>
+const TAB_ORDER = ['tab1', 'tab2', 'tab3', 'tab4', 'tab5'];
+
+let isDarkMode = localStorage.getItem('arx-theme') === 'dark' || false;
+
+const mainHeader = document.getElementById('main-header');
+const themeBtn = document.getElementById('theme-btn');
+
+if (isDarkMode) {
+  document.body.setAttribute('data-theme', 'dark');
+  themeBtn.textContent = '☀ Light';
+}
+
+function toggleTheme() {
+  isDarkMode = !isDarkMode;
+  document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+  themeBtn.textContent = isDarkMode ? '☀ Light' : '🌙 Dark';
+  localStorage.setItem('arx-theme', isDarkMode ? 'dark' : 'light');
+}
+
+let isCollapsed = false;
+
+window.addEventListener('scroll', () => {
+  const should = window.scrollY > 40;
+  if (should !== isCollapsed) {
+    isCollapsed = should;
+    mainHeader.classList.toggle('collapsed', isCollapsed);
+  }
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  if (total > 0) {
+    const percentage = (window.scrollY / total) * 100;
+    document.getElementById('progress').style.width = percentage + '%';
+  }
+}, { passive: true });
+
+function switchTab(tab) {
+  const tabEl = document.querySelector(`[onclick="switchTab('${tab}')"]`);
+  const panelEl = document.getElementById(`panel-${tab}`);
+  if (!tabEl || !panelEl) return;
+  panelEl.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => {
+    if (p !== panelEl) p.classList.remove('active');
+  });
+  tabEl.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+document.querySelectorAll('.tab')[0].classList.add('active');
+document.getElementById('panel-tab1').classList.add('active');
+</script>
+
+</body>
+</html>

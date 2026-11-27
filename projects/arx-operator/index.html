@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="48x48">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARX Operator — Infrastructure Install Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0E0C0A;
+  --bg2:       #161310;
+  --bg3:       #1E1A16;
+  --bg4:       #262018;
+  --border:    #2E2820;
+  --border2:   #3A3028;
+  --text:      #E8E0D0;
+  --text2:     #B0A898;
+  --text3:     #706860;
+  --rust:      #C4521A;
+  --rust2:     #E06830;
+  --rust-dim:  rgba(196,82,26,0.12);
+  --green:     #4A8C3A;
+  --green2:    #5AAA48;
+  --green-dim: rgba(74,140,58,0.12);
+  --amber:     #C49020;
+  --amber-dim: rgba(196,144,32,0.12);
+  --red:       #A03020;
+  --red-dim:   rgba(160,48,32,0.12);
+  --blue:      #4A80B0;
+  --blue-dim:  rgba(74,128,176,0.12);
+  --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --serif: 'EB Garamond', Georgia, serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:15px; }
+
+body {
+  font-family: var(--mono);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--bg2);
+  border-bottom: 2px solid var(--rust);
+  padding: 20px 24px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-top {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.header-title {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--rust2);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.header-sub {
+  font-size: 0.75rem;
+  color: var(--text3);
+  letter-spacing: 0.04em;
+}
+.progress-row {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 0;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--rust);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+.progress-label {
+  font-size: 0.7rem;
+  color: var(--text3);
+  white-space: nowrap;
+  min-width: 140px;
+  text-align: right;
+}
+
+/* ── SEARCH ── */
+.search-row {
+  margin-top: 10px;
+}
+.search-input {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  padding: 5px 10px;
+  width: 100%;
+  max-width: 360px;
+  outline: none;
+  border-radius: 0;
+}
+.search-input:focus { border-color: var(--rust); }
+.search-input::placeholder { color: var(--text3); }
+
+/* ── TABS ── */
+.tabs-bar {
+  display: flex;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  gap: 0;
+  padding: 0 8px;
+}
+.tabs-bar::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  position: relative;
+}
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active {
+  color: var(--rust2);
+  border-bottom-color: var(--rust);
+}
+.tab-count {
+  font-size: 0.6rem;
+  color: var(--text3);
+  margin-left: 5px;
+}
+.tab-btn.active .tab-count { color: var(--rust); }
+
+/* ── CONTENT ── */
+.content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── SECTION CARDS ── */
+.section-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border2);
+  margin-bottom: 12px;
+  transition: border-left-color 0.2s;
+}
+.section-card.has-active { border-left-color: var(--amber); }
+.section-card.all-done { border-left-color: var(--green); }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+}
+.section-header:hover { background: var(--bg3); }
+
+.section-chevron {
+  font-size: 0.65rem;
+  color: var(--text3);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.section-card.open .section-chevron { transform: rotate(90deg); }
+
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  flex: 1;
+}
+
+.section-status {
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+.status-pending  { color: var(--text3); }
+.status-active   { color: var(--amber); }
+.status-done     { color: var(--green); }
+.status-critical { color: var(--rust2); }
+.status-blocked  { color: var(--red); }
+
+.dep-tag {
+  font-size: 0.6rem;
+  padding: 1px 6px;
+  background: var(--bg4);
+  color: var(--text3);
+  border: 1px solid var(--border2);
+  white-space: nowrap;
+}
+.dep-requires { color: var(--amber); border-color: var(--amber); background: var(--amber-dim); }
+.dep-provides { color: var(--green); border-color: var(--green); background: var(--green-dim); }
+.dep-optional { color: var(--blue); border-color: var(--blue); background: var(--blue-dim); }
+
+.section-body {
+  padding: 0 14px 14px;
+  display: none;
+}
+.section-card.open .section-body { display: block; }
+
+.section-desc {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  color: var(--text2);
+  margin-bottom: 14px;
+  line-height: 1.7;
+  padding-top: 4px;
+}
+
+/* ── CHECKLIST ── */
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+.check-item:last-child { border-bottom: none; }
+
+.check-item input[type=checkbox] {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  border: 1px solid var(--border2);
+  background: var(--bg);
+  cursor: pointer;
+  margin-top: 3px;
+  position: relative;
+  transition: background 0.15s, border-color 0.15s;
+}
+.check-item input[type=checkbox]:checked {
+  background: var(--green);
+  border-color: var(--green);
+}
+.check-item input[type=checkbox]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -1px;
+  left: 1px;
+  font-size: 10px;
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.check-label {
+  font-size: 0.78rem;
+  color: var(--text2);
+  line-height: 1.5;
+  flex: 1;
+}
+.check-item input:checked ~ .check-label {
+  color: var(--text3);
+  text-decoration: line-through;
+  text-decoration-color: var(--border2);
+}
+
+.check-label code {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  background: var(--bg3);
+  padding: 1px 5px;
+  border: 1px solid var(--border2);
+  color: var(--rust2);
+}
+
+/* ── CODE BLOCKS ── */
+.code-block {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--rust);
+  padding: 12px 14px;
+  margin: 10px 0;
+  overflow-x: auto;
+  position: relative;
+}
+.code-block pre {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text2);
+  white-space: pre;
+  line-height: 1.6;
+}
+.code-block .comment { color: var(--text3); }
+.code-block .key { color: var(--rust2); }
+.code-block .val { color: var(--green2); }
+.code-block .cmd { color: var(--amber); }
+.code-label {
+  font-size: 0.62rem;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+/* ── NOTE BOXES ── */
+.note {
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  margin: 10px 0;
+  border-left: 3px solid var(--amber);
+  background: var(--amber-dim);
+  color: var(--text2);
+  line-height: 1.6;
+}
+.note.info { border-left-color: var(--blue); background: var(--blue-dim); }
+.note.warn { border-left-color: var(--rust2); background: var(--rust-dim); }
+.note.ok   { border-left-color: var(--green); background: var(--green-dim); }
+
+/* ── SERVICE TABLE ── */
+.service-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 0.72rem;
+}
+.service-table th {
+  text-align: left;
+  padding: 6px 10px;
+  background: var(--bg3);
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  border-bottom: 1px solid var(--border2);
+}
+.service-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  vertical-align: top;
+}
+.service-table tr:last-child td { border-bottom: none; }
+.service-table code {
+  font-family: var(--mono);
+  color: var(--rust2);
+  font-size: 0.7rem;
+}
+
+/* ── TAB INTRO ── */
+.tab-intro {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  background: var(--bg2);
+  border-left: 3px solid var(--rust);
+}
+
+/* ── PHASE BADGE ── */
+.phase-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  padding: 2px 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--rust);
+  color: var(--rust2);
+  margin-bottom: 16px;
+  background: var(--rust-dim);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .content { padding: 16px 12px 40px; }
+  .tab-btn { padding: 8px 10px; font-size: 0.65rem; }
+}
+</style>
+</head>
+<body>
+<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
+<a href="/projects/" style="color:#F2F2EF;text-decoration:none">&larr; All projects</a>
+<span style="color:#8C8C88">The ARX Foundation</span>
+<span style="border:1px solid rgba(242,242,239,.35);padding:2px 7px">Active</span>
+<span style="color:#8C8C88;text-transform:none;letter-spacing:.02em;font-size:12px">In active development.</span>
+<a href="mailto:contact@thearxfoundation.org?subject=ARX%20Operator%20—%20Infrastructure%20Install%20Guide" style="color:#F2F2EF;margin-left:auto">Get in touch</a>
+</div>
+
+
+<div class="header">
+  <div class="header-top">
+    <span class="header-title">ARX // Operator Install Guide</span>
+    <span class="header-sub">v2.1 — May 2026 — Hetzner + Tailscale + HSD Mesh</span>
+  </div>
+  <div class="progress-row">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0 / 0 steps</div>
+  </div>
+  <div class="search-row">
+    <input class="search-input" id="searchInput" placeholder="search steps..." autocomplete="off" />
+  </div>
+</div>
+
+<div class="tabs-bar" id="tabsBar">
+  <button class="tab-btn active" data-tab="hetzner">Hetzner VPS <span class="tab-count" data-tab-count="hetzner"></span></button>
+  <button class="tab-btn" data-tab="docker">Docker Stack <span class="tab-count" data-tab-count="docker"></span></button>
+  <button class="tab-btn" data-tab="vcs">Version Control <span class="tab-count" data-tab-count="vcs"></span></button>
+  <button class="tab-btn" data-tab="tailscale">Tailscale Mesh <span class="tab-count" data-tab-count="tailscale"></span></button>
+  <button class="tab-btn" data-tab="dns">Sovereign DNS / .arx <span class="tab-count" data-tab-count="dns"></span></button>
+  <button class="tab-btn" data-tab="remote">Remote Access <span class="tab-count" data-tab-count="remote"></span></button>
+  <button class="tab-btn" data-tab="graphene">GrapheneOS + FOSS <span class="tab-count" data-tab-count="graphene"></span></button>
+</div>
+
+<div class="content">
+
+<!-- ════════════════════════ TAB 1: HETZNER ════════════════════════ -->
+<div class="tab-panel active" data-panel="hetzner">
+  <div class="tab-intro">
+    Primary cloud node. CX32 on Debian 12 — 4 vCPU, 8GB RAM, 80GB SSD, ~$17/mo. All services run Tailscale-only. Zero public ports except what HSD needs for blockchain peering.
+  </div>
+
+  <div class="section-card open">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">1.1 — Provision the VPS</span>
+      <span class="dep-tag dep-provides">unblocks everything</span>
+      <span class="section-status status-critical">start here</span>
+    </div>
+    <div class="section-body">
+      <p class="section-desc">Create the server. Takes under 2 minutes. Hetzner Cloud console → New Server.</p>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Create Hetzner Cloud account at <code>console.hetzner.cloud</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">New Project → name it <code>arx-infra</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">New Server → Location: <strong>Ashburn, VA</strong> (lowest latency from western US)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">OS: <strong>Debian 12 Bookworm</strong> (not Ubuntu — cleaner base for Docker)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Type: <strong>CX32</strong> (4 vCPU / 8GB / 80GB SSD) — $17/mo. Don't go smaller, HSD needs headroom.</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">SSH Key: paste your public key during creation (no password auth ever)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Hostname: <code>arx-vps</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Create — note the public IP, you won't need it after Tailscale is up</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">1.2 — First login: Tailscale before anything else</span>
+      <span class="dep-tag dep-requires">requires 1.1</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <p class="section-desc">Tailscale goes on first. After this, all management happens over the mesh — public IP becomes vestigial.</p>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">SSH in: <code>ssh root@YOUR_PUBLIC_IP</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Run: <code>curl -fsSL https://tailscale.com/install.sh | sh</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Run: <code>tailscale up --advertise-exit-node --ssh</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Approve exit node + SSH in Tailscale admin console</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Set machine name to <code>arx-vps</code> in admin console</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Verify: <code>tailscale status</code> shows connected</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Test Tailscale SSH: <code>ssh root@arx-vps</code> — if it works, public IP is done</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">1.3 — UFW lockdown</span>
+      <span class="dep-tag dep-requires">requires 1.2</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <p class="section-desc">Lock the firewall. All traffic through Tailscale. The only public ports are for HSD blockchain peering (12038) — everything else is mesh-only.</p>
+      <div class="code-block"><div class="code-label">firewall setup</div><pre>apt-get install -y ufw
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow in on tailscale0          # all Tailscale traffic
+ufw allow 12038/tcp                 # HSD p2p peering (public)
+ufw allow 12038/udp
+ufw allow 22000/tcp                 # Syncthing sync
+ufw allow 22000/udp
+ufw --force enable
+ufw status</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">UFW installed and enabled</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Default deny incoming confirmed</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Tailscale interface allowed</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">HSD p2p port 12038 open (needed for blockchain sync)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Verify still accessible via Tailscale SSH after enable</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">1.4 — SSH hardening + system deps</span>
+      <span class="dep-tag dep-requires">requires 1.3</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block"><div class="code-label">sshd_config changes</div><pre>sed -i 's/#Port 22/Port 2299/' /etc/ssh/sshd_config
+sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+systemctl restart ssh</pre></div>
+      <div class="code-block"><div class="code-label">system packages</div><pre>apt-get update && apt-get install -y \
+  docker.io docker-compose-plugin \
+  git curl htop jq unbound \
+  libunbound-dev nodejs npm \
+  build-essential openssl
+systemctl enable --now docker</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">SSH moved to port 2299, password auth disabled</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Docker + Docker Compose installed, daemon running</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>unbound</code> + <code>libunbound-dev</code> installed (required for HSD DNS)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Node.js 18+ installed: <code>node --version</code></span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">1.5 — Directory structure</span>
+      <span class="dep-tag dep-requires">requires 1.4</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block"><div class="code-label">create /opt/arx layout</div><pre>mkdir -p /opt/arx/data/{redis,syncthing/config,obsidian,obsidian-config,\
+forgejo,field-receipt,openclaw,hsd,hsd-wallet}
+chmod -R 755 /opt/arx
+cd /opt/arx</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>/opt/arx/</code> created with all subdirs</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>data/hsd/</code> exists — will hold ~20GB blockchain</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Generate secrets: <code>openssl rand -hex 32</code> → save 4 values for .env</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ TAB 2: DOCKER ════════════════════════ -->
+<div class="tab-panel" data-panel="docker">
+  <div class="tab-intro">
+    Full service stack on a single compose file. Spin up in order — Redis first, then storage, then apps. Everything binds to Tailscale interface only. HSD runs as a separate service but integrates via shared network.
+  </div>
+
+  <div class="section-card open">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">2.1 — .env file</span>
+      <span class="dep-tag dep-requires">requires 1.5</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block"><div class="code-label">/opt/arx/.env</div><pre>REDIS_PASSWORD=&lt;openssl rand -hex 32&gt;
+FORGEJO_SECRET_KEY=&lt;openssl rand -hex 32&gt;
+HSD_API_KEY=&lt;openssl rand -hex 24&gt;
+VPS_TAILSCALE_IP=100.x.x.x        # get from: tailscale ip -4
+VPS_HOSTNAME=arx-vps
+OBSIDIAN_VAULT_PATH=/opt/arx/data/obsidian</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>.env</code> created at <code>/opt/arx/.env</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>chmod 600 /opt/arx/.env</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Tailscale IP confirmed: <code>tailscale ip -4</code></span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">2.2 — docker-compose.yml</span>
+      <span class="dep-tag dep-requires">requires 2.1</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block"><div class="code-label">/opt/arx/docker-compose.yml (core services)</div><pre>version: '3.9'
+networks:
+  arx: driver: bridge
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks: [arx]
+    volumes: [./data/redis:/data]
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+
+  syncthing:
+    image: syncthing/syncthing:latest
+    restart: unless-stopped
+    networks: [arx]
+    environment: [PUID=1000, PGID=1000]
+    volumes:
+      - ./data/syncthing/config:/var/syncthing/config
+      - ./data/obsidian:/sync/obsidian
+    ports: ["${VPS_TAILSCALE_IP}:8384:8384"]
+
+  obsidian-remote:
+    image: sytone/obsidian-remote:latest
+    restart: unless-stopped
+    networks: [arx]
+    volumes:
+      - ./data/obsidian:/vaults/arx
+      - ./data/obsidian-config:/root/.config/obsidian
+    ports: ["${VPS_TAILSCALE_IP}:8080:8080"]
+    environment:
+      - VAULT_PATH=/vaults/arx
+
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:7
+    restart: unless-stopped
+    networks: [arx]
+    volumes: [./data/forgejo:/data]
+    ports: ["${VPS_TAILSCALE_IP}:3001:3000"]
+    environment:
+      - APP_NAME=ARX Forgejo
+      - SECRET_KEY=${FORGEJO_SECRET_KEY}
+
+  field-receipt:
+    image: node:20-alpine
+    restart: unless-stopped
+    networks: [arx]
+    working_dir: /app
+    volumes: [./data/field-receipt:/app]
+    ports: ["${VPS_TAILSCALE_IP}:7338:7338"]
+    command: sh -c "npm install && node server.js"</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>docker-compose.yml</code> written to <code>/opt/arx/</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">All port binds use <code>${VPS_TAILSCALE_IP}</code> — not 0.0.0.0</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">2.3 — Bring up the stack</span>
+      <span class="dep-tag dep-requires">requires 2.2</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block"><div class="code-label">startup order</div><pre>cd /opt/arx
+docker compose up -d redis
+docker compose up -d syncthing
+docker compose up -d obsidian-remote
+docker compose up -d forgejo
+docker compose up -d field-receipt
+docker compose ps   # verify all running</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Redis up: <code>docker compose logs redis</code> shows ready</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Syncthing reachable: <code>http://arx-vps:8384</code> in browser (Tailscale connected)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Obsidian-remote: <code>http://arx-vps:8080</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Forgejo: <code>http://arx-vps:3001</code> — complete initial setup wizard</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">All containers show <code>Up</code> in <code>docker compose ps</code></span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">2.4 — Service access map</span>
+      <span class="dep-tag dep-provides">reference</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <table class="service-table">
+        <tr><th>Service</th><th>URL (Tailscale only)</th><th>Purpose</th></tr>
+        <tr><td>Obsidian-remote</td><td><code>http://arx-vps:8080</code></td><td>Browser Obsidian vault</td></tr>
+        <tr><td>Syncthing</td><td><code>http://arx-vps:8384</code></td><td>Vault sync</td></tr>
+        <tr><td>Forgejo</td><td><code>http://arx-vps:3001</code></td><td>Git host (L1)</td></tr>
+        <tr><td>Field Receipt</td><td><code>http://arx-vps:7338</code></td><td>Receipt capture daemon</td></tr>
+        <tr><td>HSD RPC</td><td><code>http://arx-vps:12037</code></td><td>Handshake node API</td></tr>
+        <tr><td>HSD DNS resolver</td><td><code>arx-vps:15360</code></td><td>.arx recursive DNS</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ TAB 3: VCS ════════════════════════ -->
+<div class="tab-panel" data-panel="vcs">
+  <div class="tab-intro">
+    Three-tier version control: Forgejo (self-hosted L1, truth) → GitHub (public mirror L2) → Radicle (P2P sovereign backup L3). Crown jewels never live on GitHub alone.
+  </div>
+
+  <div class="section-card open">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">3.1 — Forgejo initial configuration</span>
+      <span class="dep-tag dep-requires">requires 2.3</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Open <code>http://arx-vps:3001</code> → initial setup wizard</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">DB: SQLite (fine for ARX scale)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Site URL: <code>http://arx-vps:3001</code> (Tailscale internal)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Create admin account: <code>elryan</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Add SSH key to Forgejo account</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Create org: <code>arx-foundation</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Mirror existing GitHub repos into Forgejo (Settings → Migrations)</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">3.2 — GitHub push mirroring (L2)</span>
+      <span class="dep-tag dep-requires">requires 3.1</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <p class="section-desc">Forgejo pushes to GitHub automatically. Source of truth stays on Forgejo; GitHub is public visibility layer.</p>
+      <div class="code-block"><div class="code-label">per-repo mirror setup</div><pre># In Forgejo repo → Settings → Git Hooks → Post Receive
+# Or use Forgejo's built-in push mirror:
+# Repo → Settings → Mirror Settings → Push Mirror
+# URL: https://github.com/arx-foundation/REPO_NAME.git
+# Auth: GitHub PAT with repo scope</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">GitHub PAT created with <code>repo</code> scope</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Push mirror configured on priority repos (Glyphkeeper, FuelMesh, BEADS)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Test push: commit on Forgejo → appears on GitHub within 60s</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">3.3 — Radicle (L3 sovereign backup)</span>
+      <span class="dep-tag dep-optional">optional but sovereign</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <p class="section-desc">Radicle is P2P git — no central host, content-addressed, cryptographically signed. Install on both Hetzner and local workstation.</p>
+      <div class="code-block"><div class="code-label">radicle install</div><pre>curl -sSf https://radicle.xyz/install | sh
+rad auth    # creates your DID identity
+rad init    # in any existing git repo
+rad sync    # push to Radicle network</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Radicle installed on Hetzner + Arch workstation</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">DID identity created — back up seed phrase</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Priority repos initialized with <code>rad init</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Radicle node running as systemd service on Hetzner</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ TAB 4: TAILSCALE ════════════════════════ -->
+<div class="tab-panel" data-panel="tailscale">
+  <div class="tab-intro">
+    Tailscale mesh connects Flux (Pixel 9), Arch workstation, and Hetzner VPS. All services expose only to the tailnet. HSD DNS resolver propagates to all devices via Tailscale's custom DNS setting.
+  </div>
+
+  <div class="section-card open">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">4.1 — Add all devices to tailnet</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Hetzner VPS: already on tailnet from step 1.2</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Pixel 9 (Flux): install Tailscale from Play Store → sign in</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Arch workstation: <code>pacman -S tailscale</code> → <code>systemctl enable --now tailscaled</code> → <code>tailscale up</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">All 3 devices visible in <code>tailscale status</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Machine names set: <code>arx-vps</code>, <code>flux-phone</code>, <code>arx-station</code></span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">4.2 — MagicDNS + custom nameserver</span>
+      <span class="dep-tag dep-requires">requires DNS tab (5.x)</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <p class="section-desc">After HSD is running, point Tailscale's custom DNS at it. This makes <code>*.arx</code> resolve on every device on the mesh.</p>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Tailscale admin → DNS → enable MagicDNS</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Add nameserver: <code>100.x.x.x</code> (arx-vps Tailscale IP), port 15360</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Check "Override local DNS" — routes all DNS through arx-vps</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Test from Pixel 9: <code>nslookup foundation.arx</code> → should resolve</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">4.3 — Tailscale ACLs (access control)</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block"><div class="code-label">tailscale ACL policy (admin console → Access Controls)</div><pre>{
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["tag:personal"],
+      "dst": ["tag:server:*"]
+    }
+  ],
+  "tagOwners": {
+    "tag:server":   ["autogroup:admin"],
+    "tag:personal": ["autogroup:member"]
+  },
+  "ssh": [
+    {
+      "action": "accept",
+      "src": ["autogroup:admin"],
+      "dst": ["tag:server"],
+      "users": ["root", "autogroup:nonroot"]
+    }
+  ]
+}</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">ACL policy applied — personal devices can reach server, not each other by default</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">arx-vps tagged as <code>tag:server</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Tailscale SSH enabled on arx-vps — test: <code>tailscale ssh root@arx-vps</code></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ TAB 5: SOVEREIGN DNS ════════════════════════ -->
+<div class="tab-panel" data-panel="dns">
+  <div class="tab-intro">
+    Self-hosted Handshake full node on Hetzner. Own the <code>.arx</code> TLD outright — sovereign, unkillable, no renewals, no registrar. Every device on the Tailscale mesh resolves <code>*.arx</code> natively through the HSD recursive resolver.
+  </div>
+
+  <div class="note warn">HSD requires ~20GB for blockchain sync. CX32's 80GB disk handles it with headroom. Initial sync takes 2–8 hours. Don't interrupt it.</div>
+
+  <div class="section-card open">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">5.1 — Install HSD (Handshake full node)</span>
+      <span class="dep-tag dep-requires">requires 1.4</span>
+      <span class="section-status status-critical">do before DNS config</span>
+    </div>
+    <div class="section-body">
+      <p class="section-desc">HSD is the Handshake daemon. It syncs the blockchain, holds your wallet, runs auctions, and serves as authoritative + recursive DNS for all <code>.arx</code> names.</p>
+      <div class="code-block"><div class="code-label">install hsd globally via npm</div><pre>npm install -g hsd hs-client
+# verify
+hsd --version
+hsd-cli --version</pre></div>
+      <div class="code-block"><div class="code-label">hsd config at ~/.hsd/hsd.conf</div><pre>network: main
+prefix: /opt/arx/data/hsd
+api-key: YOUR_HSD_API_KEY
+http-host: 0.0.0.0          # bind to all (Tailscale handles access)
+http-port: 12037
+rs-host: 0.0.0.0            # recursive resolver
+rs-port: 15360              # DNS port (Tailscale mesh)
+ns-host: 0.0.0.0
+ns-port: 5301               # authoritative
+log-level: info</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>hsd</code> and <code>hs-client</code> installed globally</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>~/.hsd/hsd.conf</code> written with your API key</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Data dir set to <code>/opt/arx/data/hsd</code></span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">5.2 — HSD systemd service + initial sync</span>
+      <span class="dep-tag dep-requires">requires 5.1</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block"><div class="code-label">/etc/systemd/system/hsd.service</div><pre>[Unit]
+Description=Handshake Full Node (HSD)
+After=network.target tailscaled.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/arx/data/hsd
+ExecStart=/usr/bin/hsd --daemon=false
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target</pre></div>
+      <div class="code-block"><div class="code-label">start and monitor sync</div><pre>systemctl daemon-reload
+systemctl enable --now hsd
+# tail the sync (takes 2-8 hours)
+journalctl -fu hsd
+# check sync status
+hsd-cli --api-key YOUR_KEY info | jq .chain</pre></div>
+      <div class="note">While syncing, <code>"progress"</code> climbs from 0 to 1.0. Don't run auctions until fully synced.</div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Systemd unit file written to <code>/etc/systemd/system/hsd.service</code></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">HSD service enabled and started</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Logs show peers connecting and blocks syncing</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Wait for <code>"progress": 1</code> before proceeding to 5.3</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">5.3 — Create wallet + get HNS</span>
+      <span class="dep-tag dep-requires">requires 5.2 synced</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <p class="section-desc">You need HNS tokens to bid on names. Even small amounts work — auctions are second-price Vickrey, so if you're the only bidder you pay near zero.</p>
+      <div class="code-block"><div class="code-label">wallet setup</div><pre>export HSD_API_KEY=YOUR_KEY
+
+# create wallet
+hsw-cli --api-key $HSD_API_KEY mkwallet arx-wallet
+
+# get a receive address
+hsw-cli --api-key $HSD_API_KEY rpc getnewaddress
+
+# check balance (after depositing HNS)
+hsw-cli --api-key $HSD_API_KEY balance</pre></div>
+      <div class="note info">Get HNS: Gate.io or any exchange carrying HNS → withdraw to your wallet address. You need ~200 HNS as buffer ($5–20 depending on market). The bid lockup returns if you win (you pay second-price) or lose.</div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Wallet <code>arx-wallet</code> created</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><strong>WRITE DOWN THE SEED PHRASE</strong> — no recovery without it</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Receive address obtained</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">HNS deposited and confirmed: <code>hsw-cli balance</code> shows funds</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">5.4 — Check .arx availability + open auction</span>
+      <span class="dep-tag dep-requires">requires 5.3</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block"><div class="code-label">check name status</div><pre>hsd-cli --api-key $HSD_API_KEY rpc getnameinfo arx
+# "info": null → available, open for bidding
+# "info": {...} → already owned, check owner + price</pre></div>
+      <div class="code-block"><div class="code-label">if available: start the auction</div><pre># Open the auction (costs tiny mining fee)
+hsw-cli --api-key $HSD_API_KEY rpc sendopen arx
+
+# Check when bidding opens (~6 hours after open tx mined)
+hsd-cli --api-key $HSD_API_KEY rpc getnameinfo arx | jq .info.state</pre></div>
+      <div class="note warn">If <code>arx</code> is taken, check: <code>thearx</code>, <code>arxf</code>, <code>arx-foundation</code>. Or contact the owner via the blockchain address — names can be purchased peer-to-peer.</div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>getnameinfo arx</code> checked — note the state</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">If available: <code>sendopen arx</code> broadcast and mined</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">State shows <code>BIDDING</code> after ~6 hours</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">5.5 — Bid, reveal, register</span>
+      <span class="dep-tag dep-requires">requires 5.4</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="note warn">⚠ CRITICAL: You MUST run <code>sendreveal</code> within 10 days of bidding closing or you permanently lose the locked bid coins.</div>
+      <div class="code-block"><div class="code-label">auction lifecycle (~15 days total)</div><pre># State: BIDDING (5 days)
+# bid = actual bid, lockup = blind (obfuscates real bid)
+# Set lockup high — makes sniping harder
+hsw-cli --api-key $HSD_API_KEY rpc sendbid arx 50 500
+
+# State: REVEAL (10 days)
+# Run this as soon as state flips to REVEAL
+hsw-cli --api-key $HSD_API_KEY rpc sendreveal arx
+
+# Check if you won
+hsd-cli --api-key $HSD_API_KEY rpc getnameinfo arx | jq .info.state
+# → CLOSED (you won) or CLOSED (someone outbid)
+
+# If won: register the name
+hsw-cli --api-key $HSD_API_KEY rpc sendupdate arx \
+  '{"ns":["ns1.arx. 172800 IN A YOUR_HETZNER_PUBLIC_IP"]}'</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Bid placed with high lockup</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><strong>Calendar reminder set for reveal window</strong></span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Reveal sent during REVEAL period</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Won auction confirmed</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Name registered with NS record pointing to arx-vps</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">5.6 — Configure .arx subdomains</span>
+      <span class="dep-tag dep-requires">requires 5.5</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <p class="section-desc">Once you own <code>.arx</code>, configure DNS records for each service. HSD serves these authoritatively — Tailscale DNS points all mesh devices here.</p>
+      <div class="code-block"><div class="code-label">add A records for services</div><pre>VPS_IP=YOUR_HETZNER_PUBLIC_IP  # or Tailscale IP for internal-only
+
+# foundation.arx → main public site
+hsw-cli rpc sendupdate foundation \
+  '{"records":[{"type":"A","address":"'$VPS_IP'"}]}'
+
+# Each subdomain gets its own update tx:
+# obsidian.arx, forgejo.arx, openclaw.arx, flux.arx, etc.
+
+# Internal-only (Tailscale IP, not reachable publicly):
+hsw-cli rpc sendupdate obsidian \
+  '{"records":[{"type":"A","address":"100.x.x.x"}]}'</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>foundation.arx</code> → Hetzner public IP</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>obsidian.arx</code> → Tailscale IP (internal only)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>forgejo.arx</code> → Tailscale IP</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label"><code>flux.arx</code> → Flux mobile IP on tailnet</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Test from Pixel 9 with Tailscale active: <code>nslookup obsidian.arx</code></span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">5.7 — Wire Tailscale DNS to HSD resolver</span>
+      <span class="dep-tag dep-requires">requires 4.2 + 5.6</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <p class="section-desc">Last step: tell Tailscale to route all DNS queries through your HSD recursive resolver. After this, every device on the mesh resolves <code>.arx</code> natively.</p>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Tailscale admin → DNS → Nameservers → Add nameserver</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">IP: arx-vps Tailscale IP (<code>tailscale ip -4</code> on vps), port 15360</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Enable "Override local DNS"</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Test from every device: <code>obsidian.arx</code> resolves</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Normal DNS still works: <code>google.com</code> resolves (HSD passes through)</span></div>
+      <div class="note ok">✓ At this point: <code>http://obsidian.arx:8080</code> opens Obsidian from anywhere on the mesh. <code>http://forgejo.arx:3001</code> opens your git host. The namespace is yours, permanently, no one can take it.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ TAB 6: REMOTE ACCESS ════════════════════════ -->
+<div class="tab-panel" data-panel="remote">
+  <div class="tab-intro">
+    Stream the full Arch desktop to any device over Tailscale. Sunshine (host) + Moonlight (client) for low-latency game streaming protocol. Pixel 9 becomes a full workstation terminal over the mesh.
+  </div>
+
+  <div class="section-card open">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">6.1 — Sunshine on Arch workstation</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="code-block"><div class="code-label">install sunshine (AUR)</div><pre>yay -S sunshine
+# or from flatpak:
+flatpak install flathub dev.lizardbyte.app.Sunshine
+# start
+sunshine
+# config UI at https://localhost:47990</pre></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Sunshine installed on Arch workstation</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Sunshine config at <code>https://localhost:47990</code> — set username/password</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Add app: Desktop (full KDE/GNOME stream)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Sunshine running as service: <code>systemctl --user enable --now sunshine</code></span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">6.2 — Moonlight on Pixel 9</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Install Moonlight from Play Store</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Add host: Arch workstation Tailscale hostname or IP</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Pair using PIN shown in Sunshine web UI</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Test stream over Tailscale (not LAN) — confirm latency acceptable</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Set resolution: 1080p/60fps (Pixel 9 can handle it)</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">6.3 — Hetzner as streaming relay (optional)</span>
+      <span class="dep-tag dep-optional">for low-bandwidth scenarios</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <p class="section-desc">If Starlink latency is too high for direct streaming, Hetzner can relay via TURN server. Or skip this and use Hetzner directly for a containerized desktop (Wolf).</p>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Test direct Tailscale stream from Flux (Starlink) → Arch workstation</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">If latency &gt;80ms: evaluate Wolf (containerized Sunshine on Hetzner)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Wolf Docker image: <code>ghcr.io/games-on-whales/wolf:stable</code></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ TAB 7: GRAPHENE ════════════════════════ -->
+<div class="tab-panel" data-panel="graphene">
+  <div class="tab-intro">
+    GrapheneOS on Pixel 9 + full FOSS app stack. Security-hardened Android with sandboxed Play Store for apps that need it. Full sovereignty from Google services where possible.
+  </div>
+
+  <div class="section-card open">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">7.1 — Flash GrapheneOS</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <div class="note warn">This wipes the device. Back up everything first. GrapheneOS web installer at <code>grapheneos.org/install/web</code> — requires Chrome/Chromium.</div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Full backup of Pixel 9 (Google One or local ADB)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Enable OEM unlock in Developer Options</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Flash via <code>grapheneos.org/install/web</code> (Chrome on Arch workstation)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Re-lock bootloader after flash</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Initial setup — do NOT add Google account at system level</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">7.2 — Core FOSS app stack</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <table class="service-table">
+        <tr><th>App</th><th>Replaces</th><th>Install via</th></tr>
+        <tr><td>Obtainium</td><td>Play Store (FOSS apps)</td><td>GitHub APK</td></tr>
+        <tr><td>Molly (Signal fork)</td><td>Messages</td><td>Obtainium</td></tr>
+        <tr><td>Tailscale</td><td>VPN</td><td>Sandboxed Play / Obtainium</td></tr>
+        <tr><td>Moonlight</td><td>Remote desktop</td><td>Obtainium</td></tr>
+        <tr><td>Unexpected Keyboard</td><td>Gboard</td><td>F-Droid</td></tr>
+        <tr><td>Obsidian</td><td>Notes</td><td>Sandboxed Play</td></tr>
+        <tr><td>Bitwarden</td><td>Passwords</td><td>Obtainium</td></tr>
+        <tr><td>Zen Browser</td><td>Chrome</td><td>Obtainium</td></tr>
+        <tr><td>Organic Maps</td><td>Google Maps</td><td>F-Droid</td></tr>
+      </table>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Sandboxed Google Play installed (GrapheneOS Settings → Apps)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Obtainium installed from GitHub</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">All core apps installed via Obtainium or F-Droid</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Tailscale connected — all ARX services reachable from Pixel 9</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Obsidian vault synced via Syncthing (<code>arx-vps:8384</code>)</span></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-chevron">▶</span>
+      <span class="section-title">7.3 — Samsung S10+ (ARX Trap Phone)</span>
+      <span class="dep-tag dep-optional">when USB port fixed</span>
+      <span class="section-status status-pending">pending</span>
+    </div>
+    <div class="section-body">
+      <p class="section-desc">LineageOS 21 on the S10+ as a dedicated ARX hardware benchmark baseline. USB port needs repair first — without it, fastboot flash is blocked.</p>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">USB port repaired (microsoldering or shop)</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">LineageOS 21 flashed on S10+</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">No Google services — pure benchmark baseline</span></div>
+      <div class="check-item"><input type="checkbox" data-check /><span class="check-label">Ollama benchmark run: log tok/Wh as ARX Trap Phone floor baseline</span></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+// ── PERSISTENCE ──
+function getKey(el) {
+  const panel = el.closest('.tab-panel');
+  const section = el.closest('.section-card');
+  const idx = Array.from(section.querySelectorAll('[data-check]')).indexOf(el);
+  return `arx-op:${panel?.dataset.panel}:${section?.querySelector('.section-title')?.textContent?.trim()?.slice(0,30)}:${idx}`;
+}
+
+function loadChecks() {
+  document.querySelectorAll('[data-check]').forEach(cb => {
+    const k = getKey(cb);
+    if (localStorage.getItem(k) === '1') cb.checked = true;
+  });
+}
+
+document.querySelectorAll('[data-check]').forEach(cb => {
+  cb.addEventListener('change', () => {
+    localStorage.setItem(getKey(cb), cb.checked ? '1' : '0');
+    updateProgress();
+    updateSectionStates();
+  });
+});
+
+// ── TABS ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const panel = document.querySelector(`[data-panel="${btn.dataset.tab}"]`);
+    if (panel) panel.classList.add('active');
+  });
+});
+
+// ── SECTIONS ──
+function toggleSection(header) {
+  const card = header.closest('.section-card');
+  card.classList.toggle('open');
+}
+
+// ── PROGRESS ──
+function updateProgress() {
+  const all = document.querySelectorAll('[data-check]');
+  const done = document.querySelectorAll('[data-check]:checked');
+  const pct = all.length ? Math.round((done.length / all.length) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${done.length} / ${all.length} complete — ${pct}%`;
+
+  // per-tab counts
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    const panelKey = panel.dataset.panel;
+    const total = panel.querySelectorAll('[data-check]').length;
+    const checked = panel.querySelectorAll('[data-check]:checked').length;
+    const el = document.querySelector(`[data-tab-count="${panelKey}"]`);
+    if (el) el.textContent = `${checked}/${total}`;
+  });
+}
+
+function updateSectionStates() {
+  document.querySelectorAll('.section-card').forEach(card => {
+    const all = card.querySelectorAll('[data-check]');
+    const done = card.querySelectorAll('[data-check]:checked');
+    card.classList.remove('has-active', 'all-done');
+    if (all.length === 0) return;
+    if (done.length === all.length) card.classList.add('all-done');
+    else if (done.length > 0) card.classList.add('has-active');
+
+    const statusEl = card.querySelector('.section-status');
+    if (!statusEl) return;
+    if (!statusEl.dataset.orig) statusEl.dataset.orig = statusEl.textContent;
+    if (done.length === all.length) {
+      statusEl.className = 'section-status status-done';
+      statusEl.textContent = 'done';
+    } else if (done.length > 0) {
+      statusEl.className = 'section-status status-active';
+      statusEl.textContent = `${done.length}/${all.length}`;
+    } else {
+      statusEl.className = `section-status ${statusEl.dataset.origClass || 'status-pending'}`;
+      statusEl.textContent = statusEl.dataset.orig;
+    }
+  });
+}
+
+// ── SEARCH ──
+document.getElementById('searchInput').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase().trim();
+  document.querySelectorAll('.section-card').forEach(card => {
+    if (!q) { card.style.display = ''; return; }
+    const text = card.textContent.toLowerCase();
+    card.style.display = text.includes(q) ? '' : 'none';
+  });
+});
+
+// ── INIT ──
+loadChecks();
+updateProgress();
+updateSectionStates();
+
+// cache orig status classes
+document.querySelectorAll('.section-status').forEach(el => {
+  el.dataset.origClass = el.className.replace('section-status ', '');
+});
+</script>
+</body>
+</html>

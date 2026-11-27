@@ -1,0 +1,4 @@
+{
+  "_note": "Gatekeeper holds: board-public projects kept OFF the public site until the reason is resolved. Both build_project_pages.py and build_projects.py skip these ids.",
+  "arx-089": "Site Customizer: title names a private person; rename or get their OK first (2026-11-26)"
+}
