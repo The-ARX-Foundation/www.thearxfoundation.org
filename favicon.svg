@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <title>The ARX Foundation</title>
+  <rect width="400" height="400" rx="72" fill="#F5EFE4"/>
+  <g transform="translate(36 30) scale(0.82)" fill="none" stroke="#1E1610" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M78 72 Q203 10 328 72"/>
+    <path d="M78 328 Q203 390 328 328"/>
+    <path d="M78 72 L328 328 M328 72 L78 328"/>
+    <path d="M90 78 C145 168 261 168 316 78"/>
+    <path d="M90 322 C145 232 261 232 316 322"/>
+  </g>
+</svg>

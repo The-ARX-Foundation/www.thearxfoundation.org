@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Glyphkeeper</title>
+  <rect width="64" height="64" rx="12" fill="#F5EFE4"/>
+  <g fill="none" stroke="#1E1610" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="32" cy="20" r="14"/>
+    <path d="M32 34 V59"/>
+    <path d="M32 46 H41 L44 42"/>
+    <path d="M32 55 H39 V50"/>
+  </g>
+  <circle cx="32" cy="20" r="7.5" fill="none" stroke="#7A3A1A" stroke-width="2" stroke-dasharray="4 2.6"/>
+  <circle cx="32" cy="20" r="2.6" fill="#7A3A1A"/>
+</svg>
