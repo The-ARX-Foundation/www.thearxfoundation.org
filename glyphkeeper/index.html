@@ -269,6 +269,9 @@
   .badge-partial { background: #fdf4e0; color: var(--gold); }
   .badge-reference { background: #eaecf8; color: var(--indigo); }
   .badge-specialist { background: #e0f4f2; color: var(--teal); }
+  .badge-todo { background: #f3ece0; color: var(--ink-faint); border: 1px dashed var(--parchment-dark); }
+  .script-card.status-todo { opacity: .82; }
+  .script-card.status-todo::before { background: var(--parchment-dark); }
 
   /* Glyph sample strip */
   .glyph-strip {
@@ -428,6 +431,10 @@
       <span class="hstat-val">2</span>
       <span class="hstat-label">Circular systems</span>
     </div>
+    <div class="hstat">
+      <span class="hstat-val">12 / 24</span>
+      <span class="hstat-label">Core scripts completed</span>
+    </div>
   </div>
 </header>
 <nav class="gk-study" aria-label="Study tools">
@@ -447,6 +454,8 @@
   <button class="filter-btn" onclick="filterSection('runic', this)">Runic</button>
   <button class="filter-btn" onclick="filterSection('circular', this)">Circular / Fictional</button>
   <button class="filter-btn" onclick="filterSection('specialist', this)">Specialist Vocab</button>
+  <button class="filter-btn" onclick="filterSection('completed', this)">✓ Completed</button>
+  <button class="filter-btn" onclick="filterSection('todo', this)">To do</button>
 </div>
 
 <main>
@@ -466,7 +475,7 @@
             <div class="card-name">Yi Syllabary</div>
             <div class="card-script-num">Script #02 · Glyphkeeper</div>
           </div>
-          <span class="status-badge badge-complete">Complete</span>
+          <span class="status-badge badge-complete">Completed</span>
         </div>
         <div class="glyph-strip">ꀀ ꀁ ꀈ ꀚ ꀨ ꀴ ꁧ ꂇ</div>
         <div class="card-meta">
@@ -487,7 +496,7 @@
             <div class="card-name">Vai Syllabary</div>
             <div class="card-script-num">Script #03 · Glyphkeeper</div>
           </div>
-          <span class="status-badge badge-complete">Complete</span>
+          <span class="status-badge badge-complete">Completed</span>
         </div>
         <div class="glyph-strip">ꕙ ꔞ ꕎ ꕁ ꕒ ꔟ ꔛ ꔬ ꔯ ꖚ</div>
         <div class="card-meta">
@@ -508,7 +517,7 @@
             <div class="card-name">Cherokee</div>
             <div class="card-script-num">Script #07 · Glyphkeeper</div>
           </div>
-          <span class="status-badge badge-complete">Complete</span>
+          <span class="status-badge badge-complete">Completed</span>
         </div>
         <div class="glyph-strip">Ꭰ Ꭱ Ꭲ Ꭳ Ꭴ Ꭵ Ꭶ Ꭷ Ꭸ Ꭹ</div>
         <div class="card-meta">
@@ -529,7 +538,7 @@
             <div class="card-name">Japanese Kana (Hiragana + Katakana)</div>
             <div class="card-script-num">Script #08 · Glyphkeeper</div>
           </div>
-          <span class="status-badge badge-complete">Complete</span>
+          <span class="status-badge badge-complete">Completed</span>
         </div>
         <div class="glyph-strip">あ い う え お か き く け こ</div>
         <div class="card-meta">
@@ -550,7 +559,7 @@
             <div class="card-name">Cree Syllabics</div>
             <div class="card-script-num">Script #10 · Glyphkeeper</div>
           </div>
-          <span class="status-badge badge-complete">Complete</span>
+          <span class="status-badge badge-complete">Completed</span>
         </div>
         <div class="glyph-strip">ᐁ ᐃ ᐅ ᐊ ᐯ ᐱ ᐳ ᐸ ᑌ ᑎ</div>
         <div class="card-meta">
@@ -571,7 +580,7 @@
             <div class="card-name">Mende Kikakui</div>
             <div class="card-script-num">Script #11 · Glyphkeeper</div>
           </div>
-          <span class="status-badge badge-complete">Complete</span>
+          <span class="status-badge badge-complete">Completed</span>
         </div>
         <div class="glyph-strip">𖩀 𖩁 𖩂 𖩃 𖩄 𖩅 𖩆 𖩇</div>
         <div class="card-meta">
@@ -605,7 +614,7 @@
             <div class="card-name">Mandarin (Spectrum)</div>
             <div class="card-script-num">Script #01 · Glyphkeeper</div>
           </div>
-          <span class="status-badge badge-complete">Complete</span>
+          <span class="status-badge badge-complete">Completed</span>
         </div>
         <div class="glyph-strip">的 一 是 在 不 了 有 人 这 中</div>
         <div class="card-meta">
@@ -627,7 +636,7 @@
             <div class="card-name">Japanese Kanji (N5)</div>
             <div class="card-script-num">Script #09 · Glyphkeeper</div>
           </div>
-          <span class="status-badge badge-complete">Complete</span>
+          <span class="status-badge badge-complete">Completed</span>
         </div>
         <div class="glyph-strip">一 二 三 日 月 年 人 女 男 子</div>
         <div class="card-meta">
@@ -648,7 +657,7 @@
             <div class="card-name">Egyptian Hieroglyphs</div>
             <div class="card-script-num">Script #04 · Glyphkeeper</div>
           </div>
-          <span class="status-badge badge-complete">Complete</span>
+          <span class="status-badge badge-complete">Completed</span>
         </div>
         <div class="glyph-strip">𓅿 𓇌 𓁐 𓆑 𓃀 𓆔 𓎡 𓐁 𓎼 𓅬</div>
         <div class="card-meta">
@@ -669,7 +678,7 @@
             <div class="card-name">Bamum Script</div>
             <div class="card-script-num">Script #06 · Glyphkeeper</div>
           </div>
-          <span class="status-badge badge-complete">Complete</span>
+          <span class="status-badge badge-complete">Completed</span>
         </div>
         <div class="glyph-strip">𖠀 𖠁 𖠂 𖠃 𖠄 𖠅 𖠆 𖠇 𖠈</div>
         <div class="card-meta">
@@ -704,7 +713,7 @@
             <div class="card-name">Elder Futhark</div>
             <div class="card-script-num">Script #24 · Glyphkeeper</div>
           </div>
-          <span class="status-badge badge-complete">Complete</span>
+          <span class="status-badge badge-complete">Completed</span>
         </div>
         <div class="glyph-strip">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ ᛇ ᛈ ᛉ ᛊ</div>
         <div class="card-meta">
@@ -727,7 +736,7 @@
             <div class="card-name">Linear B</div>
             <div class="card-script-num">Script #12 · Glyphkeeper</div>
           </div>
-          <span class="status-badge badge-complete">Complete</span>
+          <span class="status-badge badge-complete">Completed</span>
         </div>
         <div class="glyph-strip">𐀀 𐀁 𐀂 𐀃 𐀄 𐀅 𐀆 𐀇 𐀈 𐀉</div>
         <div class="card-meta">
@@ -899,6 +908,198 @@
     </div>
   </div>
 
+
+  <div class="divider"></div>
+  <!-- ═══ TO DO (generated from scripts.json) ═══ -->
+  <div class="section-group" data-cat="todo">
+    <div class="section-header">
+      <span class="section-title">To do</span>
+      <span class="section-count">12 scripts not built yet</span>
+    </div>
+    <p class="section-desc">The rest of the 24-script plan. Each one is a to-do in the Glyphkeeper repo; scripts marked "Research first" need source work before a learner can be built.</p>
+    <div class="script-grid">
+      <div class="script-card status-todo">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Cuneiform</div>
+            <div class="card-script-num">Planned · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-todo">To do</span>
+        </div>
+        <div class="glyph-strip">𒀀𒈾𒂗𒆠</div>
+        <div class="card-meta">
+          <div class="card-charcount">target <strong>600</strong> characters</div>
+        </div>
+        <div class="card-desc">Target: ~600 common signs. Sumerian and Akkadian values. Clay tablet aesthetic.</div>
+        <div class="card-tags"><span class="tag">Logographic</span><span class="tag">Mesopotamia</span></div>
+      </div>
+      <div class="script-card status-todo">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Maya Glyphs</div>
+            <div class="card-script-num">Planned · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-todo">To do</span>
+        </div>
+        <div class="glyph-strip">Mesoamerica</div>
+        <div class="card-meta">
+          <div class="card-charcount">target <strong>800</strong> characters</div>
+        </div>
+        <div class="card-desc">Partially in Unicode. Complex glyph-block system. Research needed on available digital character sets.</div>
+        <div class="card-tags"><span class="tag">Logosyllabary</span><span class="tag">Mesoamerica</span><span class="tag">Research first</span></div>
+      </div>
+      <div class="script-card status-todo">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Naxi Dongba</div>
+            <div class="card-script-num">Planned · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-todo">To do</span>
+        </div>
+        <div class="glyph-strip">DTO-MBA</div>
+        <div class="card-meta">
+          <div class="card-charcount">target <strong>1,400</strong> characters</div>
+        </div>
+        <div class="card-desc">NOT YET IN UNICODE. Only living pictographic script. ~1,400 pictograms. Will need custom font or image-based approach.</div>
+        <div class="card-tags"><span class="tag">Pictographic</span><span class="tag">Yunnan, China</span><span class="tag">Research first</span></div>
+      </div>
+      <div class="script-card status-todo">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Ge&#x27;ez (Ethiopic)</div>
+            <div class="card-script-num">Planned · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-todo">To do</span>
+        </div>
+        <div class="glyph-strip">ፊደል</div>
+        <div class="card-meta">
+          <div class="card-charcount">target <strong>231</strong> characters</div>
+        </div>
+        <div class="card-desc">33 consonants × 7 vowel forms = 231 syllables. Highly systematic. Good Unicode support.</div>
+        <div class="card-tags"><span class="tag">Abugida</span><span class="tag">Ethiopia/Eritrea</span></div>
+      </div>
+      <div class="script-card status-todo">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Tibetan</div>
+            <div class="card-script-num">Planned · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-todo">To do</span>
+        </div>
+        <div class="glyph-strip">བོད་སྐད་</div>
+        <div class="card-meta">
+          <div class="card-charcount">target <strong>30</strong> characters</div>
+        </div>
+        <div class="card-desc">30 consonants + stacking system. Vertical consonant clusters. Needs careful handling of conjuncts.</div>
+        <div class="card-tags"><span class="tag">Abugida</span><span class="tag">Tibet</span></div>
+      </div>
+      <div class="script-card status-todo">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Devanagari</div>
+            <div class="card-script-num">Planned · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-todo">To do</span>
+        </div>
+        <div class="glyph-strip">देवनागरी</div>
+        <div class="card-meta">
+          <div class="card-charcount">target <strong>47</strong> characters</div>
+        </div>
+        <div class="card-desc">47 primary characters. Shirorekha headline. Hindi, Sanskrit, Marathi, Nepali.</div>
+        <div class="card-tags"><span class="tag">Abugida</span><span class="tag">India</span></div>
+      </div>
+      <div class="script-card status-todo">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Korean Hangul</div>
+            <div class="card-script-num">Planned · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-todo">To do</span>
+        </div>
+        <div class="glyph-strip">한글</div>
+        <div class="card-meta">
+          <div class="card-charcount">target <strong>24</strong> characters</div>
+        </div>
+        <div class="card-desc">24 letters. Featural alphabet — shapes encode articulatory features. Syllable block assembly system.</div>
+        <div class="card-tags"><span class="tag">Featural</span><span class="tag">Korea</span></div>
+      </div>
+      <div class="script-card status-todo">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Sundanese</div>
+            <div class="card-script-num">Planned · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-todo">To do</span>
+        </div>
+        <div class="glyph-strip">ᮃᮊ᮪ᮞᮛ ᮞᮥᮔ᮪ᮓ</div>
+        <div class="card-meta">
+          <div class="card-charcount">target <strong>32</strong> characters</div>
+        </div>
+        <div class="card-desc">32 base characters. Brahmi-derived. Currently being revitalized in schools.</div>
+        <div class="card-tags"><span class="tag">Abugida</span><span class="tag">West Java</span></div>
+      </div>
+      <div class="script-card status-todo">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Georgian</div>
+            <div class="card-script-num">Planned · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-todo">To do</span>
+        </div>
+        <div class="glyph-strip">ქართული</div>
+        <div class="card-meta">
+          <div class="card-charcount">target <strong>33</strong> characters</div>
+        </div>
+        <div class="card-desc">33 consonants. UNESCO Intangible Heritage. Completely unique lineage — no known ancestor.</div>
+        <div class="card-tags"><span class="tag">Alphabet</span><span class="tag">Georgia</span></div>
+      </div>
+      <div class="script-card status-todo">
+        <div class="card-top">
+          <div>
+            <div class="card-name">N&#x27;Ko</div>
+            <div class="card-script-num">Planned · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-todo">To do</span>
+        </div>
+        <div class="glyph-strip">ߒߞߏ</div>
+        <div class="card-meta">
+          <div class="card-charcount">target <strong>27</strong> characters</div>
+        </div>
+        <div class="card-desc">27 letters, right-to-left. Created 1949 by Solomana Kanté. Growing digital adoption.</div>
+        <div class="card-tags"><span class="tag">Alphabet</span><span class="tag">Guinea</span></div>
+      </div>
+      <div class="script-card status-todo">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Phoenician</div>
+            <div class="card-script-num">Planned · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-todo">To do</span>
+        </div>
+        <div class="glyph-strip">𐤀𐤋𐤐𐤁𐤕</div>
+        <div class="card-meta">
+          <div class="card-charcount">target <strong>22</strong> characters</div>
+        </div>
+        <div class="card-desc">22 letters. Ancestor of Greek, Latin, Arabic, Hebrew. The original abjad. Small character set — quick build.</div>
+        <div class="card-tags"><span class="tag">Abjad</span><span class="tag">Lebanon</span></div>
+      </div>
+      <div class="script-card status-todo">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Linear A</div>
+            <div class="card-script-num">Planned · Glyphkeeper</div>
+          </div>
+          <span class="status-badge badge-todo">To do</span>
+        </div>
+        <div class="glyph-strip">Minoan</div>
+        <div class="card-meta">
+          <div class="card-charcount">target <strong>77</strong> characters</div>
+        </div>
+        <div class="card-desc">UNDECIPHERED. ~77 signs known. Special &quot;mystery mode&quot; — learn the signs, attempt your own decipherment.</div>
+        <div class="card-tags"><span class="tag">Undeciphered</span><span class="tag">Crete</span><span class="tag">Research first</span></div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <script>
@@ -910,7 +1111,7 @@ function filterSection(cat, btn) {
     if (cat === 'all') {
       group.classList.remove('hidden');
     } else {
-      const match = group.dataset.cat === cat;
+      const match = cat === 'completed' ? group.dataset.cat !== 'todo' : group.dataset.cat === cat;
       group.classList.toggle('hidden', !match);
     }
   });

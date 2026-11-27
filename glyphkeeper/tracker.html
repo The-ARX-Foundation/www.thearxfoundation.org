@@ -305,10 +305,10 @@ const SCRIPTS = [
     totalChars:92, mappedChars:92, builtChars:92, file:'learn/kana.html', category:'syllabaries',
     notes:'46 Hiragana + 46 Katakana. Toggle between scripts. Paired character display.' },
   { id:4, name:'Yi (Nuosu)', native:'ꆈꌠꁱꂷ', glyph:'ꆈ', region:'Sichuan, China', status:'live', type:'Syllabary',
-    totalChars:1165, mappedChars:80, builtChars:80, file:'learn/yi.html', category:'syllabaries',
+    totalChars:1165, mappedChars:250, builtChars:250, file:'learn/yi.html', category:'syllabaries',
     notes:'Starter set: 80 of 1,165 characters. Covers vowels + common consonant families across all 4 tones. Full set requires phased expansion.' },
   { id:5, name:'Vai', native:'ꕙꔤ', glyph:'ꕙ', region:'Liberia', status:'live', type:'Syllabary',
-    totalChars:300, mappedChars:70, builtChars:70, file:'learn/vai.html', category:'syllabaries',
+    totalChars:300, mappedChars:220, builtChars:220, file:'learn/vai.html', category:'syllabaries',
     notes:'Core set: ~70 of ~300 characters. Covers vowels + 10 consonant series. ~55 high-frequency chars handle 80-90% of daily writing.' },
   { id:6, name:'Canadian Aboriginal', native:'ᓀᐦᐃᔭᐍᐏᐣ', glyph:'ᐊ', region:'Canada', status:'live', type:'Syllabary',
     totalChars:160, mappedChars:55, builtChars:55, file:'learn/cree.html', category:'syllabaries',
@@ -321,14 +321,14 @@ const SCRIPTS = [
     notes:'Core Ventris-Chadwick grid: 59 confirmed syllabic signs across 13 consonant series × 5 vowels. Deciphered 1952.' },
 
   // LOGOGRAPHIC
-  { id:9, name:'Chinese Hanzi', native:'汉字', glyph:'漢', region:'China', status:'planned', type:'Logographic',
-    totalChars:3500, mappedChars:0, builtChars:0, file:'', category:'logographic',
+  { id:9, name:'Chinese Hanzi', native:'汉字', glyph:'漢', region:'China', status:'live', type:'Logographic',
+    totalChars:3500, mappedChars:100, builtChars:100, file:'study/review.html', category:'logographic',
     notes:'Target: 3,500 most common characters. Radicals-first teaching approach. Enormous scope — needs phased rollout.' },
-  { id:10, name:'Japanese Kanji', native:'漢字', glyph:'字', region:'Japan', status:'planned', type:'Logographic',
-    totalChars:2136, mappedChars:0, builtChars:0, file:'', category:'logographic',
+  { id:10, name:'Japanese Kanji', native:'漢字', glyph:'字', region:'Japan', status:'live', type:'Logographic',
+    totalChars:2136, mappedChars:100, builtChars:100, file:'study/review.html', category:'logographic',
     notes:'Target: 2,136 jōyō kanji. On/kun readings. Can share radical system with Hanzi module.' },
-  { id:11, name:'Egyptian Hieroglyphs', native:'𓊹𓌃𓏏', glyph:'𓀀', region:'Egypt', status:'planned', type:'Logographic',
-    totalChars:1000, mappedChars:0, builtChars:0, file:'', category:'logographic',
+  { id:11, name:'Egyptian Hieroglyphs', native:'𓊹𓌃𓏏', glyph:'𓀀', region:'Egypt', status:'live', type:'Logographic',
+    totalChars:1000, mappedChars:84, builtChars:84, file:'study/review.html', category:'logographic',
     notes:'Target: ~1,000 common signs. Mix of logographic, alphabetic, and determinative. Gardiner classification system.' },
   { id:12, name:'Cuneiform', native:'𒀀𒈾𒂗𒆠', glyph:'𒀀', region:'Mesopotamia', status:'planned', type:'Logographic',
     totalChars:600, mappedChars:0, builtChars:0, file:'', category:'logographic',
@@ -370,8 +370,8 @@ const SCRIPTS = [
   { id:23, name:'Linear A', native:'Minoan', glyph:'𐘀', region:'Crete', status:'research', type:'Undeciphered',
     totalChars:77, mappedChars:0, builtChars:0, file:'', category:'ancient',
     notes:'UNDECIPHERED. ~77 signs known. Special "mystery mode" — learn the signs, attempt your own decipherment.' },
-  { id:24, name:'Elder Futhark', native:'ᚠᚢᚦᚨᚱᚲ', glyph:'ᚠ', region:'Northern Europe', status:'planned', type:'Alphabet',
-    totalChars:24, mappedChars:0, builtChars:0, file:'', category:'ancient',
+  { id:24, name:'Elder Futhark', native:'ᚠᚢᚦᚨᚱᚲ', glyph:'ᚠ', region:'Northern Europe', status:'live', type:'Alphabet',
+    totalChars:24, mappedChars:24, builtChars:24, file:'elder-futhark.html', category:'ancient',
     notes:'24 runes. Each has name + symbolic meaning beyond sound value. Small set — quick build. Rune meanings layer.' },
 ];
 
@@ -421,7 +421,7 @@ function renderRows(category, containerId) {
   scripts.forEach((s, i) => {
     const pct = s.totalChars > 0 ? Math.round((s.mappedChars / s.totalChars) * 100) : 0;
     const statusClass = s.status === 'live' ? 'live' : s.status === 'research' ? 'research' : 'planned';
-    const statusLabel = s.status === 'live' ? 'LIVE' : s.status === 'research' ? 'RESEARCH' : 'PLANNED';
+    const statusLabel = s.status === 'live' ? 'COMPLETED' : s.status === 'research' ? 'TO DO · RESEARCH' : 'TO DO';
     const barColor = pct === 100 ? 'green' : pct > 0 ? 'amber' : 'blue';
     const fileLink = s.file ? `<a href="${s.file}" style="color:var(--green);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:0.7rem">${s.file.replace('-learner.html','')}</a>` : '<span style="color:var(--faint);font-size:0.7rem">—</span>';
 
