@@ -9,6 +9,7 @@ Usage:
 - A page with needs_wrap (a bare React .jsx component) is compiled once with esbuild
   (npx, pinned) and wrapped in a full document that loads pinned React UMD builds, so
   visitors never download a JSX compiler.
+- tools/page_edits.json holds exact text fixes applied to the published copy only.
 - Writes projects/pages.json ({id: {slug, url, stage, blurb}}) for build_projects.py.
 - Removes projects/<slug>/ folders this script made earlier (marked by .generated) that
   are no longer in the manifest, so unpublishing on the board unpublishes here too.
@@ -21,6 +22,7 @@ EMAIL = SITE["contact_email"]
 STAGES = ("Active", "Up next", "Shelved", "Idea")
 SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{0,80}$")
 RESERVED = {"index.html", "pages.json"}
+EDITS = {k: v for k, v in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "page_edits.json"), encoding="utf-8")).items() if not k.startswith("_")}
 HOLDS = {k for k in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "holds.json"), encoding="utf-8")) if not k.startswith("_")}
 
 BAR = """<div id="arx-bar" style="all:initial;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;box-sizing:border-box;width:100%;padding:9px max(16px,env(safe-area-inset-left,0px));background:#0A0A0A;color:#F2F2EF;border-bottom:1px solid rgba(242,242,239,.18);font:500 11px/1.4 'IBM Plex Mono',ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:2147483000">
@@ -122,6 +124,10 @@ def main():
             doc = open(src, encoding="utf-8").read()
             if not re.match(r"\s*<!doctype html", doc, re.I):
                 sys.exit(f"{e['file']}: no doctype")
+        for old, new in EDITS.get(slug, []):
+            if doc.count(old) != 1:
+                sys.exit(f"{slug}: page_edits.json text not found exactly once: {old[:60]!r}")
+            doc = doc.replace(old, new)
         out_doc = inject(doc, e)
         if out_doc is None or not re.search(r"</html\s*>\s*$", out_doc, re.I):
             print(f"SKIPPED {slug}: page is truncated or malformed (no </head>/<body>, or no closing </html>)")

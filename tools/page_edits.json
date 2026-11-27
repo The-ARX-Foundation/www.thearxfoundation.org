@@ -1,0 +1,5 @@
+{
+  "_note": "Exact text replacements applied to published copies only (sources stay untouched). The build fails if an 'old' string is missing, so stale edits get noticed.",
+  "ergon": [["<div class=\"nav-tag\">DOC-ERGON-001 // CONFIDENTIAL</div>", "<div class=\"nav-tag\">DOC-ERGON-001</div>"]],
+  "threat-model": [["<h1>ARX Foundation // Classified</h1>", "<h1>ARX Foundation</h1>"]]
+}
