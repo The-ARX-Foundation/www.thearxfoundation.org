@@ -405,6 +405,7 @@
 .gk-k{font:600 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px}
 .gk-study a{color:var(--rust);text-decoration:none;font-size:15px}.gk-study a:hover{text-decoration:underline}
 .script-card[data-href]{cursor:pointer;transition:transform .12s}.script-card[data-href]:hover{transform:translateY(-2px)}
+.gk-anki{margin-left:16px}
 .gk-open{display:inline-block;margin-top:10px;font:600 12px/1 'IBM Plex Mono',monospace;letter-spacing:.06em;color:var(--rust);text-decoration:none}
 </style>
 </head>
@@ -441,7 +442,7 @@
   <div class="gk-col"><span class="gk-k">Study</span>
     <a href="study/review.html">Review session</a><a href="study/dashboard.html">Spaced-repetition dashboard</a><a href="study/flashcards.html">Circular-script flashcards</a><a href="https://github.com/The-ARX-Foundation/glyphkeeper/releases/latest/download/Glyphkeeper.apkg">Anki decks (.apkg) &darr;</a></div>
   <div class="gk-col"><span class="gk-k">More systems</span>
-    <a href="trithemius.html">Trithemian ciphers</a><a href="asl.html">ASL fingerspelling</a><a href="vocab/arx-vocabulary-zh.txt">ARX Mandarin vocab</a></div>
+    <a href="trithemius.html">Trithemian ciphers</a><a href="asl.html">ASL fingerspelling</a><a href="vocab/arx-vocabulary-zh.txt">ARX Mandarin vocab</a><a href="https://github.com/The-ARX-Foundation/glyphkeeper/releases/latest/download/zh_arx.apkg">ARX vocab Anki deck &darr;</a></div>
   <div class="gk-col"><span class="gk-k">About</span>
     <a href="catalog.html">All 24 scripts (catalog)</a><a href="tracker.html">Mission control</a><a href="vocab/sr-guide.txt">How the spaced repetition works</a></div>
 </nav>
@@ -1122,9 +1123,9 @@ function filterSection(cat, btn) {
   });
 }
 </script>
-<script>(function(){const M={"Yi Syllabary": "learn/yi.html", "Vai Syllabary": "learn/vai.html", "Cherokee": "learn/cherokee.html", "Japanese Kana (Hiragana + Katakana)": "learn/kana.html", "Cree Syllabics": "learn/cree.html", "Mende Kikakui": "learn/mende.html", "Bamum Script": "learn/bamum.html", "Linear B": "learn/linearb.html", "Mandarin (Spectrum)": "study/review.html", "Japanese Kanji (N5)": "study/review.html", "Egyptian Hieroglyphs": "study/review.html", "Elder Futhark": "elder-futhark.html", "Nomai Writing (Outer Wilds)": "nomai.html", "Circular Gallifreyan (Sherman's)": "circular.html", "SCRIM ZH: Optoelectronics (Phase 3–4)": "vocab/scrim-optoelectric-zh.txt", "SCRIM ZH: Haptic Systems": "vocab/scrim-haptic-zh.txt"};
+<script>(function(){const U="https://github.com/The-ARX-Foundation/glyphkeeper/releases/latest/download/",K={"Yi Syllabary": "yi", "Vai Syllabary": "vai", "Cherokee": "cherokee", "Japanese Kana (Hiragana + Katakana)": "kana", "Cree Syllabics": "cree", "Mende Kikakui": "mende", "Bamum Script": "bamum", "Linear B": "linearb", "Mandarin (Spectrum)": "mandarin", "Japanese Kanji (N5)": "kanji", "Egyptian Hieroglyphs": "egyptian", "Elder Futhark": "futhark", "Nomai Writing (Outer Wilds)": "circular", "Circular Gallifreyan (Sherman's)": "circular", "SCRIM ZH: Optoelectronics (Phase 3–4)": "zh_opto", "SCRIM ZH: Haptic Systems": "zh_haptic"};const M={"Yi Syllabary": "learn/yi.html", "Vai Syllabary": "learn/vai.html", "Cherokee": "learn/cherokee.html", "Japanese Kana (Hiragana + Katakana)": "learn/kana.html", "Cree Syllabics": "learn/cree.html", "Mende Kikakui": "learn/mende.html", "Bamum Script": "learn/bamum.html", "Linear B": "learn/linearb.html", "Mandarin (Spectrum)": "study/review.html", "Japanese Kanji (N5)": "study/review.html", "Egyptian Hieroglyphs": "study/review.html", "Elder Futhark": "elder-futhark.html", "Nomai Writing (Outer Wilds)": "nomai.html", "Circular Gallifreyan (Sherman's)": "circular.html", "SCRIM ZH: Optoelectronics (Phase 3–4)": "vocab/scrim-optoelectric-zh.txt", "SCRIM ZH: Haptic Systems": "vocab/scrim-haptic-zh.txt"};
 document.querySelectorAll('.script-card').forEach(c=>{const n=c.querySelector('.card-name');const href=n&&M[n.textContent.trim()];if(!href)return;
- c.dataset.href=href;const a=document.createElement('a');a.className='gk-open';a.href=href;a.textContent=href.endsWith('.txt')?'Open word list →':'Study this script →';c.appendChild(a);
+ c.dataset.href=href;const a=document.createElement('a');a.className='gk-open';a.href=href;a.textContent=href.endsWith('.txt')?'Open word list →':'Study this script →';c.appendChild(a);const k=K[n.textContent.trim()];if(k){const d=document.createElement('a');d.className='gk-open gk-anki';d.href=U+k+'.apkg';d.textContent='Anki deck ↓';d.title='Download the Anki deck for this script';c.appendChild(d);}
  c.addEventListener('click',e=>{if(e.target.closest('a'))return;location.href=href;});});})();</script>
 </body>
 </html>
